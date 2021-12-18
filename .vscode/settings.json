@@ -1,0 +1,6 @@
+{
+    "standard.enableGlobally": true,
+    "standard.engine": "semistandard",
+    "standard.trace.server": "messages",
+    "markdown.extension.toc.levels": "2..4"
+}

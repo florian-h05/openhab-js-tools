@@ -104,7 +104,7 @@ class SceneEngine {
             let statesMatchingValue = true;
             for (let l = 0; l < currentState.sceneTargets.length; l++) {
               const target = currentState.sceneTargets[l];
-              if (target.required === true || target.required.toString() === 'undefined') {
+              if (!(target.required === false)) {
                 const itemState = items.getItem(target.item).state.toString();
                 logger.info('Checking scene member [{}] with state [{}].', target.item, itemState);
                 // Check whether the current item states does not match the target state.
