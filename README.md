@@ -75,7 +75,7 @@ Identifier | Purpose | Type | Required
 NOTE: The sceneEngine was developed for file-based JavaScript rules, 
 therefore create a script in the directory ``$OPENHAB_CONF/automation/js`` and not in the UI.
 ```javascript
-require('sceneEngine.js').getJSRule(scenes, 'example engine');
+require('florianh-openhab-tools').sceneEngine.getJSRule(scenes, engineId);
 ```
 Parameter | Purpose | required
 -|-|-

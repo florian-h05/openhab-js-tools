@@ -28,7 +28,7 @@ class SceneEngine {
    */
   constructor (sceneDefinition, engineId) {
     if (typeof sceneDefinition === 'undefined') {
-      console.error('Supplied scenes are undefined');
+      logger.error('Supplied scenes are undefined');
     }
     this.scenes = sceneDefinition;
     this.engineId = engineId;
@@ -44,7 +44,7 @@ class SceneEngine {
     // For each sceneSelector the selectorItem.
     for (let i = 0; i < this.scenes.length; i++) {
       const currentSelector = this.scenes[i];
-      logger.info('Adding ItemCommandTrigger for [{}].', currentSelector.selectorItem);
+      logger.debug('Adding ItemCommandTrigger for [{}].', currentSelector.selectorItem);
       ruleTriggers.push(triggers.ItemCommandTrigger(currentSelector.selectorItem));
       // For each selectorState.
       for (let j = 0; j < currentSelector.selectorStates.length; j++) {
@@ -53,7 +53,7 @@ class SceneEngine {
         for (let k = 0; k < currentState.sceneTargets.length; k++) {
           const targetItem = currentState.sceneTargets[k].item;
           if (ruleTriggers.indexOf(triggers.ItemStateChangeTrigger(targetItem)) === -1) {
-            logger.info('Adding ItemStateChangeTrigger for [{}].', targetItem);
+            logger.debug('Adding ItemStateChangeTrigger for [{}].', targetItem);
             ruleTriggers.push(triggers.ItemStateChangeTrigger(targetItem));
           }
         }
@@ -76,7 +76,7 @@ class SceneEngine {
           // Get the correct sceneTargets.
           const currentState = currentSelector.selectorStates[j];
           if (currentState.selectorValue === parseInt(items.getItem(triggerItem).state)) {
-            logger.info('Found selectorState [{}] of sceneSelector [{}].', currentState.selectorValue, currentSelector.selectorItem);
+            logger.info('Call scene: Found selectorState [{}] of sceneSelector [{}].', currentState.selectorValue, currentSelector.selectorItem);
             const currentTargets = currentState.sceneTargets;
             // Send commands to member items.
             for (let k = 0; k < currentTargets.length; k++) {
@@ -104,14 +104,14 @@ class SceneEngine {
         for (let k = 0; k < currentState.sceneTargets.length; k++) {
           // Find the triggeringItem.
           if (currentState.sceneTargets[k].item === triggerItem) {
-            logger.info('Found triggeringItem [{}] in selectorState [{}] of sceneSelector [{}].', triggerItem, currentState.selectorValue, currentSelector.selectorItem);
+            logger.debug('Check scene: Found triggeringItem [{}] in selectorState [{}] of sceneSelector [{}].', triggerItem, currentState.selectorValue, currentSelector.selectorItem);
             // Check whether all required items in the selectorValue's sceneTargets match.
             let statesMatchingValue = true;
             for (let l = 0; l < currentState.sceneTargets.length; l++) {
               const target = currentState.sceneTargets[l];
               if (!(target.required === false)) {
                 const itemState = items.getItem(target.item).state.toString();
-                logger.info('Checking scene member [{}] with state [{}].', target.item, itemState);
+                logger.debug('Check scene: Checking scene member [{}] with state [{}].', target.item, itemState);
                 // Check whether the current item states does not match the target state.
                 if (!(
                   (itemState === target.value) ||
@@ -121,12 +121,12 @@ class SceneEngine {
                   (itemState === '100' && target.value.toString().toUpperCase() === 'DOWN')
                 )) {
                   statesMatchingValue = false;
-                  logger.info('Scene member [{}] with state [{}] does not match [{}].', target.item, itemState, target.value);
+                  logger.debug('Check scene: Scene member [{}] with state [{}] does not match [{}].', target.item, itemState, target.value);
                 }
               }
             }
             if (statesMatchingValue === true) {
-              logger.info('Found matching selectorValue [{}].', currentState.selectorValue);
+              logger.info('Check scene: Found matching selectorValue [{}] of sceneSelector [{}].', currentState.selectorValue, currentSelector.selectorItem);
               // Store the current selectorValue, that is matching all required targets.
               selectorValueMatching = currentState.selectorValue;
             }
@@ -149,10 +149,10 @@ class SceneEngine {
       triggers: this.triggers,
       execute: event => {
         if (event.triggerType === 'ItemCommandTrigger') {
-          logger.info('Call scene. Event [{}].', event.triggerType);
+          logger.info('Call scene: Event [{}] of [{}].', event.triggerType, event.itemName);
           this.callScene(event.itemName);
         } else if (event.triggerType === 'ItemStateChangeTrigger') {
-          logger.info('Check scene. Event [{}].', event.triggerType);
+          logger.info('Check scene: Event [{}] of [{}].', event.triggerType, event.itemName);
           this.checkScene(event.itemName);
         }
       }
@@ -168,7 +168,7 @@ class SceneEngine {
  * @returns {*} JSRule from openhab-js
  *
  * @example
- * require('sceneEngine.js').getJSRule(scene, 'example engine');
+ * require('florianh-openhab-tools').sceneEngine.getJSRule(scenes, engineId);
  */
 const getJSRule = (scenes, engineId) => {
   return new SceneEngine(scenes, engineId).rule;
