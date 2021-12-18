@@ -1,6 +1,6 @@
 {
   "name": "florianh-openhab-tools",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Tools for the openHAB JavaScript Automation Add-On.",
   "main": "index.js",
   "dependencies": {},

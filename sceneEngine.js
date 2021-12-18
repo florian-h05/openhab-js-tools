@@ -13,11 +13,12 @@ const logger = require('openhab').log('SceneEngine');
 
 /**
  * @namespace sceneEngine
- * Call scenes using a selectorItem and update the selectorItem to the matching scene on scene members' change.
+ * 
  */
 
 /**
- * Represents a scene engine with the rule triggers and the rule members.
+ * Represents a scene engine with the full rule.
+ * Call scenes using a selectorItem and update the selectorItem to the matching scene on scene members' change.
  * @memberOf sceneEngine
  */
 class SceneEngine {
