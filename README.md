@@ -2,6 +2,9 @@
 
 This library provides some utilites for the openHAB JS Scripting Add-On.
 
+Please note that it depents on the [openHAB JavaScript Library](https://github.com/openhab/openhab-js), which is included in the JS Scripting Add-On by default.
+Therefore it is not listed in the dependencies of this package.
+
 [![js-semistandard-style](https://raw.githubusercontent.com/standard/semistandard/master/badge.svg)](https://github.com/standard/semistandard)
 [![npm version](https://badge.fury.io/js/florianh-openhab-tools.svg)](https://badge.fury.io/js/florianh-openhab-tools)
 
