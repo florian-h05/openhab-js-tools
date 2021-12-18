@@ -1,15 +1,16 @@
-# Tools for the openHAB JS automation addon
+# openHAB JS Automation Tools
 
 This library provides some utilites for the openHAB JS Scripting Add-On.
 
 ## Table of Contents
 - [Table of Contents](#table-of-contents)
 - [Installation](#installation)
-  - [sceneEngine](#sceneengine)
-    - [Create the scene definition](#create-the-scene-definition)
-      - [sceneTargets](#scenetargets)
-    - [Create the scene rule](#create-the-scene-rule)
+- [Scene Engine](#scene-engine)
+  - [The `sceneItem`](#the-sceneitem)
+  - [Scene definition](#scene-definition)
+  - [Scene rule](#scene-rule)
 
+***
 ## Installation
 
 - Install the openHAB [JavaScript binding](https://www.openhab.org/addons/automation/jsscripting/), a version of the [openHAB
@@ -17,27 +18,39 @@ library](https://www.npmjs.com/package/openhab) will be automatically installed 
 - Go to the javascript user scripts directory: `cd $OPENHAB_CONF/automation/js`
 - Run `npm i florianh-openhab-tools` (you may need to install npm)
 
-### sceneEngine
-Allows the user to call scenes using a selectorItem and update the selectorItem to the matching scene on scene members' change.
-It creates a full rule with triggers and actions out of your scene definition array.
+***
+## Scene Engine
+Call scene by sending a command to the `sceneItem`.
 
-#### Create the scene definition
-Scene definition works as in this example:
+When a member of the scene changes it's state, the rule will check whether a 
+defined scene is matching the current states and which scene.
+
+It creates a full rule with triggers and actions out of your scene definition.
+
+### The `sceneItem`
+Must be a Number item.
+You can assign a scene to every positive integer value, 
+except to 0.
+
+0 is the value the Item gets when no match with a scene is found on members change.
+
+### Scene definition
+Scene defintion works with an array of objects.
 ```javascript
-var scenes = [
-  { // sceneSelector, identified by selectorItem
-    selectorItem: 'F2_Florian_Szene',
-    selectorStates: [
-      { // a selectorState, itentified by selectorValue
-        selectorValue: 1, // everything off
-        sceneTargets: [
-          { item: 'Florian_Licht', value: 'OFF', required: true },
-          { item: 'Florian_LED_Stripes', value: 'OFF', required: true }
+const scenes = [ // For each sceneItem one object.
+  { // Object of the first sceneItem.
+    selectorItem: 'scene call item name',
+    selectorStates: [ // For each numeric state of the sceneItem one object.
+      { // Object for the value 1 of the sceneItem.
+        selectorValue: 1,
+        sceneTargets: [ // Target states of items in the scene. Parameters explained later.
+          { item: 'Florian_Licht', value: 'ON', required: true },
+          { item: 'Florian_LED_Stripes', value: 'OFF', required: false }
         ] 
       },
-      {
+      { // Object for the value 15 of the sceneItem.
         selectorValue: 15,
-        sceneTargets: [
+        sceneTargets: [ // Target states of items in the scene. Parameters explained later.
           { item: 'Florian_LED_Stripes', value: 'ON', required: true }
         ]
       }
@@ -45,14 +58,20 @@ var scenes = [
   }
 ];
 ```
-##### sceneTargets
-Identifier | Purpose | Type
--|-|-
-`item` | Name of the openHAB Item. | String
-`value` | Target value for the scene in a string. | String
-`required` | Whether to ignore changes of that item. | Boolean
+__sceneTargets__' parameters
+Identifier | Purpose | Type | Required
+-|-|-|-
+`item` | Name of a scene member. | String | yes
+`value` | Target state of that member. | String | yes
+`required` | Whether that member must match the target state when the scene is checked. | Boolean | defaults to true
 
-#### Create the scene rule
+### Scene rule
+NOTE: The sceneEngine was developed for file-based JavaScript rules, 
+therefore create a script in the directory ``$OPENHAB_CONF/automation/js`` and not in the UI.
 ```javascript
-require('sceneEngine.js').getJSRule(scene, 'example engine');
+require('sceneEngine.js').getJSRule(scenes, 'example engine');
 ```
+Parameter | Purpose | required
+-|-|-
+scenes | The scene definition array of objects. | yes
+engineId | The id of the scene engine, used in description. | yes
