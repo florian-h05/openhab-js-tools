@@ -69,7 +69,7 @@ Identifier | Purpose | Type | Required
 -|-|-|-
 `item` | Name of a scene member. | String | yes
 `value` | Target state of that member. | String | yes
-`required` | Whether that member must match the target state when the scene is checked. | Boolean | defaults to true
+`required` | Whether that member must match the target state when the scene is checked. | Boolean | no, defaults to true
 
 ### Scene rule
 NOTE: The sceneEngine was developed for file-based JavaScript rules, 
