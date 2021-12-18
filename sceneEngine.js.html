@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <title>sceneEngine.js - Documentation</title>
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <script src="scripts/nav.js" defer></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav >
+    
+    <input type="text" id="nav-search" placeholder="Search" />
+    
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="SceneEngine.html">SceneEngine</a><ul class='methods'><li data-type='method'><a href="SceneEngine.html#callScene">callScene</a></li><li data-type='method'><a href="SceneEngine.html#checkScene">checkScene</a></li></ul></li></ul><h3>Global</h3><ul><li><a href="global.html#getJSRule">getJSRule</a></li></ul>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">sceneEngine.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Scene engine.
+ * Call scenes using a selectorItem and update the selectorItem to the matching scene on scene members' change.
+ *
+ * Only works with the JS Scripting Add-On/GraalJS.
+ * Dependents on: the official openHAB JS library 'openhab', which is pre-installed in the JS Scripting Add-On.
+ *
+ * Copyright (c) 2021 Florian Hotze under MIT License
+ */
+
+const { items, rules, triggers } = require('openhab');
+const logger = require('openhab').log('SceneEngine');
+
+/**
+ * Represents a scene engine with the rule triggers and the rule members.
+ */
+class SceneEngine {
+  /**
+   * Constructor to create an instance. Do not call directly, instead call {@link getEngine}.
+   * @param {*} sceneDefiniton definition of scenes following a special scheme
+   * @param {String} engineId id of this instance
+   * @hideconstructor
+   */
+  constructor (sceneDefinition, engineId) {
+    if (typeof sceneDefinition === 'undefined') {
+      console.error('Supplied scenes are undefined');
+    }
+    this.scenes = sceneDefinition;
+    this.engineId = engineId;
+  }
+
+  /**
+   * Required triggers for the scene rule.
+   * For selectorItems command triggers, for scene members change triggers.
+   * @returns {*} rule triggers in openhab-js syntax
+   */
+  get triggers () {
+    let ruleTriggers = [];
+    // For each sceneSelector the selectorItem.
+    for (let i = 0; i &lt; this.scenes.length; i++) {
+      const currentSelector = this.scenes[i];
+      logger.info('Adding ItemCommandTrigger for [{}].', currentSelector.selectorItem);
+      ruleTriggers.push(triggers.ItemCommandTrigger(currentSelector.selectorItem));
+      // For each selectorState.
+      for (let j = 0; j &lt; currentSelector.selectorStates.length; j++) {
+        const currentState = currentSelector.selectorStates[j];
+        // For for each sceneTarget, the member items.
+        for (let k = 0; k &lt; currentState.sceneTargets.length; k++) {
+          const targetItem = currentState.sceneTargets[k].item;
+          if (ruleTriggers.indexOf(triggers.ItemStateChangeTrigger(targetItem)) === -1) {
+            logger.info('Adding ItemStateChangeTrigger for [{}].', targetItem);
+            ruleTriggers.push(triggers.ItemStateChangeTrigger(targetItem));
+          }
+        }
+      }
+    }
+    return ruleTriggers;
+  }
+
+  /**
+   * Call scene.
+   * @param {String} triggerItem name of scene selector that received command
+   */
+  callScene (triggerItem) {
+    // Get the correct sceneSelector.
+    for (let i = 0; i &lt; this.scenes.length; i++) {
+      const currentSelector = this.scenes[i];
+      if (currentSelector.selectorItem === triggerItem) {
+        // Get the correct selectorState.
+        for (let j = 0; j &lt; currentSelector.selectorStates.length; j++) {
+          // Get the correct sceneTargets.
+          const currentState = currentSelector.selectorStates[j];
+          if (currentState.selectorValue === parseInt(items.getItem(triggerItem).state)) {
+            logger.info('Found selectorState [{}] of sceneSelector [{}].', currentState.selectorValue, currentSelector.selectorItem);
+            const currentTargets = currentState.sceneTargets;
+            // Send commands to member items.
+            for (let k = 0; k &lt; currentTargets.length; k++) {
+              items.getItem(currentTargets[k].item).sendCommand(currentTargets[k].value);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * When a scene member changes, check whether a scene and which scene matches all required targets.
+   * @param {String} triggerItem name of scene member that changed
+   */
+  checkScene (triggerItem) {
+    // Check each sceneSelector.
+    for (let i = 0; i &lt; this.scenes.length; i++) {
+      let selectorValueMatching = 0;
+      const currentSelector = this.scenes[i];
+      // Check each selectorState.
+      for (let j = 0; j &lt; currentSelector.selectorStates.length; j++) {
+        // Check for each sceneTarget.
+        const currentState = currentSelector.selectorStates[j];
+        for (let k = 0; k &lt; currentState.sceneTargets.length; k++) {
+          // Find the triggeringItem.
+          if (currentState.sceneTargets[k].item === triggerItem) {
+            logger.info('Found triggeringItem [{}] in selectorState [{}] of sceneSelector [{}].', triggerItem, currentState.selectorValue, currentSelector.selectorItem);
+            // Check whether all required items in the selectorValue's sceneTargets match.
+            let statesMatchingValue = true;
+            for (let l = 0; l &lt; currentState.sceneTargets.length; l++) {
+              const target = currentState.sceneTargets[l];
+              if (!(target.required === false)) {
+                const itemState = items.getItem(target.item).state.toString();
+                logger.info('Checking scene member [{}] with state [{}].', target.item, itemState);
+                // Check whether the current item states does not match the target state.
+                if (!(
+                  (itemState === target.value) ||
+                  (itemState === '0' &amp;&amp; target.value.toString().toUpperCase() === 'OFF') ||
+                  (itemState === '100' &amp;&amp; target.value.toString().toUpperCase() === 'ON') ||
+                  (itemState === '0' &amp;&amp; target.value.toString().toUpperCase() === 'UP') ||
+                  (itemState === '100' &amp;&amp; target.value.toString().toUpperCase() === 'DOWN')
+                )) {
+                  statesMatchingValue = false;
+                  logger.info('Scene member [{}] with state [{}] does not match [{}].', target.item, itemState, target.value);
+                }
+              }
+            }
+            if (statesMatchingValue === true) {
+              logger.info('Found matching selectorValue [{}].', currentState.selectorValue);
+              // Store the current selectorValue, that is matching all required targets.
+              selectorValueMatching = currentState.selectorValue;
+            }
+          }
+        }
+      }
+      // Update sceneSelector with the selectorValue matching all sceneTargets.
+      items.getItem(currentSelector.selectorItem).postUpdate(selectorValueMatching);
+    }
+  }
+
+  /**
+   * The JSRule to run the scene engine.
+   * @returns {*} JSRule from openhab-js
+   */
+  get rule () {
+    return rules.JSRule({
+      name: 'SceneEngine with id: ' + this.engineId,
+      description: 'Rule to run the SceneEngine.',
+      triggers: this.triggers,
+      execute: event => {
+        if (event.triggerType === 'ItemCommandTrigger') {
+          logger.info('Call scene. Event [{}].', event.triggerType);
+          this.callScene(event.itemName);
+        } else if (event.triggerType === 'ItemStateChangeTrigger') {
+          logger.info('Check scene. Event [{}].', event.triggerType);
+          this.checkScene(event.itemName);
+        }
+      }
+    });
+  }
+}
+
+/**
+ * Creates an instance of SceneEngine and builds the rule
+ * @param {*} scenes scenes definiton, have a look at the README
+ * @param {String} engineId instance name
+ * @returns {*} JSRule from openhab-js
+ *
+ * @example
+ * require('sceneEngine.js').getJSRule(scene, 'example engine');
+ */
+const getJSRule = (scenes, engineId) => {
+  return new SceneEngine(scenes, engineId).rule;
+};
+
+module.exports = {
+  getJSRule
+};
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+    
+    
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.7</a> on Sat Dec 18 2021 16:24:40 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+<script src="scripts/search.js" defer></script>
+
+
+
+</body>
+</html>

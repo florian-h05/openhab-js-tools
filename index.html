@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <title>Home - Documentation</title>
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <script src="scripts/nav.js" defer></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav >
+    
+    <input type="text" id="nav-search" placeholder="Search" />
+    
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="SceneEngine.html">SceneEngine</a><ul class='methods'><li data-type='method'><a href="SceneEngine.html#callScene">callScene</a></li><li data-type='method'><a href="SceneEngine.html#checkScene">checkScene</a></li></ul></li></ul><h3>Global</h3><ul><li><a href="global.html#getJSRule">getJSRule</a></li></ul>
+</nav>
+
+<div id="main">
+    
+
+    
+
+
+
+    
+
+
+    <section class="package">
+        <h3>florianh-openhab-tools 1.0.1</h3>		
+    </section>
+
+
+
+
+
+
+
+
+
+    
+
+
+
+    <section class="readme usertext">
+        <article><h1>openHAB JS Automation Tools</h1>
+<p>This library provides some utilites for the openHAB JS Scripting Add-On.</p>
+<p>Please note that it depents on the <a href="https://github.com/openhab/openhab-js">openHAB JavaScript Library</a>, which is included in the JS Scripting Add-On by default.
+Therefore it is not listed in the dependencies of this package.</p>
+<p><a href="https://github.com/standard/semistandard"><img src="https://raw.githubusercontent.com/standard/semistandard/master/badge.svg" alt="js-semistandard-style"></a>
+<a href="https://badge.fury.io/js/florianh-openhab-tools"><img src="https://badge.fury.io/js/florianh-openhab-tools.svg" alt="npm version"></a></p>
+<h2>Table of Contents</h2>
+<ul>
+<li><a href="#table-of-contents">Table of Contents</a></li>
+<li><a href="#installation">Installation</a></li>
+<li><a href="#scene-engine">Scene Engine</a>
+<ul>
+<li><a href="#the-sceneitem">The <code>sceneItem</code></a></li>
+<li><a href="#scene-definition">Scene definition</a></li>
+<li><a href="#scene-rule">Scene rule</a></li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2>Installation</h2>
+<ul>
+<li>Install the openHAB <a href="https://www.openhab.org/addons/automation/jsscripting/">JavaScript binding</a>, a version of the <a href="https://www.npmjs.com/package/openhab">openHAB
+library</a> will be automatically installed and available to all javascript rules by default.</li>
+<li>Go to the javascript user scripts directory: <code>cd $OPENHAB_CONF/automation/js</code></li>
+<li>Run <code>npm i florianh-openhab-tools</code> (you may need to install npm)</li>
+</ul>
+<hr>
+<h2>Scene Engine</h2>
+<p>Call scene by sending a command to the <code>sceneItem</code>.</p>
+<p>When a member of the scene changes it's state, the rule will check whether a
+defined scene is matching the current states and which scene.</p>
+<p>It creates a full rule with triggers and actions out of your scene definition.</p>
+<h3>The <code>sceneItem</code></h3>
+<p>Must be a Number item.
+You can assign a scene to every positive integer value,
+except to 0.</p>
+<p>0 is the value the Item gets when no match with a scene is found on members change.</p>
+<h3>Scene definition</h3>
+<p>Scene defintion works with an array of objects.</p>
+<pre class="prettyprint source lang-javascript"><code>const scenes = [ // For each sceneItem one object.
+  { // Object of the first sceneItem.
+    selectorItem: 'scene call item name',
+    selectorStates: [ // For each numeric state of the sceneItem one object.
+      { // Object for the value 1 of the sceneItem.
+        selectorValue: 1,
+        sceneTargets: [ // Target states of items in the scene. Parameters explained later.
+          { item: 'Florian_Licht', value: 'ON', required: true },
+          { item: 'Florian_LED_Stripes', value: 'OFF', required: false }
+        ] 
+      },
+      { // Object for the value 15 of the sceneItem.
+        selectorValue: 15,
+        sceneTargets: [ // Target states of items in the scene. Parameters explained later.
+          { item: 'Florian_LED_Stripes', value: 'ON', required: true }
+        ]
+      }
+    ]
+  }
+];
+</code></pre>
+<p><strong>sceneTargets</strong>' parameters</p>
+<table>
+<thead>
+<tr>
+<th>Identifier</th>
+<th>Purpose</th>
+<th>Type</th>
+<th>Required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>item</code></td>
+<td>Name of a scene member.</td>
+<td>String</td>
+<td>yes</td>
+</tr>
+<tr>
+<td><code>value</code></td>
+<td>Target state of that member.</td>
+<td>String</td>
+<td>yes</td>
+</tr>
+<tr>
+<td><code>required</code></td>
+<td>Whether that member must match the target state when the scene is checked.</td>
+<td>Boolean</td>
+<td>no, defaults to true</td>
+</tr>
+</tbody>
+</table>
+<h3>Scene rule</h3>
+<p>NOTE: The sceneEngine was developed for file-based JavaScript rules,
+therefore create a script in the directory <code>$OPENHAB_CONF/automation/js</code> and not in the UI.</p>
+<pre class="prettyprint source lang-javascript"><code>require('sceneEngine.js').getJSRule(scenes, 'example engine');
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Purpose</th>
+<th>required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>scenes</td>
+<td>The scene definition array of objects.</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>engineId</td>
+<td>The id of the scene engine, used in description.</td>
+<td>yes</td>
+</tr>
+</tbody>
+</table></article>
+    </section>
+
+
+
+
+
+
+    
+    
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.7</a> on Sat Dec 18 2021 16:24:40 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+<script src="scripts/search.js" defer></script>
+
+
+
+</body>
+</html>
