@@ -9,7 +9,8 @@
     "openhab": "*"
   },
   "scripts": {
-    "lint": "semistandard"
+    "lint": "semistandard",
+    "test": ""
   },
   "repository": {
     "type": "git",
