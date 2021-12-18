@@ -157,15 +157,15 @@ class SceneEngine {
 
 /**
  * Creates an instance of SceneEngine and builds the rule
- * @param {*} scene scenes
+ * @param {*} scenes scenes definiton, have a look at the README
  * @param {String} engineId instance name
  * @returns {*} JSRule from openhab-js
  *
  * @example
  * require('sceneEngine.js').getJSRule(scene, 'example engine');
  */
-const getJSRule = (scene, engineId) => {
-  return new SceneEngine(scene, engineId).rule;
+const getJSRule = (scenes, engineId) => {
+  return new SceneEngine(scenes, engineId).rule;
 };
 
 module.exports = {
