@@ -1,0 +1,27 @@
+{
+  "name": "florianh-openhab-tools",
+  "version": "1.0.0",
+  "description": "Tools for the openHAB JavaScript Automation Add-On.",
+  "main": "index.js",
+  "dependencies": {},
+  "devDependencies": {
+    "semistandard": "*",
+    "openhab": "*"
+  },
+  "scripts": {
+    "lint": "semistandard"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/florian-h05/openhab-js-tools.git"
+  },
+  "keywords": [
+    "openHAB"
+  ],
+  "author": "Florian Hotze",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/florian-h05/openhab-js-tools/issues"
+  },
+  "homepage": "https://github.com/florian-h05/openhab-js-tools#readme"
+}
