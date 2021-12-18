@@ -13,6 +13,7 @@ const logger = require('openhab').log('SceneEngine');
 
 /**
  * @namespace sceneEngine
+ * Call scenes using a selectorItem and update the selectorItem to the matching scene on scene members' change.
  */
 
 /**
@@ -41,6 +42,7 @@ class SceneEngine {
    */
   get triggers () {
     let ruleTriggers = [];
+    let updateTriggers = [];
     // For each sceneSelector the selectorItem.
     for (let i = 0; i < this.scenes.length; i++) {
       const currentSelector = this.scenes[i];
@@ -52,12 +54,15 @@ class SceneEngine {
         // For for each sceneTarget, the member items.
         for (let k = 0; k < currentState.sceneTargets.length; k++) {
           const targetItem = currentState.sceneTargets[k].item;
-          if (ruleTriggers.indexOf(triggers.ItemStateChangeTrigger(targetItem)) === -1) {
-            logger.debug('Adding ItemStateChangeTrigger for [{}].', targetItem);
-            ruleTriggers.push(triggers.ItemStateChangeTrigger(targetItem));
+          if (updateTriggers.indexOf(targetItem) === -1) {
+            updateTriggers.push(targetItem);
           }
         }
       }
+    }
+    for (let i = 0; i < updateTriggers.length; i++) {
+      logger.debug('Adding ItemStateChangeTrigger for [{}].', updateTriggers[i]);
+      ruleTriggers.push(triggers.ItemStateChangeTrigger(updateTriggers[i]));
     }
     return ruleTriggers;
   }
