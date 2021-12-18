@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>SceneEngine - Documentation</title>
+    <title>sceneEngine - Documentation</title>
     
     
     <script src="scripts/prettify/prettify.js"></script>
@@ -34,7 +34,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">SceneEngine</h1>
+    <h1 class="page-title">sceneEngine</h1>
     
 
     
@@ -47,24 +47,79 @@
 <header>
     
         <h2>
-            <span class="ancestors"><a href="sceneEngine.html">sceneEngine</a>.</span>
-        
-        SceneEngine
+        sceneEngine
         </h2>
-        
-            <div class="class-description usertext"><p>Represents a scene engine with the full rule.
-Call scenes using a selectorItem and update the selectorItem to the matching scene on scene members' change.</p></div>
         
     
 </header>
 
 <article>
     
+        <div class="container-overview">
+        
+            
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="sceneEngine.js.html">sceneEngine.js</a>, <a href="sceneEngine.js.html#line14">line 14</a>
+    </li></ul></dd>
+    
+
+    
 
     
 
     
 
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+            
+
+            
+        
+        </div>
+    
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Classes</h3>
+
+        <dl>
+            <dt><a href="sceneEngine.SceneEngine.html">SceneEngine</a></dt>
+            <dd></dd>
+        </dl>
     
     
     
@@ -73,137 +128,6 @@ Call scenes using a selectorItem and update the selectorItem to the matching sce
 
     
 
-    
-        <h3 class="subsection-title">Members</h3>
-
-        
-            
-<h4 class="name" id="triggers"><span class="type-signature"></span>triggers<span class="type-signature"></span></h4>
-
-
-
-
-
-<dl class="details">
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="sceneEngine.js.html">sceneEngine.js</a>, <a href="sceneEngine.js.html#line44">line 44</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description usertext">
-    <p>Required triggers for the scene rule.
-For selectorItems command triggers, for scene members change triggers.</p>
-</div>
-
-
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="rule"><span class="type-signature"></span>rule<span class="type-signature"></span></h4>
-
-
-
-
-
-<dl class="details">
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="sceneEngine.js.html">sceneEngine.js</a>, <a href="sceneEngine.js.html#line151">line 151</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description usertext">
-    <p>The JSRule to run the scene engine.</p>
-</div>
-
-
-
-
-
-
-
-
-        
     
 
     
@@ -214,7 +138,7 @@ For selectorItems command triggers, for scene members change triggers.</p>
 
     
 
-    <h4 class="name" id="callScene"><span class="type-signature"></span>callScene<span class="signature">(triggerItem)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id=".getJSRule"><span class="type-signature">(static) </span>getJSRule<span class="signature">(scenes, engineId)</span><span class="type-signature"> &rarr; {*}</span></h4>
 
     
 
@@ -226,7 +150,7 @@ For selectorItems command triggers, for scene members change triggers.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="sceneEngine.js.html">sceneEngine.js</a>, <a href="sceneEngine.js.html#line75">line 75</a>
+        <a href="sceneEngine.js.html">sceneEngine.js</a>, <a href="sceneEngine.js.html#line179">line 179</a>
     </li></ul></dd>
     
 
@@ -266,7 +190,7 @@ For selectorItems command triggers, for scene members change triggers.</p>
 
 
 <div class="description usertext">
-    <p>Call scene.</p>
+    <p>Creates an instance of SceneEngine and builds the rule</p>
 </div>
 
 
@@ -275,6 +199,11 @@ For selectorItems command triggers, for scene members change triggers.</p>
 
 
 
+
+
+    <h5>Example</h5>
+    
+    <pre class="prettyprint"><code>require('florianh-openhab-tools').sceneEngine.getJSRule(scenes, engineId);</code></pre>
 
 
 
@@ -304,7 +233,30 @@ For selectorItems command triggers, for scene members change triggers.</p>
 
         <tr>
             
-                <td class="name"><code>triggerItem</code></td>
+                <td class="name"><code>scenes</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">*</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>scenes definiton, have a look at the README</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>engineId</code></td>
             
 
             <td class="type">
@@ -320,7 +272,7 @@ For selectorItems command triggers, for scene members change triggers.</p>
 
             
 
-            <td class="description last"><p>name of scene selector that received command</p></td>
+            <td class="description last"><p>instance name</p></td>
         </tr>
 
     
@@ -342,142 +294,28 @@ For selectorItems command triggers, for scene members change triggers.</p>
 
 
 
-
-
+<h5>Returns:</h5>
 
         
-            
-
-    
-
-    <h4 class="name" id="checkScene"><span class="type-signature"></span>checkScene<span class="signature">(triggerItem)</span><span class="type-signature"></span></h4>
-
-    
+<div class="param-desc">
+    <p>JSRule from openhab-js</p>
+</div>
 
 
 
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">*</span>
 
-<dl class="details">
 
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="sceneEngine.js.html">sceneEngine.js</a>, <a href="sceneEngine.js.html#line101">line 101</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
+    </dd>
 </dl>
 
-
-
-
-
-<div class="description usertext">
-    <p>When a scene member changes, check whether a scene and which scene matches all required targets.</p>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
     
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>triggerItem</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">String</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>name of scene member that changed</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
