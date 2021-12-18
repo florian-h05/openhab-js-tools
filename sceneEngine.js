@@ -102,6 +102,7 @@ class SceneEngine {
     // Check each sceneSelector.
     for (let i = 0; i < this.scenes.length; i++) {
       let selectorValueMatching = 0;
+      let updateSelectorValue = false;
       const currentSelector = this.scenes[i];
       // Check each selectorState.
       for (let j = 0; j < currentSelector.selectorStates.length; j++) {
@@ -111,6 +112,7 @@ class SceneEngine {
           // Find the triggeringItem.
           if (currentState.sceneTargets[k].item === triggerItem) {
             // logger.debug('Check scene: Found triggeringItem [{}] in selectorState [{}] of sceneSelector [{}].', triggerItem, currentState.selectorValue, currentSelector.selectorItem);
+            updateSelectorValue = true;
             // Check whether all required items in the selectorValue's sceneTargets match.
             let statesMatchingValue = true;
             for (let l = 0; l < currentState.sceneTargets.length; l++) {
@@ -140,7 +142,7 @@ class SceneEngine {
         }
       }
       // Update sceneSelector with the selectorValue matching all sceneTargets.
-      items.getItem(currentSelector.selectorItem).postUpdate(selectorValueMatching);
+      if (updateSelectorValue) { items.getItem(currentSelector.selectorItem).postUpdate(selectorValueMatching); }
     }
   }
 
