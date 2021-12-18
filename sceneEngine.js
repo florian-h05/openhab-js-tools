@@ -12,11 +12,16 @@ const { items, rules, triggers } = require('openhab');
 const logger = require('openhab').log('SceneEngine');
 
 /**
+ * @namespace sceneEngine
+ */
+
+/**
  * Represents a scene engine with the rule triggers and the rule members.
  */
 class SceneEngine {
   /**
    * Constructor to create an instance. Do not call directly, instead call {@link getEngine}.
+   * @memberof sceneEngine
    * @param {*} sceneDefiniton definition of scenes following a special scheme
    * @param {String} engineId id of this instance
    * @hideconstructor
@@ -135,6 +140,7 @@ class SceneEngine {
 
   /**
    * The JSRule to run the scene engine.
+   * @memberof sceneEngine
    * @returns {*} JSRule from openhab-js
    */
   get rule () {
