@@ -6,7 +6,7 @@
   "dependencies": {},
   "devDependencies": {
     "semistandard": "*",
-    "openhab": "*",
+    "openhab": "^1.2.1",
     "docdash": "^1.2.0",
     "jsdoc": "^3.6.3"
   },
