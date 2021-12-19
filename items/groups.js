@@ -5,28 +5,27 @@ Dependents on: the official openHAB JS library 'openhab', which is pre-installed
 Copyright (c) 2021 Florian Hotze under MIT License
 */
 
-const { itemRegistry } = require('@runtime');
-const { items } = require('openhab'); 
- 
+const { items } = require('openhab');
+
 /**
  * Group utilities.
  * Provides a number of utilities for groups.
  *
  * @memberOf items
  */
-class groupUtils {
+class GroupUtils {
   /**
    * Creates an instance of groupUtils. Don't use this constructor, instead call {@link getGroupUtils}.
    * @param {Item} jsItem Item from 'openhab'
    * @hideconstructor
    */
   constructor (jsItem) {
-    if (typeof jsItem === 'undefinded') {
+    if (typeof jsItem === 'undefined') {
       console.error('Supplied item is undefined.');
     }
     this.jsItem = jsItem;
   }
-  
+
   /**
    * Whether this item is initialized.
    * @type {Boolean}
@@ -35,7 +34,7 @@ class groupUtils {
   get isUninitialized () {
     return this.jsItem.isUninitialized;
   }
-  
+
   /**
    * Members / children / direct descendents of the current group item (as returned by 'getMembers()'). Must be a group item.
    * @returns {Item[]} member items
@@ -43,12 +42,12 @@ class groupUtils {
   get members () {
     return this.jsItem.members;
   }
-  
+
   /**
    * Names of members / children / direct descendents of the current group item (as returned by 'getMembers()'). Must be a group item.
    * @returns {Array} names of member items
    */
-  get membersNames() {
+  get membersNames () {
     return this.members.map(item => item.name);
   }
 
@@ -56,7 +55,7 @@ class groupUtils {
    * Labels of members / children / direct descendents of the current group item (as returned by 'getMembers()') as a concatenated string. Must be a group item.
    * @returns {String} states of member items as concatenated string
    */
-  get membersLabelsString() {
+  get membersLabelsString () {
     return this.members.map(item => item.label).join(', ');
   }
 
@@ -65,7 +64,7 @@ class groupUtils {
    * Filters for items not {@link isUninitialized}.
    * @returns {Item} item with the minimum state
    */
-  get membersMin() {
+  get membersMin () {
     return this.members.filter(item => !item.isUninitialized).reduce((min, item) => parseFloat(item.state) < parseFloat(min.state) ? item : min);
   }
 
@@ -74,7 +73,7 @@ class groupUtils {
    * Filters for items not {@link isUninitialized}.
    * @returns {Item} item with the maximum state
    */
-  get membersMax() {
+  get membersMax () {
     return this.members.filter(item => !item.isUninitialized).reduce((min, item) => parseFloat(item.state) > parseFloat(min.state) ? item : min);
   }
 
@@ -83,7 +82,7 @@ class groupUtils {
    * Filters for items of type Number, Dimmer & Rollershutter in calculation and not {@link isUninitialized}.
    * @returns {Number} sum of states
    */
-  get membersSum() {
+  get membersSum () {
     return this.members.filter(item => (item.type === 'NumberItem' || item.type === 'DimmerItem' || item.type === 'RollershutterItem') && !item.isUninitialized).reduce((sum, item) => sum + parseFloat(item.state), 0);
   }
 
@@ -92,16 +91,16 @@ class groupUtils {
    * Filters for items of type Number, Dimmer & Rollershutter in calculation and not {@link isUninitialized}.
    * @returns {Number} average of states
    */
-  get membersAvg() {
+  get membersAvg () {
     const numbers = this.members.filter(item => (item.type === 'NumberItem' || item.type === 'DimmerItem' || item.type === 'RollershutterItem') && !item.isUninitialized);
-    return numbers.reduce((avg, item) => { return avg + parseFloat(item.state)/numbers.length; }, 0);
+    return numbers.reduce((avg, item) => { return avg + parseFloat(item.state) / numbers.length; }, 0);
   }
-  
+
   /**
    * All descendents of the current group item (as returned by 'getAllMembers()'). Must be a group item.
    * @returns {Item[]} all descendent items
    */
-  get descendents() {
+  get descendents () {
     return this.jsItem.descendents;
   }
 
@@ -109,7 +108,7 @@ class groupUtils {
    * Names of all descendents of the current group item (as returned by 'getAllMembers()'). Must be a group item.
    * @returns {Array} names of descendent items
    */
-  get descendentsNames() {
+  get descendentsNames () {
     return this.descendents.map(item => item.name);
   }
 
@@ -117,7 +116,7 @@ class groupUtils {
    * Labels of all descendents of the current group item (as returned by 'getAllMembers()'). Must be a group item.
    * @returns {String} states of descendent items as concatenated string
    */
-  get descendentsLabelsString() {
+  get descendentsLabelsString () {
     return this.descendents.map(item => item.label).join(', ');
   }
 
@@ -126,7 +125,7 @@ class groupUtils {
    * Filters for items not {@link isUninitialized}.
    * @returns {Item} item with the minimum state
    */
-  get descendentsMin() {
+  get descendentsMin () {
     return this.descendents.filter(item => !item.isUninitialized).reduce((min, item) => parseFloat(item.state) < parseFloat(min.state) ? item : min);
   }
 
@@ -135,7 +134,7 @@ class groupUtils {
    * Filters for items not {@link isUninitialized}.
    * @returns {Item} item with the maximum state
    */
-  get descendentsMax() {
+  get descendentsMax () {
     return this.descendents.filter(item => !item.isUninitialized).reduce((min, item) => parseFloat(item.state) > parseFloat(min.state) ? item : min);
   }
 
@@ -144,7 +143,7 @@ class groupUtils {
    * Filters for items of type Number, Dimmer & Rollershutter in calculation and not {@link isUninitialized}.
    * @returns {Number} sum of states
    */
-  get descendentsSum() {
+  get descendentsSum () {
     return this.descendents.filter(item => (item.type === 'NumberItem' || item.type === 'DimmerItem' || item.type === 'RollershutterItem') && !item.isUninitialized).reduce((sum, item) => sum + parseFloat(item.state), 0);
   }
 
@@ -153,11 +152,11 @@ class groupUtils {
    * Filters for items of type Number, Dimmer & Rollershutter in calculation and not {@link isUninitialized}.
    * @returns {Number} average of states
    */
-  get descendentsAvg() {
+  get descendentsAvg () {
     const numbers = this.descendents.filter(item => (item.type === 'NumberItem' || item.type === 'DimmerItem' || item.type === 'RollershutterItem') && !item.isUninitialized);
-    return numbers.reduce((avg, item) => { return avg + parseFloat(item.state)/numbers.length; }, 0);
+    return numbers.reduce((avg, item) => { return avg + parseFloat(item.state) / numbers.length; }, 0);
   }
-  
+
   /**
    * Count the number of members / children / direct descendents of the current group item (as returned by 'getMembers()') matching a comparison. Must be a group item.
    * @param {String} compareFunc comparison function
@@ -165,7 +164,7 @@ class groupUtils {
    * @example
    * itemsUtils.getGroup('group').membersCount(item => item.state === 'ON');
    */
-  membersCount(compareFunc) {
+  membersCount (compareFunc) {
     return this.members.filter(compareFunc).length;
   }
 
@@ -176,7 +175,7 @@ class groupUtils {
    * @example
    * itemsUtils.getGroup('group').descendentsCount(item => item.state === 'ON');
    */
-  descendentsCount(compareFunc) {
+  descendentsCount (compareFunc) {
     return this.descendents.filter(compareFunc).length;
   }
 }
@@ -185,13 +184,13 @@ class groupUtils {
  * Gets a instance of groupUtils.
  * @memberOf items
  * @param {String} name the name of the item
- * @returns {items.groupUtils} the grouputils
+ * @returns {items.GroupUtils} the grouputils
  */
 const getGroup = (name) => {
-  return new groupUtils(items.getItem(name));
+  return new GroupUtils(items.getItem(name));
 };
 
 module.exports = {
   getGroup,
-  groupUtils
+  GroupUtils
 };
