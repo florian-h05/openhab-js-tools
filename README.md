@@ -17,6 +17,7 @@ Therefore it is not listed in the dependencies of this package.
   - [Scene definition](#scene-definition)
   - [Scene rule](#scene-rule)
 - [Group Utilities](#group-utilities)
+  - [Examples](#examples)
 
 ***
 ## Installation
@@ -91,3 +92,14 @@ The Group Utilities provide a number of functions on groups, e.g. arithmetic ope
 For supported methods look at the [GroupUtils JSDoc](https://florian-h05.github.io/openhab-js-tools/items.GroupUtils.html).
 
 These are a GraalJS compatible fork of the my original `groupUtils` from [rkoshak/openhab-rules-tools](https://github.com/rkoshak/openhab-rules-tools/tree/main/group_utils).
+
+### Examples
+```javascript
+const { itemsUtils } = require('florianh-openhab-tools');
+// The name of the member with the maximum state.
+itemsUtils.getGroup(group).membersMax.name;
+// The sum of states.
+itemsUtils.getGroup(group).membersSum;
+// Count how many members are on.
+itemsUtils.getGroup(group).membersCount(item => item.state === 'ON');
+```
