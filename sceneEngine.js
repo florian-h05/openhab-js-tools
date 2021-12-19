@@ -38,6 +38,7 @@ class SceneEngine {
    * Required triggers for the scene rule.
    * For selectorItems command triggers, for scene members change triggers.
    * @returns {*} rule triggers in openhab-js syntax
+   * @private
    */
   get triggers () {
     let ruleTriggers = [];
@@ -69,6 +70,7 @@ class SceneEngine {
   /**
    * Call scene.
    * @param {String} triggerItem name of scene selector that received command
+   * @private
    */
   callScene (triggerItem) {
     // Get the correct sceneSelector.
@@ -95,6 +97,7 @@ class SceneEngine {
   /**
    * When a scene member changes, check whether a scene and which scene matches all required targets.
    * @param {String} triggerItem name of scene member that changed
+   * @private
    */
   checkScene (triggerItem) {
     // Check each sceneSelector.
@@ -171,7 +174,7 @@ class SceneEngine {
  * @memberOf sceneEngine
  * @param {*} scenes scenes definiton, have a look at the README
  * @param {String} engineId instance name
- * @returns {*} JSRule from openhab-js
+ * @returns {sceneEngine.SceneEngine.rule} JSRule from openhab-js
  *
  * @example
  * require('florianh-openhab-tools').sceneEngine.getJSRule(scenes, engineId);
