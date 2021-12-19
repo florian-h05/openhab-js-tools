@@ -10,8 +10,12 @@ const { items } = require('openhab');
 /**
  * Group utilities.
  * Provides a number of utilities for groups.
- *
  * @memberOf items
+ * @example
+ * // The name of the member with the maximum state.
+ * require('florianh-openhab-tools').itemsUtils.getGroup(group).membersMax.name;
+ * // The sum of states.
+ * require('florianh-openhab-tools').itemsUtils.getGroup(group).membersSum;
  */
 class GroupUtils {
   /**
@@ -183,7 +187,7 @@ class GroupUtils {
 /**
  * Gets a instance of groupUtils.
  * @memberOf items
- * @param {String} name the name of the item
+ * @param {String} name the name of the group
  * @returns {items.GroupUtils} the grouputils
  */
 const getGroup = (name) => {

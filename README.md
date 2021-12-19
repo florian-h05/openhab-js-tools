@@ -16,6 +16,7 @@ Therefore it is not listed in the dependencies of this package.
   - [The `sceneItem`](#the-sceneitem)
   - [Scene definition](#scene-definition)
   - [Scene rule](#scene-rule)
+- [Group Utilities](#group-utilities)
 
 ***
 ## Installation
@@ -82,3 +83,11 @@ Parameter | Purpose | required
 -|-|-
 scenes | The scene definition array of objects. | yes
 engineId | The id of the scene engine, used in description. | yes
+
+***
+## Group Utilities
+The Group Utilities provide a number of functions on groups, e.g. arithmetic operations like min/max and count operations.
+
+For supported methods look at the [GroupUtils JSDoc](https://florian-h05.github.io/openhab-js-tools/items.GroupUtils.html).
+
+These are a GraalJS compatible fork of the my original `groupUtils` from [rkoshak/openhab-rules-tools](https://github.com/rkoshak/openhab-rules-tools/tree/main/group_utils).
