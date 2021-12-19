@@ -1,9 +1,9 @@
-/**
- * Only works with the JS Scripting Add-On/GraalJS.
- * Dependents on: the official openHAB JS library 'openhab', which is pre-installed in the JS Scripting Add-On.
- *
- * Copyright (c) 2021 Florian Hotze under MIT License
- */
+/*
+Only works with the JS Scripting Add-On/GraalJS.
+Dependents on: the official openHAB JS library 'openhab', which is pre-installed in the JS Scripting Add-On.
+
+Copyright (c) 2021 Florian Hotze under MIT License
+*/
 
 const { itemRegistry } = require('@runtime');
 const { items } = require('openhab'); 
@@ -167,7 +167,7 @@ class groupUtils {
    * @param {String} compareFunc comparison function
    * @returns {Number} number of matches
    * @example
-   * items.getItem('group').membersCount(item => item.state === 'ON');
+   * itemsUtils.getGroup('group').membersCount(item => item.state === 'ON');
    */
   membersCount(compareFunc) {
     return this.members.filter(compareFunc).length;
@@ -178,7 +178,7 @@ class groupUtils {
    * @param {String} compareFunc comparison function
    * @returns {Number} number of matches
    * @example
-   * items.getItem('group').descendentsCount(item => item.state === 'ON');
+   * itemsUtils.getGroup('group').descendentsCount(item => item.state === 'ON');
    */
   descendentsCount(compareFunc) {
     return this.descendents.filter(compareFunc).length;
