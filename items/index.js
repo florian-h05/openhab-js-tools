@@ -5,5 +5,5 @@
  */
 
 module.exports = {
-  ...require('./managed')
+  ...require('./groups')
 };
