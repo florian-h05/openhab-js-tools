@@ -7,10 +7,6 @@ Copyright (c) 2021 Florian Hotze under MIT License
 
 const { itemRegistry } = require('@runtime');
 const { items } = require('openhab'); 
-
-/**
- * @namespace items
- */
  
 /**
  * Group utilities.
