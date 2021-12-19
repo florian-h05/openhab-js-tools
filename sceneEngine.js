@@ -1,12 +1,9 @@
-/**
- * Scene engine.
- * Call scenes using a selectorItem and update the selectorItem to the matching scene on scene members' change.
- *
- * Only works with the JS Scripting Add-On/GraalJS.
- * Dependents on: the official openHAB JS library 'openhab', which is pre-installed in the JS Scripting Add-On.
- *
- * Copyright (c) 2021 Florian Hotze under MIT License
- */
+/*
+Only works with the JS Scripting Add-On/GraalJS.
+Dependents on: the official openHAB JS library 'openhab', which is pre-installed in the JS Scripting Add-On.
+
+Copyright (c) 2021 Florian Hotze under MIT License
+*/
 
 const { items, rules, triggers } = require('openhab');
 const logger = require('openhab').log('SceneEngine');
@@ -17,8 +14,9 @@ const logger = require('openhab').log('SceneEngine');
  */
 
 /**
- * Represents a scene engine with the full rule.
+ * Scene engine.
  * Call scenes using a selectorItem and update the selectorItem to the matching scene on scene members' change.
+ * Provides a JSRule from package 'openhab'.
  * @memberOf sceneEngine
  */
 class SceneEngine {
