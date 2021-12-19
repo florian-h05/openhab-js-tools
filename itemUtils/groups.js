@@ -183,7 +183,7 @@ class GroupUtils {
  * Gets a instance of groupUtils.
  * @memberOf itemUtils
  * @param {String} name the name of the group
- * @returns {items.GroupUtils} the grouputils
+ * @returns {itemUtils.GroupUtils} the grouputils
  */
 const getGroup = (name) => {
   return new GroupUtils(items.getItem(name));
