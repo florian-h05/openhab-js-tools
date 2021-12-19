@@ -1,4 +1,4 @@
 module.exports = {
   get sceneEngine () { return require('./sceneEngine'); },
-  get itemsUtils () { return require('./items'); }
+  get itemUtils () { return require('./itemUtils'); }
 };

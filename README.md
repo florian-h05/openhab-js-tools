@@ -95,11 +95,11 @@ These are a GraalJS compatible fork of the my original `groupUtils` from [rkosha
 
 ### Examples
 ```javascript
-const { itemsUtils } = require('florianh-openhab-tools');
+const { itemUtils } = require('florianh-openhab-tools');
 // The name of the member with the maximum state.
-itemsUtils.getGroup(group).membersMax.name;
+itemUtils.getGroup(group).membersMax.name;
 // The sum of states.
-itemsUtils.getGroup(group).membersSum;
+itemUtils.getGroup(group).membersSum;
 // Count how many members are on.
-itemsUtils.getGroup(group).membersCount(item => item.state === 'ON');
+itemUtils.getGroup(group).membersCount(item => item.state === 'ON');
 ```

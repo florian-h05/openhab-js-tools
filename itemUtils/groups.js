@@ -10,7 +10,7 @@ const { items } = require('openhab');
 /**
  * Group utilities.
  * Provides a number of utilities for groups.
- * @memberOf items
+ * @memberOf itemUtils
  */
 class GroupUtils {
   /**
@@ -161,7 +161,7 @@ class GroupUtils {
    * @param {String} compareFunc comparison function
    * @returns {Number} number of matches
    * @example
-   * itemsUtils.getGroup('group').membersCount(item => item.state === 'ON');
+   * itemUtils.getGroup('group').membersCount(item => item.state === 'ON');
    */
   membersCount (compareFunc) {
     return this.members.filter(compareFunc).length;
@@ -172,7 +172,7 @@ class GroupUtils {
    * @param {String} compareFunc comparison function
    * @returns {Number} number of matches
    * @example
-   * itemsUtils.getGroup('group').descendentsCount(item => item.state === 'ON');
+   * itemUtils.getGroup('group').descendentsCount(item => item.state === 'ON');
    */
   descendentsCount (compareFunc) {
     return this.descendents.filter(compareFunc).length;
@@ -181,7 +181,7 @@ class GroupUtils {
 
 /**
  * Gets a instance of groupUtils.
- * @memberOf items
+ * @memberOf itemUtils
  * @param {String} name the name of the group
  * @returns {items.GroupUtils} the grouputils
  */
