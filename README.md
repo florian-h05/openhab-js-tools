@@ -1,6 +1,7 @@
 # openHAB JS Automation Tools
 
 This library provides some utilites for the openHAB JS Scripting Add-On.
+The JavaScript Add-On is using the NodeJS version found in [org.openhab.automation.jsscripting/pom.xml](https://github.com/openhab/openhab-addons/blob/main/bundles/org.openhab.automation.jsscripting/pom.xml#L53) (currently v12.16.1).
 
 Please note that it depents on the [openHAB JavaScript Library](https://github.com/openhab/openhab-js), which is included in the JS Scripting Add-On by default.
 Therefore it is not listed in the dependencies of this package.
