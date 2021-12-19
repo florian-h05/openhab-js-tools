@@ -13,7 +13,7 @@ const logger = require('openhab').log('SceneEngine');
 
 /**
  * @namespace sceneEngine
- * 
+ *
  */
 
 /**
