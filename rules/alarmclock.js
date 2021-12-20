@@ -29,17 +29,16 @@ class AlarmClock {
     const minute = parseInt(items.getItem(switchItem + '_M').state);
     // Generate Array for days of week.
     let days = [];
-    if (items.getItem(switchItem + '_SUN').state === 'ON') days.push('SUN');
     if (items.getItem(switchItem + '_MON').state === 'ON') days.push('MON');
     if (items.getItem(switchItem + '_TUE').state === 'ON') days.push('TUE');
     if (items.getItem(switchItem + '_WED').state === 'ON') days.push('WED');
     if (items.getItem(switchItem + '_THU').state === 'ON') days.push('THU');
     if (items.getItem(switchItem + '_FRI').state === 'ON') days.push('FRI');
     if (items.getItem(switchItem + '_SAT').state === 'ON') days.push('SAT');
+    if (items.getItem(switchItem + '_SUN').state === 'ON') days.push('SUN');
     if (days.length === 0) { items.getItem(switchItem).sendCommand('OFF'); }
     this.quartz = '0 ' + parseInt(minute) + ' ' + parseInt(hour) + ' ? * ' + days.join(',') + ' *';
     logger.info('Cron expression [{}] generated.', this.quartz);
-    this.vRuleItem = 'vRuleItemForAlarm_Clock_' + this.switchItem;
   }
 
   /**
@@ -48,42 +47,13 @@ class AlarmClock {
    * @type {HostRule}
    */
   get clockRule () {
-    return rules.SwitchableJSRule({
-      name: 'Alarm Clock ' + this.switchItem,
-      description: 'Switchable rule to run the alarm clock.',
-      triggers: [triggers.GenericCronTrigger(this.quartz)],
-      execute: this.alarmFunc
-    });
-  }
-
-  /**
-   * Provides the main rule. It links the switch of {@link clockRule} with the switchItem and regenerates the clockRule every time a configuration changes.
-   * @private
-   * @type {HostRule}
-   */
-  get mainRule () {
     return rules.JSRule({
-      name: 'Alarm Clock Switch Link for ' + this.switchItem,
-      description: 'Rule to switch the main alarm clock rule.',
-      triggers: [
-        triggers.ItemCommandTrigger(this.switchItem),
-        triggers.ItemStateChangeTrigger(this.switchItem + '_H'),
-        triggers.ItemStateChangeTrigger(this.switchItem + '_M'),
-        triggers.ItemStateChangeTrigger(this.switchItem + '_MON'),
-        triggers.ItemStateChangeTrigger(this.switchItem + '_TUE'),
-        triggers.ItemStateChangeTrigger(this.switchItem + '_WED'),
-        triggers.ItemStateChangeTrigger(this.switchItem + '_THU'),
-        triggers.ItemStateChangeTrigger(this.switchItem + '_FRI'),
-        triggers.ItemStateChangeTrigger(this.switchItem + '_SAT'),
-        triggers.ItemStateChangeTrigger(this.switchItem + '_SUN')
-      ],
-      execute: event => {
-        if (event.itemName === this.switchItem) {
-          items.getItem(this.vRuleItem).sendCommand(event.receivedCommand);
-        } else {
-          return this.clockRule;
-        }
-      }
+      name: 'Alarm Clock ' + this.switchItem,
+      description: 'The Alarm Clock itself.',
+      triggers: [triggers.GenericCronTrigger(this.quartz)],
+      execute: this.alarmFunc,
+      // Set the id of the rule so that no random id is used.
+      id: this.switchItem
     });
   }
 }
@@ -96,8 +66,25 @@ class AlarmClock {
  * @returns {HostRule} JSRule from openhab-js
  */
 const getAlarmClock = (switchItem, alarmFunc) => {
-  const clock = new AlarmClock(switchItem, alarmFunc).mainRule;
-  return [clock];
+  return [
+    rules.JSRule({
+      name: 'Alarm Clock Manager ' + switchItem,
+      triggers: [
+        triggers.ItemCommandTrigger(switchItem),
+        triggers.ItemStateChangeTrigger(switchItem + '_H'),
+        triggers.ItemStateChangeTrigger(switchItem + '_M'),
+        triggers.ItemStateChangeTrigger(switchItem + '_MON'),
+        triggers.ItemStateChangeTrigger(switchItem + '_TUE'),
+        triggers.ItemStateChangeTrigger(switchItem + '_WED'),
+        triggers.ItemStateChangeTrigger(switchItem + '_THU'),
+        triggers.ItemStateChangeTrigger(switchItem + '_FRI'),
+        triggers.ItemStateChangeTrigger(switchItem + '_SAT'),
+        triggers.ItemStateChangeTrigger(switchItem + '_SUN')
+      ],
+      execute: new AlarmClock(switchItem, alarmFunc).clockRule
+    }),
+    new AlarmClock(switchItem, alarmFunc).clockRule
+  ];
 };
 
 module.exports = {
