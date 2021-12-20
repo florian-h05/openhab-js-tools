@@ -9,19 +9,14 @@ const { items, rules, triggers } = require('openhab');
 const logger = require('openhab').log('SceneEngine');
 
 /**
- * @namespace sceneEngine
- *
- */
-
-/**
  * Scene engine.
  * Call scenes using a selectorItem and update the selectorItem to the matching scene on scene members' change.
  * Provides a JSRule from package 'openhab'.
- * @memberOf sceneEngine
+ * @memberOf rules
  */
 class SceneEngine {
   /**
-   * Constructor to create an instance. Do not call directly, instead call {@link getEngine}.
+   * Constructor to create an instance. Do not call directly, instead call {@link getSceneEngine}.
    * @param {*} sceneDefiniton definition of scenes following a special scheme
    * @param {String} engineId id of this instance
    * @hideconstructor
@@ -37,8 +32,8 @@ class SceneEngine {
   /**
    * Required triggers for the scene rule.
    * For selectorItems command triggers, for scene members change triggers.
-   * @returns {*} rule triggers in openhab-js syntax
    * @private
+   * @returns {*} rule triggers in openhab-js syntax
    */
   get triggers () {
     let ruleTriggers = [];
@@ -69,8 +64,8 @@ class SceneEngine {
 
   /**
    * Call scene.
-   * @param {String} triggerItem name of scene selector that received command
    * @private
+   * @param {String} triggerItem name of scene selector that received command
    */
   callScene (triggerItem) {
     // Get the correct sceneSelector.
@@ -96,8 +91,8 @@ class SceneEngine {
 
   /**
    * When a scene member changes, check whether a scene and which scene matches all required targets.
-   * @param {String} triggerItem name of scene member that changed
    * @private
+   * @param {String} triggerItem name of scene member that changed
    */
   checkScene (triggerItem) {
     // Check each sceneSelector.
@@ -149,6 +144,7 @@ class SceneEngine {
 
   /**
    * The JSRule to run the scene engine.
+   * @private
    * @returns {*} JSRule from openhab-js
    */
   get rule () {
@@ -171,18 +167,18 @@ class SceneEngine {
 
 /**
  * Creates an instance of SceneEngine and builds the rule
- * @memberOf sceneEngine
+ * @memberOf rules
  * @param {*} scenes scenes definiton, have a look at the README
  * @param {String} engineId instance name
- * @returns {sceneEngine.SceneEngine.rule} JSRule from openhab-js
+ * @returns {rules.SceneEngine} JSRule from openhab-js
  *
  * @example
- * require('florianh-openhab-tools').sceneEngine.getJSRule(scenes, engineId);
+ * require('florianh-openhab-tools').rules.getSceneEngine(scenes, engineId);
  */
-const getJSRule = (scenes, engineId) => {
+const getSceneEngine = (scenes, engineId) => {
   return new SceneEngine(scenes, engineId).rule;
 };
 
 module.exports = {
-  getJSRule
+  getSceneEngine
 };

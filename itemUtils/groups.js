@@ -10,7 +10,7 @@ const { items } = require('openhab');
 /**
  * Group utilities.
  * Provides a number of utilities for groups.
- * @memberOf itemUtils
+ * @memberOf itemutils
  */
 class GroupUtils {
   /**
@@ -27,6 +27,7 @@ class GroupUtils {
 
   /**
    * Whether this item is initialized.
+   * @private
    * @type {Boolean}
    * @returns true if the item has not been initialized
    */
@@ -181,7 +182,7 @@ class GroupUtils {
 
 /**
  * Gets a instance of groupUtils.
- * @memberOf itemUtils
+ * @memberOf itemutils
  * @param {String} name the name of the group
  * @returns {itemUtils.GroupUtils} the grouputils
  */
