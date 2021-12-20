@@ -5,5 +5,5 @@
  */
 
 module.exports = {
-  ...require('./groups')
+  ...require('./groups.js')
 };

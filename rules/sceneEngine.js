@@ -33,7 +33,7 @@ class SceneEngine {
    * Required triggers for the scene rule.
    * For selectorItems command triggers, for scene members change triggers.
    * @private
-   * @returns {*} rule triggers in openhab-js syntax
+   * @returns {triggers[]} rule triggers
    */
   get triggers () {
     let ruleTriggers = [];
@@ -145,7 +145,7 @@ class SceneEngine {
   /**
    * The JSRule to run the scene engine.
    * @private
-   * @returns {*} JSRule from openhab-js
+   * @type {HostRule} openHAB Rule
    */
   get rule () {
     return rules.JSRule({
@@ -166,11 +166,11 @@ class SceneEngine {
 }
 
 /**
- * Creates an instance of SceneEngine and builds the rule
+ * Creates an instance of {@link rules.SceneEngine} and builds the rule
  * @memberOf rules
  * @param {*} scenes scenes definiton, have a look at the README
  * @param {String} engineId instance name
- * @returns {rules.SceneEngine} JSRule from openhab-js
+ * @returns {HostRule} openHAB rule
  *
  * @example
  * require('florianh-openhab-tools').rules.getSceneEngine(scenes, engineId);
