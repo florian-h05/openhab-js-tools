@@ -2,6 +2,8 @@
 Only works with the JS Scripting Add-On/GraalJS.
 Dependents on: the official openHAB JS library 'openhab', which is pre-installed in the JS Scripting Add-On.
 
+WORK IN PROGRESS: the clockRule must either be modified or deleted and recreated by the main rule of getAlarmClock().
+
 Copyright (c) 2021 Florian Hotze under MIT License
 */
 
@@ -14,6 +16,7 @@ const ruleRegistry = osgi.getService('org.openhab.core.automation.RuleRegistry')
  * Create an alarm clock rule with cron trigger based on settings Items.
  * Provides a JSRule from package 'openhab'.
  * @memberOf rules
+ * @private
  */
 class AlarmClock {
   /**
@@ -64,6 +67,7 @@ class AlarmClock {
  * @param {String} switchItem Item to switch the alarm on/off
  * @param {String} alarmFunc function to execute when the rule runs.
  * @returns {HostRule} JSRule from openhab-js
+ * @private
  */
 const getAlarmClock = (switchItem, alarmFunc) => {
   return [
