@@ -5,5 +5,6 @@
  */
 
 module.exports = {
-  ...require('./sceneEngine')
+  ...require('./sceneEngine.js'),
+  ...require('./alarmclock.js')
 };
