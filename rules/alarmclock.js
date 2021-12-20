@@ -7,7 +7,6 @@ Copyright (c) 2021 Florian Hotze under MIT License
 
 const { items, rules, triggers } = require('openhab');
 const logger = require('openhab').log('alarmclock');
-const cronTime = require('cron-time-generator');
 
 /**
  * Alarm clock.
@@ -31,23 +30,20 @@ class AlarmClock {
    * @param {Boolean} sunday
    * @hideconstructor
    */
-  constructor (switchItem, hour, minute, alarmFunc, monday, tuesday, thursday, wednesday, friday, saturday, sunday) {
-    if (typeof sceneDefinition === 'undefined') {
-      logger.error('Supplied scenes are undefined');
-    }
+  constructor (switchItem, hour, minute, alarmFunc, monday, tuesday, wednesday, thursday, friday, saturday, sunday) {
     this.switchItem = switchItem;
     this.alarmFunc = alarmFunc;
     let days = [];
-    if (monday === true) days.push('monday');
-    if (tuesday === true) days.push('tuesday');
-    if (wednesday === true) days.push('wednesday');
-    if (thursday === true) days.push('thursday');
-    if (friday === true) days.push('friday');
-    if (saturday === true) days.push('saturday');
-    if (sunday === true) days.push('sunday');
-    this.cronExp = cronTime.onSpecificDaysAt(days, parseInt(hour), parseInt(minute));
+    if (sunday === true) days.push('SUN');
+    if (monday === true) days.push('MON');
+    if (tuesday === true) days.push('TUE');
+    if (wednesday === true) days.push('WED');
+    if (thursday === true) days.push('THU');
+    if (friday === true) days.push('FRI');
+    if (saturday === true) days.push('SAT');
+    this.quartz = '* ' + parseInt(minute) + ' ' + parseInt(hour) + ' ? * ' + days.join(',') + ' *';
+    logger.info('Cron expression [{}] generated.', this.quartz);
     this.vRuleItem = 'vRuleItemForAlarm_Clock_' + this.switchItem;
-    logger.info('Cron expression [{}] generated.', this.cronExp);
   }
 
   /**
@@ -59,7 +55,7 @@ class AlarmClock {
     return rules.SwitchableJSRule({
       name: 'Alarm Clock ' + this.switchItem,
       description: 'Switchable rule to run the alarm clock.',
-      triggers: [triggers.GenericCronTrigger(this.cronExp)],
+      triggers: [triggers.GenericCronTrigger(this.quartz)],
       execute: this.alarmFunc
     });
   }

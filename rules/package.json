@@ -1,8 +1,5 @@
 {
   "name": "rules",
   "version": "1.0.0",
-  "main": "index.js",
-  "dependencies": {
-    "cron-time-generator": "^1.2.2"
-  }
+  "main": "index.js"
 }
