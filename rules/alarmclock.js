@@ -5,8 +5,9 @@ Dependents on: the official openHAB JS library 'openhab', which is pre-installed
 Copyright (c) 2021 Florian Hotze under MIT License
 */
 
-const { items, rules, triggers } = require('openhab');
+const { items, rules, triggers, osgi } = require('openhab');
 const logger = require('openhab').log('alarmclock');
+const ruleRegistry = osgi.getService('org.openhab.core.automation.RuleRegistry');
 
 /**
  * Alarm clock.
@@ -52,7 +53,6 @@ class AlarmClock {
       description: 'The Alarm Clock itself.',
       triggers: [triggers.GenericCronTrigger(this.quartz)],
       execute: this.alarmFunc,
-      // Set the id of the rule so that no random id is used.
       id: this.switchItem
     });
   }
@@ -81,7 +81,10 @@ const getAlarmClock = (switchItem, alarmFunc) => {
         triggers.ItemStateChangeTrigger(switchItem + '_SAT'),
         triggers.ItemStateChangeTrigger(switchItem + '_SUN')
       ],
-      execute: new AlarmClock(switchItem, alarmFunc).clockRule
+      execute: data => {
+        ruleRegistry.remove(switchItem);
+        new AlarmClock(switchItem, alarmFunc).clockRule;
+      }
     }),
     new AlarmClock(switchItem, alarmFunc).clockRule
   ];
