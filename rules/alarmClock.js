@@ -9,7 +9,7 @@
  */
 
 const { items, rules, triggers } = require('openhab');
-const logger = require('openhab').log('alarmclock');
+const logger = require('openhab').log('alarmClock');
 const { ruleRegistry } = require('@runtime/RuleSupport');
 
 /**
@@ -43,7 +43,6 @@ class AlarmClock {
     if (items.getItem(switchItem + '_SUN').state === 'ON') days.push('SUN');
     if (days.length === 0) { items.getItem(switchItem).sendCommand('OFF'); }
     this.quartz = '0 ' + parseInt(minute) + ' ' + parseInt(hour) + ' ? * ' + days.join(',') + ' *';
-    logger.info('Cron expression [{}] generated.', this.quartz);
   }
 
   /**
@@ -102,6 +101,7 @@ const getAlarmClock = (switchItem, alarmFunc) => {
         triggers.ItemStateChangeTrigger(switchItem + '_SUN')
       ],
       execute: data => {
+        logger.info('Updating alarm clock [Alarm Clock {}].', switchItem);
         ruleRegistry.remove(switchItem);
         getClockRule(switchItem, alarmFunc);
       }
