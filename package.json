@@ -23,7 +23,7 @@
     "openHAB"
   ],
   "author": "Florian Hotze",
-  "license": "MIT",
+  "license": "EPL-2.0",
   "bugs": {
     "url": "https://github.com/florian-h05/openhab-js-tools/issues"
   },

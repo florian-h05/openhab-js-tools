@@ -1,11 +1,16 @@
 /*
-Only works with the JS Scripting Add-On/GraalJS.
-Dependents on: the official openHAB JS library 'openhab', which is pre-installed in the JS Scripting Add-On.
-
 WORK IN PROGRESS: the clockRule must either be modified or deleted and recreated by the main rule of getAlarmClock().
-
-Copyright (c) 2021 Florian Hotze under MIT License
 */
+
+/**
+ * Copyright (c) 2021-2021 Florian Hotze
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ */
 
 const { items, rules, triggers, osgi } = require('openhab');
 const logger = require('openhab').log('alarmclock');
