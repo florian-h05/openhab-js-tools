@@ -60,10 +60,10 @@
 
     <section class="readme usertext">
         <article><h1>openHAB JS Automation Tools</h1>
-<p>This library provides some utilites for the openHAB JS Scripting Add-On.
-The JavaScript Add-On is using the NodeJS version found in <a href="https://github.com/openhab/openhab-addons/blob/main/bundles/org.openhab.automation.jsscripting/pom.xml#L53">openhab/openhab-addons/bundles/org.openhab.automation.jsscripting/pom.xml</a> (currently v12.16.1).</p>
+<p>This library provides some utilites for the openHAB JS Scripting Add-On.</p>
+<p>The JavaScript Add-On is using the NodeJS version found in <a href="https://github.com/openhab/openhab-addons/blob/main/bundles/org.openhab.automation.jsscripting/pom.xml#L53">openhab/openhab-addons/bundles/org.openhab.automation.jsscripting/pom.xml</a> (currently v12.16.1).</p>
 <p>Please note that it depents on the <a href="https://github.com/openhab/openhab-js">openHAB JavaScript Library</a>, which is included in the JS Scripting Add-On by default.
-Therefore it is not listed in the dependencies of this package.</p>
+Therefore it is only listed in the devDependencies of this package.</p>
 <p><a href="https://github.com/standard/semistandard"><img src="https://raw.githubusercontent.com/standard/semistandard/master/badge.svg" alt="js-semistandard-style"></a>
 <a href="https://badge.fury.io/js/florianh-openhab-tools"><img src="https://badge.fury.io/js/florianh-openhab-tools.svg" alt="npm version"></a></p>
 <h2>Table of Contents</h2>
@@ -77,6 +77,12 @@ Therefore it is not listed in the dependencies of this package.</p>
 <li><a href="#scene-rule">Scene rule</a></li>
 </ul>
 </li>
+<li><a href="#alarm-clock">Alarm Clock</a>
+<ul>
+<li><a href="#required-items">Required Items</a></li>
+<li><a href="#alarm-rule">Alarm Rule</a></li>
+</ul>
+</li>
 <li><a href="#group-utilities">Group Utilities</a>
 <ul>
 <li><a href="#examples">Examples</a></li>
@@ -86,8 +92,8 @@ Therefore it is not listed in the dependencies of this package.</p>
 <hr>
 <h2>Installation</h2>
 <ul>
-<li>Install the openHAB <a href="https://www.openhab.org/addons/automation/jsscripting/">JavaScript binding</a>, a version of the <a href="https://www.npmjs.com/package/openhab">openHAB
-library</a> will be automatically installed and available to all javascript rules by default.</li>
+<li>Requires the openHAB <a href="https://www.openhab.org/addons/automation/jsscripting/">JavaScript binding</a> which comes with a version of the <a href="https://www.npmjs.com/package/openhab">openHAB
+library</a>.</li>
 <li>Go to the javascript user scripts directory: <code>cd $OPENHAB_CONF/automation/js</code></li>
 <li>Run <code>npm i florianh-openhab-tools</code> (you may need to install npm)</li>
 </ul>
@@ -157,9 +163,7 @@ except to 0.</p>
 </tbody>
 </table>
 <h3>Scene rule</h3>
-<p>NOTE: The sceneEngine was developed for file-based JavaScript rules,
-therefore create a script in the directory <code>$OPENHAB_CONF/automation/js</code> and not in the UI.</p>
-<pre class="prettyprint source lang-javascript"><code>require('florianh-openhab-tools').rules.getSceneEngine(scenes, engineId);
+<pre class="prettyprint source lang-javascript"><code>require('florianh-openhab-tools').rulesx.getSceneEngine(scenes, engineId);
 </code></pre>
 <table>
 <thead>
@@ -182,6 +186,70 @@ therefore create a script in the directory <code>$OPENHAB_CONF/automation/js</co
 </tr>
 </tbody>
 </table>
+<hr>
+<h2>Alarm Clock</h2>
+<p>Provides an alarm clock that is configured via Items.</p>
+<p>Under the hood, two rules are created. The first rule, so called manager rule, watches for configuration changes and updates the cron trigger of the second rule, the alarm clock itself.
+It also disable and enables the alarm clock rule based on the <em>switchItem</em>.</p>
+<h3>Required Items</h3>
+<p>Configuration Items must follow a specific naming scheme, <em>switchItem</em> can be anything.</p>
+<table>
+<thead>
+<tr>
+<th>Itemname-Suffix</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><em>switchItem</em></td>
+<td>Enable/disable alarm</td>
+</tr>
+<tr>
+<td><em>switchItem</em><code>_H</code></td>
+<td>Hour</td>
+</tr>
+<tr>
+<td><em>switchItem</em><code>_M</code></td>
+<td>Minute</td>
+</tr>
+<tr>
+<td><em>switchItem</em><code>_MON</code></td>
+<td>Monday</td>
+</tr>
+<tr>
+<td><em>switchItem</em><code>_TUE</code></td>
+<td>Tuesday</td>
+</tr>
+<tr>
+<td><em>switchItem</em><code>_WED</code></td>
+<td>Wednesday</td>
+</tr>
+<tr>
+<td><em>switchItem</em><code>_THU</code></td>
+<td>Thursday</td>
+</tr>
+<tr>
+<td><em>switchItem</em><code>_FRI</code></td>
+<td>Friday</td>
+</tr>
+<tr>
+<td><em>switchItem</em><code>_SAT</code></td>
+<td>Saturday</td>
+</tr>
+<tr>
+<td><em>switchItem</em><code>_SUN</code></td>
+<td>Sunday</td>
+</tr>
+<tr>
+<td><em>switchItem</em><code>_Time</code></td>
+<td>Displays the alarm time as String.</td>
+</tr>
+</tbody>
+</table>
+<h3>Alarm Rule</h3>
+<pre class="prettyprint source lang-javascript"><code>require('florianh-openhab-tools').rulesx.getAlarmClock(switchItem, data => { console.log('Successfully tested alarm clock.'); });
+</code></pre>
 <hr>
 <h2>Group Utilities</h2>
 <p>The Group Utilities provide a number of functions on groups, e.g. arithmetic operations like min/max and count operations.</p>
@@ -210,7 +278,7 @@ itemutils.getGroup(group).membersCount(item => item.state === 'ON');
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.7</a> on Tue Dec 21 2021 19:12:39 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.7</a> on Tue Dec 21 2021 19:19:30 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>
