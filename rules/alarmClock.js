@@ -14,14 +14,16 @@ const { ruleRegistry } = require('@runtime/RuleSupport');
 
 /**
  * Alarm clock.
- * Provides an alarm clock rule with cron trigger based on settings Items.
- * Settings Items must follow nameing scheme.
+ * Provides a switchable alarm clock rule with cron trigger.
+ * The cron expression is build based on settings Items.
+ * It requires a specific naming scheme for these Items.
  * @memberOf rules
  */
 class AlarmClock {
   /**
-   * Constructor to create an instance. Do not call directly, instead call {@link getSceneEngine}.
-   * Generates name of configuration Items from the switchItem. Therefore naming must follow scheme.
+   * Constructor.
+   * Generates the cron expression.
+   * Do not call directly, instead call {@link getSceneEngine}.
    * @param {String} switchItem Item to switch the alarm on/off
    * @param {String} alarmFunc function to execute when the rule runs.
    * @hideconstructor
@@ -46,13 +48,13 @@ class AlarmClock {
   }
 
   /**
-   * Provides the clock itself.
+   * Provides the alarm clock rule.
    * @private
    * @type {HostRule}
    * @private
    */
   get clockRule () {
-    return rules.JSRule({
+    return rules.SwitchableJSRule({
       name: 'Alarm Clock ' + this.switchItem,
       description: 'The Alarm Clock itself.',
       triggers: [triggers.GenericCronTrigger(this.quartz)],
@@ -77,9 +79,10 @@ const getClockRule = (switchItem, alarmFunc) => {
 /**
  * Provides the full alarm clock.
  * It returns the manager rule that creates and updates the alarm clock rule on change of settings Items.
+ * The manager rule also links the switch of the alarm clock rule with the switchItem.
  * @memberOf rules
  * @param {String} switchItem Item to switch the alarm on/off
- * @param {String} alarmFunc function to execute when the rule runs.
+ * @param {String} alarmFunc function to execute when the alarm clock fires
  * @returns {HostRule} alarm manager rule
  * @example
  * require('florianh-openhab-tools').rules.getAlarmClock(switchItem, data => { console.log('Successfully tested alarm clock.'); });
@@ -100,10 +103,14 @@ const getAlarmClock = (switchItem, alarmFunc) => {
         triggers.ItemStateChangeTrigger(switchItem + '_SAT'),
         triggers.ItemStateChangeTrigger(switchItem + '_SUN')
       ],
-      execute: data => {
-        logger.info('Updating alarm clock [Alarm Clock {}].', switchItem);
-        ruleRegistry.remove(switchItem);
-        getClockRule(switchItem, alarmFunc);
+      execute: event => {
+        if (event.itemName === switchItem) {
+          items.getItem('vRuleItemForAlarm_Clock_' + switchItem).sendCommand(event.itemCommand);
+        } else {
+          logger.info('Updating alarm clock [Alarm Clock {}].', switchItem);
+          ruleRegistry.remove(switchItem);
+          getClockRule(switchItem, alarmFunc);
+        }
       }
     }),
     getClockRule(switchItem, alarmFunc)
