@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <title>rules/alarmclock.js - Documentation</title>
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <script src="scripts/nav.js" defer></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav >
+    
+    <input type="text" id="nav-search" placeholder="Search" />
+    
+    <h2><a href="index.html">Home</a></h2><h3>Namespaces</h3><ul><li><a href="itemutils.html">itemutils</a><ul class='methods'><li data-type='method'><a href="itemutils.html#.getGroup">getGroup</a></li></ul></li><li><a href="rules.html">rules</a><ul class='methods'><li data-type='method'><a href="rules.html#.getAlarmClock">getAlarmClock</a></li><li data-type='method'><a href="rules.html#.getSceneEngine">getSceneEngine</a></li></ul></li></ul><h3>Classes</h3><ul><li><a href="itemutils.GroupUtils.html">GroupUtils</a><ul class='methods'><li data-type='method'><a href="itemutils.GroupUtils.html#membersCount">membersCount</a></li><li data-type='method'><a href="itemutils.GroupUtils.html#descendentsCount">descendentsCount</a></li></ul></li><li><a href="rules.AlarmClock.html">AlarmClock</a></li><li><a href="rules.SceneEngine.html">SceneEngine</a></li></ul>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">rules/alarmclock.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Copyright (c) 2021-2021 Florian Hotze
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ */
+
+const { items, rules, triggers } = require('openhab');
+const logger = require('openhab').log('alarmclock');
+const { ruleRegistry } = require('@runtime/RuleSupport');
+
+/**
+ * Alarm clock.
+ * Provides an alarm clock rule with cron trigger based on settings Items.
+ * Settings Items must follow nameing scheme.
+ * @memberOf rules
+ */
+class AlarmClock {
+  /**
+   * Constructor to create an instance. Do not call directly, instead call {@link getSceneEngine}.
+   * Generates name of configuration Items from the switchItem. Therefore naming must follow scheme.
+   * @param {String} switchItem Item to switch the alarm on/off
+   * @param {String} alarmFunc function to execute when the rule runs.
+   * @hideconstructor
+   */
+  constructor (switchItem, alarmFunc) {
+    this.switchItem = switchItem;
+    this.alarmFunc = alarmFunc;
+    // Get Items' states for time configuration.
+    const hour = parseInt(items.getItem(switchItem + '_H').state);
+    const minute = parseInt(items.getItem(switchItem + '_M').state);
+    // Generate Array for days of week.
+    let days = [];
+    if (items.getItem(switchItem + '_MON').state === 'ON') days.push('MON');
+    if (items.getItem(switchItem + '_TUE').state === 'ON') days.push('TUE');
+    if (items.getItem(switchItem + '_WED').state === 'ON') days.push('WED');
+    if (items.getItem(switchItem + '_THU').state === 'ON') days.push('THU');
+    if (items.getItem(switchItem + '_FRI').state === 'ON') days.push('FRI');
+    if (items.getItem(switchItem + '_SAT').state === 'ON') days.push('SAT');
+    if (items.getItem(switchItem + '_SUN').state === 'ON') days.push('SUN');
+    if (days.length === 0) { items.getItem(switchItem).sendCommand('OFF'); }
+    this.quartz = '0 ' + parseInt(minute) + ' ' + parseInt(hour) + ' ? * ' + days.join(',') + ' *';
+    logger.info('Cron expression [{}] generated.', this.quartz);
+  }
+
+  /**
+   * Provides the clock itself.
+   * @private
+   * @type {HostRule}
+   * @private
+   */
+  get clockRule () {
+    return rules.JSRule({
+      name: 'Alarm Clock ' + this.switchItem,
+      description: 'The Alarm Clock itself.',
+      triggers: [triggers.GenericCronTrigger(this.quartz)],
+      execute: this.alarmFunc,
+      id: this.switchItem
+    });
+  }
+}
+
+/**
+ * Creates an instance of {@link rules.AlarmClock}.
+ * @memberOf rules
+ * @param {String} switchItem Item to switch the alarm on/off
+ * @param {String} alarmFunc function to execute when the rule runs.
+ * @returns {HostRule} alarm clock rule
+ * @private
+ */
+const getClockRule = (switchItem, alarmFunc) => {
+  return new AlarmClock(switchItem, alarmFunc).clockRule;
+};
+
+/**
+ * Provides the full alarm clock.
+ * It returns the manager rule that creates and updates the alarm clock rule on change of settings Items.
+ * @memberOf rules
+ * @param {String} switchItem Item to switch the alarm on/off
+ * @param {String} alarmFunc function to execute when the rule runs.
+ * @returns {HostRule} alarm manager rule
+ * @example
+ * require('florianh-openhab-tools').rules.getAlarmClock(switchItem, data => { console.log('Successfully tested alarm clock.'); });
+ */
+const getAlarmClock = (switchItem, alarmFunc) => {
+  return [
+    rules.JSRule({
+      name: 'Alarm Clock Manager ' + switchItem,
+      triggers: [
+        triggers.ItemCommandTrigger(switchItem),
+        triggers.ItemStateChangeTrigger(switchItem + '_H'),
+        triggers.ItemStateChangeTrigger(switchItem + '_M'),
+        triggers.ItemStateChangeTrigger(switchItem + '_MON'),
+        triggers.ItemStateChangeTrigger(switchItem + '_TUE'),
+        triggers.ItemStateChangeTrigger(switchItem + '_WED'),
+        triggers.ItemStateChangeTrigger(switchItem + '_THU'),
+        triggers.ItemStateChangeTrigger(switchItem + '_FRI'),
+        triggers.ItemStateChangeTrigger(switchItem + '_SAT'),
+        triggers.ItemStateChangeTrigger(switchItem + '_SUN')
+      ],
+      execute: data => {
+        ruleRegistry.remove(switchItem);
+        getClockRule(switchItem, alarmFunc);
+      }
+    }),
+    getClockRule(switchItem, alarmFunc)
+  ];
+};
+
+module.exports = {
+  getAlarmClock
+};
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+    
+    
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.7</a> on Tue Dec 21 2021 17:58:38 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+<script src="scripts/search.js" defer></script>
+
+
+
+</body>
+</html>
