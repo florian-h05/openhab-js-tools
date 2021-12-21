@@ -17,7 +17,7 @@ const { ruleRegistry } = require('@runtime/RuleSupport');
  * Provides a switchable alarm clock rule with cron trigger.
  * The cron expression is build based on settings Items.
  * It requires a specific naming scheme for these Items.
- * @memberOf rules
+ * @memberOf rulesx
  */
 class AlarmClock {
   /**
@@ -66,7 +66,7 @@ class AlarmClock {
 
 /**
  * Creates an instance of {@link rules.AlarmClock}.
- * @memberOf rules
+ * @memberOf rulesx
  * @param {String} switchItem Item to switch the alarm on/off
  * @param {String} alarmFunc function to execute when the rule runs.
  * @returns {HostRule} alarm clock rule
@@ -80,12 +80,12 @@ const getClockRule = (switchItem, alarmFunc) => {
  * Provides the full alarm clock.
  * It returns the manager rule that creates and updates the alarm clock rule on change of settings Items.
  * The manager rule also links the switch of the alarm clock rule with the switchItem.
- * @memberOf rules
+ * @memberOf rulesx
  * @param {String} switchItem Item to switch the alarm on/off
  * @param {String} alarmFunc function to execute when the alarm clock fires
  * @returns {HostRule} alarm manager rule
  * @example
- * require('florianh-openhab-tools').rules.getAlarmClock(switchItem, data => { console.log('Successfully tested alarm clock.'); });
+ * require('florianh-openhab-tools').rulesx.getAlarmClock(switchItem, data => { console.log('Successfully tested alarm clock.'); });
  */
 const getAlarmClock = (switchItem, alarmFunc) => {
   return [

@@ -15,7 +15,7 @@ const logger = require('openhab').log('SceneEngine');
  * Scene engine.
  * Call scenes using a selectorItem and update the selectorItem to the matching scene on scene members' change.
  * Provides a JSRule from package 'openhab'.
- * @memberOf rules
+ * @memberOf rulesx
  */
 class SceneEngine {
   /**
@@ -170,13 +170,13 @@ class SceneEngine {
 
 /**
  * Creates an instance of {@link rules.SceneEngine} and builds the rule
- * @memberOf rules
+ * @memberOf rulesx
  * @param {*} scenes scenes definiton, have a look at the README
  * @param {String} engineId instance name
  * @returns {HostRule} openHAB rule
  *
  * @example
- * require('florianh-openhab-tools').rules.getSceneEngine(scenes, engineId);
+ * require('florianh-openhab-tools').rulesx.getSceneEngine(scenes, engineId);
  */
 const getSceneEngine = (scenes, engineId) => {
   return new SceneEngine(scenes, engineId).rule;
