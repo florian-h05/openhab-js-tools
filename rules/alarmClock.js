@@ -34,6 +34,8 @@ class AlarmClock {
     // Get Items' states for time configuration.
     const hour = parseInt(items.getItem(switchItem + '_H').state);
     const minute = parseInt(items.getItem(switchItem + '_M').state);
+    // Post time string.
+    items.getItem(switchItem + '_Time').postUpdate(hour.toString() + ':' + minute.toString());
     // Generate Array for days of week.
     let days = [];
     if (items.getItem(switchItem + '_MON').state === 'ON') days.push('MON');
