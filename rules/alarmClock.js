@@ -22,8 +22,8 @@ const { ruleRegistry } = require('@runtime/RuleSupport');
 class AlarmClock {
   /**
    * Constructor.
-   * Generates the cron expression.
-   * Do not call directly, instead call {@link getSceneEngine}.
+   * Generates the cron expression. When no day is selected, send command OFF to alarmSwitch.
+   * Do not call directly, instead call {@link getClockRule}.
    * @param {String} switchItem Item to switch the alarm on/off
    * @param {String} alarmFunc function to execute when the rule runs.
    * @hideconstructor
@@ -54,7 +54,7 @@ class AlarmClock {
    * @private
    */
   get clockRule () {
-    return rules.SwitchableJSRule({
+    return rules.JSRule({
       name: 'Alarm Clock ' + this.switchItem,
       description: 'The Alarm Clock itself.',
       triggers: [triggers.GenericCronTrigger(this.quartz)],
@@ -79,7 +79,7 @@ const getClockRule = (switchItem, alarmFunc) => {
 /**
  * Provides the full alarm clock.
  * It returns the manager rule that creates and updates the alarm clock rule on change of settings Items.
- * The manager rule also links the switch of the alarm clock rule with the switchItem.
+ * The manager rule also creates and removes the alarm clock rule on ON/OFF of switchItem.
  * @memberOf rulesx
  * @param {String} switchItem Item to switch the alarm on/off
  * @param {String} alarmFunc function to execute when the alarm clock fires
@@ -104,11 +104,13 @@ const getAlarmClock = (switchItem, alarmFunc) => {
         triggers.ItemStateChangeTrigger(switchItem + '_SUN')
       ],
       execute: event => {
+        ruleRegistry.remove(switchItem);
+        logger.info('Updating alarm clock [Alarm Clock {}].', switchItem);
         if (event.itemName === switchItem) {
-          items.getItem('vRuleItemForAlarm_Clock_' + switchItem).sendCommand(event.itemCommand);
+          if (event.receivedCommand.toString() === 'ON') {
+            getClockRule(switchItem, alarmFunc);
+          }
         } else {
-          logger.info('Updating alarm clock [Alarm Clock {}].', switchItem);
-          ruleRegistry.remove(switchItem);
           getClockRule(switchItem, alarmFunc);
         }
       }
