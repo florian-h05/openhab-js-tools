@@ -1,6 +1,7 @@
 /**
- * Items namspace.
- * This namespace handles tools for openHAB Items.
+ * Items namespace
+ *
+ * This namespace provides tools for Items.
  * @namespace itemutils
  */
 

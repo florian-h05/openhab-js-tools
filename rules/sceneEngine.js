@@ -12,9 +12,9 @@ const { items, rules, triggers } = require('openhab');
 const logger = require('openhab').log('SceneEngine');
 
 /**
- * Scene engine.
+ * Scene Engine
+ *
  * Call scenes using a selectorItem and update the selectorItem to the matching scene on scene members' change.
- * Provides a JSRule from package 'openhab'.
  * @memberOf rulesx
  */
 class SceneEngine {
@@ -66,7 +66,7 @@ class SceneEngine {
   }
 
   /**
-   * Call scene.
+   * Calls the scene. Sets the scene members to the given target state.
    * @private
    * @param {String} triggerItem name of scene selector that received command
    */
@@ -110,7 +110,7 @@ class SceneEngine {
         for (let k = 0; k < currentState.sceneTargets.length; k++) {
           // Find the triggeringItem.
           if (currentState.sceneTargets[k].item === triggerItem) {
-            // logger.debug('Check scene: Found triggeringItem [{}] in selectorState [{}] of sceneSelector [{}].', triggerItem, currentState.selectorValue, currentSelector.selectorItem);
+            logger.debug('Check scene: Found triggeringItem [{}] in selectorState [{}] of sceneSelector [{}].', triggerItem, currentState.selectorValue, currentSelector.selectorItem);
             updateSelectorValue = true;
             // Check whether all required items in the selectorValue's sceneTargets match.
             let statesMatchingValue = true;
@@ -118,7 +118,7 @@ class SceneEngine {
               const target = currentState.sceneTargets[l];
               if (!(target.required === false)) {
                 const itemState = items.getItem(target.item).state.toString();
-                // logger.debug('Check scene: Checking scene member [{}] with state [{}].', target.item, itemState);
+                logger.debug('Check scene: Checking scene member [{}] with state [{}].', target.item, itemState);
                 // Check whether the current item states does not match the target state.
                 if (!(
                   (itemState === target.value) ||
@@ -128,7 +128,7 @@ class SceneEngine {
                   (itemState === '100' && target.value.toString().toUpperCase() === 'DOWN')
                 )) {
                   statesMatchingValue = false;
-                  // logger.debug('Check scene: Scene member [{}] with state [{}] does not match [{}].', target.item, itemState, target.value);
+                  logger.debug('Check scene: Scene member [{}] with state [{}] does not match [{}].', target.item, itemState, target.value);
                 }
               }
             }
@@ -169,14 +169,14 @@ class SceneEngine {
 }
 
 /**
- * Creates an instance of {@link rules.SceneEngine} and builds the rule
+ * Provides the {@link rulesx.SceneEngine}.
  * @memberOf rulesx
  * @param {*} scenes scenes definiton, have a look at the README
  * @param {String} engineId instance name
- * @returns {HostRule} openHAB rule
+ * @returns {HostRule} SceneEngine rule
  *
  * @example
- * require('florianh-openhab-tools').rulesx.getSceneEngine(scenes, engineId);
+ * rulesx.getSceneEngine(scenes, engineId);
  */
 const getSceneEngine = (scenes, engineId) => {
   return new SceneEngine(scenes, engineId).rule;

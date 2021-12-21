@@ -13,10 +13,11 @@ const logger = require('openhab').log('alarmClock');
 const { ruleRegistry } = require('@runtime/RuleSupport');
 
 /**
- * Alarm clock.
- * Provides a switchable alarm clock rule with cron trigger.
+ * Alarm Clock
+ *
+ * Provides an alarm clock rule with QUARTZ cron trigger.
  * The cron expression is build based on settings Items.
- * It requires a specific naming scheme for these Items.
+ * These Items must follow a given naming scheme.
  * @memberOf rulesx
  */
 class AlarmClock {
@@ -24,8 +25,8 @@ class AlarmClock {
    * Constructor.
    * Generates the cron expression. When no day is selected, send command OFF to alarmSwitch.
    * Do not call directly, instead call {@link getClockRule}.
-   * @param {String} switchItem Item to switch the alarm on/off
-   * @param {String} alarmFunc function to execute when the rule runs.
+   * @param {String} switchItem name of Item to switch the alarm on/off
+   * @param {*} alarmFunc function to execute when the rule runs.
    * @hideconstructor
    */
   constructor (switchItem, alarmFunc) {
@@ -67,10 +68,10 @@ class AlarmClock {
 }
 
 /**
- * Creates an instance of {@link rules.AlarmClock}.
+ * Creates an instance of {@link rulesx.AlarmClock}.
  * @memberOf rulesx
- * @param {String} switchItem Item to switch the alarm on/off
- * @param {String} alarmFunc function to execute when the rule runs.
+ * @param {String} switchItem name of Item to switch the alarm on/off
+ * @param {*} alarmFunc function to execute when the rule runs.
  * @returns {HostRule} alarm clock rule
  * @private
  */
@@ -80,14 +81,15 @@ const getClockRule = (switchItem, alarmFunc) => {
 
 /**
  * Provides the full alarm clock.
- * It returns the manager rule that creates and updates the alarm clock rule on change of settings Items.
+ *
+ * It returns the manager rule that creates and updates the alarm clock rule {@link rulesx.AlarmClock} on change of settings Items.
  * The manager rule also creates and removes the alarm clock rule on ON/OFF of switchItem.
  * @memberOf rulesx
- * @param {String} switchItem Item to switch the alarm on/off
- * @param {String} alarmFunc function to execute when the alarm clock fires
+ * @param {String} switchItem name of Item to switch the alarm on/off
+ * @param {*} alarmFunc function to execute when the alarm clock fires
  * @returns {HostRule} alarm manager rule
  * @example
- * require('florianh-openhab-tools').rulesx.getAlarmClock(switchItem, data => { console.log('Successfully tested alarm clock.'); });
+ * rulesx.getAlarmClock(switchItem, data => { console.log('Successfully tested alarm clock.'); });
  */
 const getAlarmClock = (switchItem, alarmFunc) => {
   return [
@@ -107,7 +109,7 @@ const getAlarmClock = (switchItem, alarmFunc) => {
       ],
       execute: event => {
         ruleRegistry.remove(switchItem);
-        logger.info('Updating alarm clock [Alarm Clock {}].', switchItem);
+        logger.info('Removing rule: Alarm Clock {}', switchItem);
         if (event.itemName === switchItem) {
           if (event.receivedCommand.toString() === 'ON') {
             getClockRule(switchItem, alarmFunc);

@@ -1,7 +1,8 @@
 /**
- * Rules namspace.
+ * Rules namespace
+ *
  * This namespace provides complete rules with specific functions.
- * It is not comparable to rules from the official JS library.
+ * It is not comparable to but uses the namespace rules from openhab-js.
  * @namespace rulesx
  */
 

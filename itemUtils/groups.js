@@ -11,7 +11,8 @@
 const { items } = require('openhab');
 
 /**
- * Group utilities.
+ * Group Utilities
+ *
  * Provides a number of utilities for groups.
  * @memberOf itemutils
  */
@@ -185,7 +186,7 @@ class GroupUtils {
  * Gets a instance of groupUtils.
  * @memberOf itemutils
  * @param {String} name the name of the group
- * @returns {itemutils.GroupUtils} the grouputils
+ * @returns {itemutils.GroupUtils} the GroupUtils
  */
 const getGroup = (name) => {
   return new GroupUtils(items.getItem(name));
