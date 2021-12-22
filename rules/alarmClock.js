@@ -35,8 +35,6 @@ class AlarmClock {
     // Get Items' states for time configuration.
     const hour = parseInt(items.getItem(switchItem + '_H').state);
     const minute = parseInt(items.getItem(switchItem + '_M').state);
-    // Post time string.
-    items.getItem(switchItem + '_Time').postUpdate(hour.toString() + ':' + minute.toString());
     // Generate Array for days of week.
     let days = [];
     if (items.getItem(switchItem + '_MON').state === 'ON') days.push('MON');
@@ -76,7 +74,14 @@ class AlarmClock {
  * @private
  */
 const getClockRule = (switchItem, alarmFunc) => {
-  return new AlarmClock(switchItem, alarmFunc).clockRule;
+  // Get Items' states for time configuration.
+  const hour = parseInt(items.getItem(switchItem + '_H').state);
+  const minute = parseInt(items.getItem(switchItem + '_M').state);
+  // Post time string.
+  items.getItem(switchItem + '_Time').postUpdate(hour.toString() + ':' + ((minute < 10) ? '0' : '') + minute.toString());
+  if (items.getItem(switchItem).state === 'ON') {
+    return new AlarmClock(switchItem, alarmFunc).clockRule;
+  }
 };
 
 /**
@@ -108,15 +113,11 @@ const getAlarmClock = (switchItem, alarmFunc) => {
         triggers.ItemStateChangeTrigger(switchItem + '_SUN')
       ],
       execute: event => {
-        ruleRegistry.remove(switchItem);
-        logger.info('Removing rule: Alarm Clock {}', switchItem);
-        if (event.itemName === switchItem) {
-          if (event.receivedCommand.toString() === 'ON') {
-            getClockRule(switchItem, alarmFunc);
-          }
-        } else {
-          getClockRule(switchItem, alarmFunc);
+        if (!(ruleRegistry.get(switchItem) == null)) {
+          ruleRegistry.remove(switchItem);
+          logger.info('Removing rule: Alarm Clock {}', switchItem);
         }
+        getClockRule(switchItem, alarmFunc);
       }
     }),
     getClockRule(switchItem, alarmFunc)
