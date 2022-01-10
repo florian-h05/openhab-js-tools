@@ -1,8 +1,22 @@
 {
   "name": "@florian-h05/openhab-tools",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "description": "Tools for the openHAB JavaScript Automation Add-On.",
-  "main": "index.js",
+  "keywords": [
+    "openHAB"
+  ],
+  "license": "EPL-2.0",
+  "author": "Florian Hotze",
+  "main": "src/index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/florian-h05/openhab-js-tools.git"
+  },
+  "scripts": {
+    "lint": "semistandard",
+    "test": "",
+    "docs": "rm -Rf ./docs/* && ./node_modules/.bin/jsdoc --configure docs_config.json && mv ./docs/$npm_package_name/$npm_package_version/* ./docs/ && rm -Rf ./docs/$npm_package_name/$npm_package_version"
+  },
   "dependencies": {},
   "devDependencies": {
     "semistandard": "*",
@@ -10,18 +24,8 @@
     "docdash": "^1.2.0",
     "jsdoc": "^3.6.3"
   },
-  "scripts": {
-    "lint": "semistandard",
-    "test": "",
-    "docs": "rm -Rf ./docs/* && ./node_modules/.bin/jsdoc --configure docs_config.json && mv ./docs/$npm_package_name/$npm_package_version/* ./docs/ && rm -Rf ./docs/$npm_package_name/$npm_package_version"
-  },
+  "private": false,
   "publishConfig": {
     "registry": "https://npm.pkg.github.com"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/florian-h05/openhab-js-tools.git"
-  },
-  "author": "Florian Hotze",
-  "license": "EPL-2.0"
+  }
 }
