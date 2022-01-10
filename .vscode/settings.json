@@ -2,5 +2,6 @@
     "standard.enableGlobally": true,
     "standard.engine": "semistandard",
     "standard.trace.server": "messages",
-    "markdown.extension.toc.levels": "2..4"
+    "markdown.extension.toc.levels": "2..4",
+    "git.alwaysSignOff": true
 }

@@ -1,6 +1,6 @@
 {
-  "name": "florianh-openhab-tools",
-  "version": "1.2.3",
+  "name": "@florian-h05/openhab-tools",
+  "version": "1.2.4",
   "description": "Tools for the openHAB JavaScript Automation Add-On.",
   "main": "index.js",
   "dependencies": {},
@@ -15,17 +15,13 @@
     "test": "",
     "docs": "rm -Rf ./docs/* && ./node_modules/.bin/jsdoc --configure docs_config.json && mv ./docs/$npm_package_name/$npm_package_version/* ./docs/ && rm -Rf ./docs/$npm_package_name/$npm_package_version"
   },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
   "repository": {
     "type": "git",
-    "url": "git://github.com/florian-h05/openhab-js-tools.git"
+    "url": "git+https://github.com/florian-h05/openhab-js-tools.git"
   },
-  "keywords": [
-    "openHAB"
-  ],
   "author": "Florian Hotze",
-  "license": "EPL-2.0",
-  "bugs": {
-    "url": "https://github.com/florian-h05/openhab-js-tools/issues"
-  },
-  "homepage": "https://florian-h05.github.io/openhab-js-tools/"
+  "license": "EPL-2.0"
 }

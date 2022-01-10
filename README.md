@@ -8,7 +8,6 @@ Please note that it depends on the [openHAB JavaScript Library](https://github.c
 Therefore it is only listed in the devDependencies of this package.
 
 [![js-semistandard-style](https://raw.githubusercontent.com/standard/semistandard/master/badge.svg)](https://github.com/standard/semistandard)
-[![npm version](https://badge.fury.io/js/florianh-openhab-tools.svg)](https://badge.fury.io/js/florianh-openhab-tools)
 
 ## Table of Contents
 - [Table of Contents](#table-of-contents)
@@ -29,7 +28,7 @@ Therefore it is only listed in the devDependencies of this package.
 - Requires the openHAB [JavaScript binding](https://www.openhab.org/addons/automation/jsscripting/) which comes with a version of the [openHAB
 library](https://www.npmjs.com/package/openhab).
 - Go to the javascript user scripts directory: `cd $OPENHAB_CONF/automation/js`
-- Run `npm i florianh-openhab-tools` (you may need to install npm)
+- Run `npm i @florian-h05/openhab-tools` (you may need to install npm)
 
 ***
 ## Scene Engine
@@ -80,7 +79,7 @@ Identifier | Purpose | Type | Required
 
 ### Scene rule
 ```javascript
-require('florianh-openhab-tools').rulesx.getSceneEngine(scenes, engineId);
+require('@florian-h05/openhab-tools').rulesx.getSceneEngine(scenes, engineId);
 ```
 Parameter | Purpose | required
 -|-|-
@@ -112,7 +111,7 @@ _switchItem_``_Time`` | Displays the alarm time as String.
 
 ### Alarm Rule
 ```javascript
-require('florianh-openhab-tools').rulesx.getAlarmClock(switchItem, data => { console.log('Successfully tested alarm clock.'); });
+require('@florian-h05/openhab-tools').rulesx.getAlarmClock(switchItem, data => { console.log('Successfully tested alarm clock.'); });
 ```
 
 ***
@@ -125,7 +124,7 @@ These are a GraalJS compatible fork of the my original `groupUtils` from [rkosha
 
 ### Examples
 ```javascript
-const { itemutils } = require('florianh-openhab-tools');
+const { itemutils } = require('@florian-h05/openhab-tools');
 // The name of the member with the maximum state.
 itemutils.getGroup(group).membersMax.name;
 // The sum of states.
