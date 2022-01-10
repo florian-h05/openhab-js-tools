@@ -72,19 +72,17 @@ class SceneEngine {
    */
   callScene (triggerItem) {
     // Get the correct sceneSelector.
-    for (let i = 0; i < this.scenes.length; i++) {
-      const currentSelector = this.scenes[i];
-      if (currentSelector.selectorItem === triggerItem) {
+    for (let curSelector = 0; curSelector < this.scenes.length; curSelector++) {
+      if (this.scenes[curSelector].selectorItem === triggerItem) {
         // Get the correct selectorState.
-        for (let j = 0; j < currentSelector.selectorStates.length; j++) {
+        for (let curState = 0; curState < this.scenes[curSelector].selectorStates.length; curState++) {
           // Get the correct sceneTargets.
-          const currentState = currentSelector.selectorStates[j];
-          if (currentState.selectorValue === parseInt(items.getItem(triggerItem).state)) {
-            logger.info('Call scene: Found selectorState [{}] of sceneSelector [{}].', currentState.selectorValue, currentSelector.selectorItem);
-            const currentTargets = currentState.sceneTargets;
+          if (this.scenes[curSelector].selectorStates[curState].selectorValue === parseInt(items.getItem(triggerItem).state)) {
+            logger.info('Call scene: Found selectorState [{}] of sceneSelector [{}].', this.scenes[curSelector].selectorStates[curState].selectorValue, this.scenes[curSelector].selectorItem);
+            const targets = this.scenes[curSelector].selectorStates[curState].sceneTargets;
             // Send commands to member items.
-            for (let k = 0; k < currentTargets.length; k++) {
-              items.getItem(currentTargets[k].item).sendCommand(currentTargets[k].value);
+            for (let curTarget = 0; curTarget < targets.length; curTarget++) {
+              items.getItem(targets[curTarget].item).sendCommand(targets[curTarget].value);
             }
           }
         }
@@ -95,53 +93,44 @@ class SceneEngine {
   /**
    * When a scene member changes, check whether a scene and which scene matches all required targets.
    * @private
-   * @param {String} triggerItem name of scene member that changed
    */
-  checkScene (triggerItem) {
+  checkScene () {
     // Check each sceneSelector.
-    for (let i = 0; i < this.scenes.length; i++) {
-      let selectorValueMatching = 0;
-      let updateSelectorValue = false;
-      const currentSelector = this.scenes[i];
-      // Check each selectorState.
-      for (let j = 0; j < currentSelector.selectorStates.length; j++) {
-        // Check for each sceneTarget.
-        const currentState = currentSelector.selectorStates[j];
-        for (let k = 0; k < currentState.sceneTargets.length; k++) {
-          // Find the triggeringItem.
-          if (currentState.sceneTargets[k].item === triggerItem) {
-            logger.debug('Check scene: Found triggeringItem [{}] in selectorState [{}] of sceneSelector [{}].', triggerItem, currentState.selectorValue, currentSelector.selectorItem);
-            updateSelectorValue = true;
-            // Check whether all required items in the selectorValue's sceneTargets match.
-            let statesMatchingValue = true;
-            for (let l = 0; l < currentState.sceneTargets.length; l++) {
-              const target = currentState.sceneTargets[l];
-              if (!(target.required === false)) {
-                const itemState = items.getItem(target.item).state.toString();
-                logger.debug('Check scene: Checking scene member [{}] with state [{}].', target.item, itemState);
-                // Check whether the current item states does not match the target state.
-                if (!(
-                  (itemState === target.value) ||
-                  (itemState === '0' && target.value.toString().toUpperCase() === 'OFF') ||
-                  (itemState === '100' && target.value.toString().toUpperCase() === 'ON') ||
-                  (itemState === '0' && target.value.toString().toUpperCase() === 'UP') ||
-                  (itemState === '100' && target.value.toString().toUpperCase() === 'DOWN')
-                )) {
-                  statesMatchingValue = false;
-                  logger.debug('Check scene: Scene member [{}] with state [{}] does not match [{}].', target.item, itemState, target.value);
-                }
-              }
-            }
-            if (statesMatchingValue === true) {
-              logger.info('Check scene: Found matching selectorValue [{}] of sceneSelector [{}].', currentState.selectorValue, currentSelector.selectorItem);
-              // Store the current selectorValue, that is matching all required targets.
-              selectorValueMatching = currentState.selectorValue;
+    for (let curSelector = 0; curSelector < this.scenes.length; curSelector++) {
+      let selectorValueMatching = 0; // The selector value of the matching scene.
+      let sceneFound = false;
+      // Check each selectorState. The first one matching is used.
+      for (let curState = 0; curState < this.scenes[curSelector].selectorStates.length && sceneFound === false; curState++) {
+        let statesMatchingValue = true;
+        // Checks whether sceneTargets are matching. As soon as one is not matching it's target value, the next selector state is checked.
+        for (let curTarget = 0; curTarget < this.scenes[curSelector].selectorStates[curState].sceneTargets.length && statesMatchingValue === true; curTarget++) {
+          const target = this.scenes[curSelector].selectorStates[curState].sceneTargets[curTarget];
+          if (!(target.required === false)) {
+            const itemState = items.getItem(target.item).state.toString();
+            logger.debug('Check scene (selectorState [{}] of sceneSelector [{}]): Checking scene member [{}] with state [{}].', this.scenes[curSelector].selectorStates[curState].selectorValue, this.scenes[curSelector].selectorItem, target.item, itemState);
+            // Check whether the current item states does not match the target state.
+            if (!(
+              (itemState === target.value) ||
+              (itemState === '0' && target.value.toString().toUpperCase() === 'OFF') ||
+              (itemState === '100' && target.value.toString().toUpperCase() === 'ON') ||
+              (itemState === '0' && target.value.toString().toUpperCase() === 'UP') ||
+              (itemState === '100' && target.value.toString().toUpperCase() === 'DOWN')
+            )) {
+              statesMatchingValue = false;
+              logger.debug('Check scene (selectorState [{}] of sceneSelector [{}]): Scene member [{}] with state [{}] does not match [{}].', this.scenes[curSelector].selectorStates[curState].selectorValue, this.scenes[curSelector].selectorItem, target.item, itemState, target.value);
             }
           }
         }
+        // When all members match the target value
+        if (statesMatchingValue === true) {
+          logger.info('Check scene: Found matching selectorValue [{}] of sceneSelector [{}].', this.scenes[curSelector].selectorStates[curState].selectorValue, this.scenes[curSelector].selectorItem);
+          // Store the current selectorValue, that is matching all required targets.
+          selectorValueMatching = this.scenes[curSelector].selectorStates[curState].selectorValue;
+          sceneFound = true;
+        }
+        // Update sceneSelector.
+        items.getItem(this.scenes[curSelector].selectorItem).postUpdate(selectorValueMatching);
       }
-      // Update sceneSelector with the selectorValue matching all sceneTargets.
-      if (updateSelectorValue) { items.getItem(currentSelector.selectorItem).postUpdate(selectorValueMatching); }
     }
   }
 
@@ -161,7 +150,7 @@ class SceneEngine {
           this.callScene(event.itemName);
         } else if (event.triggerType === 'ItemStateChangeTrigger') {
           logger.info('Check scene: Event [{}] of [{}].', event.triggerType, event.itemName);
-          this.checkScene(event.itemName);
+          this.checkScene();
         }
       }
     });
