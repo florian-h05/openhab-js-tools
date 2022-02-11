@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2021 Florian Hotze
+ * Copyright (c) 2022 Florian Hotze
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -8,37 +8,36 @@
  * SPDX-License-Identifier: EPL-2.0
  */
 
-const { items } = require('openhab');
+const { cache, items, log } = require('openhab');
+const logger = log('org.openhab.automation.js.@florian-h05/openhab-tools.itemutils.dimmer');
 
 /**
  * Controls an Item step-by-step to a target state. Only works for Items with support for float states.
  *
- * @memberof itemUtils
- * @param {Object} collection object holding existing dimmers
+ * @memberof itemutils
+ * @param {string} managerId id for the dimmer manager, used as key for the cache
  * @param {string} targetItem name of the Item to control
  * @param {number} targetState target to dim to
  * @param {number} step dimming step size
  * @param {number} time time in milliseconds between each step
- * @param {boolean} [breaking=true] whether to break dimmer if Item receives large external change
- * @returns {Object} object holding the existing dimmers
+ * @param {boolean} [ignoreExternalChange=true] whether to break dimmer if Item receives large external change
+ * @returns {Object} object holding the existing dimmers (only for debugging)
  * @throws error when collection is no object
  * @throws error when targetItem does not support float state
- * @example <caption>Store the collection of dimmers in cache.</caption>
- * let dimmers = cache.get(key, () => new Object());
- * dimmers = dimmer(collection, targetItem, targetState, step, time);
- * cache.put(key, dimmers);
+ * @example
+ * dimmer('exampleManager', targetItem, targetState, step, time);
  */
-const dimmer = (collection, targetItem, targetState, step, time, breaking = true) => {
+const dimmer = (managerId, targetItem, targetState, step, time, ignoreExternalChange = false) => {
   // Check parameters and Items for compatibility.
-  if (typeof collection !== 'object') throw Error('Collection must be an object');
+  if (typeof managerId !== 'string') throw Error('managerId must be a string');
   const item = items.getItem(targetItem);
   if (!item.rawState.floatValue) throw Error('targetItem must support float states.');
+
+  const collection = cache.get(managerId, () => { return {}; });
   // Check whether dimmer for that item already exists in collection.
-  for (const i of collection) {
-    if (typeof collection[i].item !== 'undefined') {
-      console.debug(`Dimmer for ${targetItem} already exists, skipping.`);
-      return;
-    }
+  if (collection[targetItem] !== undefined) {
+    logger.debug(`Dimmer for ${targetItem} already exists, skipping.`);
+    return;
   }
   // Initialize and create dimmer.
   let state = parseFloat(item.state);
@@ -48,24 +47,27 @@ const dimmer = (collection, targetItem, targetState, step, time, breaking = true
     // Function to call when the dimmer finishes or cancels.
     const breakDimmer = () => {
       clearInterval(interval);
-      delete collection.targetItem;
+      delete collection[targetItem];
     };
     // Cancel when targetState reached.
     if (state === targetState) breakDimmer();
     // Cancel when item receives large external change and breaking is set to true.
     const stateRet = parseFloat(item.state);
     if (Math.abs(stateRet - state) >= 2) {
-      console.warn(`Difference between returned state ${stateRet} and calculated state ${state} is too large. External item change happened.`);
-      if (breaking) {
+      logger.debug(`Dimmer ${targetItem}: Difference between returned state ${stateRet} and calculated state ${state} is too large. External item change happened.`);
+      if (!ignoreExternalChange) {
+        // Make sure the new state stays and is not overwritten by command from before (openHAB doesn't react in milliseconds to changes).
+        setTimeout(() => { item.sendCommand(stateRet); }, 250);
         breakDimmer();
-        console.debug(`Cancelled dimmer ${targetItem} due to external change.`);
+        logger.debug(`Cancelled dimmer ${targetItem} due to external change.`);
       }
     }
   }, time);
-  collection.targetItem = interval;
+  collection[targetItem] = interval;
+  cache.put(managerId, collection);
   return collection;
 };
 
-module.export = {
-  dimmer: dimmer
+module.exports = {
+  dimmer
 };
