@@ -6,5 +6,6 @@
  */
 
 module.exports = {
-  ...require('./groups.js')
+  ...require('./groups.js'),
+  ...require('./dimmer.js')
 };
