@@ -21,6 +21,8 @@ Therefore it is only listed in the devDependencies of this package.
   - [Alarm Rule](#alarm-rule)
 - [Group Utilities](#group-utilities)
   - [Examples](#examples)
+- [Item Dimmer](#item-dimmer)
+  - [Example](#example)
 
 ***
 ## Installation
@@ -132,3 +134,26 @@ itemutils.getGroup(group).membersSum;
 // Count how many members are on.
 itemutils.getGroup(group).membersCount(item => item.state === 'ON');
 ```
+
+***
+## Item Dimmer
+The Item Dimmer allows you to dim a given item step-by-step to a target state.
+Dimming step size and time between steps are configurable.
+
+```javascript
+require('@florian-h05/openhab-tools').itemutils.dimmer(managerId, targetItem, targetState, step, time, ignoreExternalChange);
+```
+Parameter | Purpose | type | required
+-|-|-|-
+managerId | id used in cache | string | yes
+targetItem | name of Item to control, item must support float states | string | yes
+targetState | target to dim to | number | yes
+step | size of dimming steps | number | yes
+time | time in milliseconds between each step | number | yes
+ignoreExternalChange | whether to ignore large Item state changes during dimming, default to false | boolean | no
+
+### Example
+```javascript
+require('@florian-h05/openhab-tools').itemutils.dimmer('sampleManager', 'Kitchen_Lights', 100, 1, 1000);
+```
+This dims the kitchen light to 100% with steps of 1% each second.

@@ -25,7 +25,7 @@ const logger = log('org.openhab.automation.js.@florian-h05/openhab-tools.itemuti
  * @throws error when collection is no object
  * @throws error when targetItem does not support float state
  * @example
- * dimmer('exampleManager', targetItem, targetState, step, time);
+ * itemutils.dimmer('exampleManager', targetItem, targetState, step, time);
  */
 const dimmer = (managerId, targetItem, targetState, step, time, ignoreExternalChange = false) => {
   // Check parameters and Items for compatibility.
