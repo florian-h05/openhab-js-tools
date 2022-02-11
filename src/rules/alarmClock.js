@@ -9,7 +9,7 @@
  */
 
 const { items, rules, triggers } = require('openhab');
-const logger = require('openhab').log('alarmClock');
+const logger = require('openhab').log('org.openhab.automation.js.@florian-h05/openhab-tools.rulesx.AlarmClock');
 const { ruleRegistry } = require('@runtime/RuleSupport');
 
 /**
@@ -19,7 +19,7 @@ const { ruleRegistry } = require('@runtime/RuleSupport');
  * Needs settings Items that must follow a given naming scheme.
  * The cron expression is build based on settings items.
  * When no day is selected, send command OFF to alarmSwitch and do not return rule.
- * @memberOf rulesx
+ * @memberof rulesx
  * @param {String} switchItem name of Item to switch the alarm on/off
  * @param {*} alarmFunc function to execute when the rule runs
  * @returns {(HostRule | null)} the alarm clock rule or null
@@ -60,7 +60,7 @@ function getClockRule (switchItem, alarmFunc) {
  *
  * The manager rule that creates and updates the alarm clock rule {@link rulesx.getClockRule} on change of settings Items.
  * Also creates and removes the alarm clock rule on ON/OFF of switchItem.
- * @memberOf rulesx
+ * @memberof rulesx
  * @param {String} switchItem name of Item to switch the alarm on/off
  * @param {*} alarmFunc function to execute when the alarm clock fires
  * @returns {HostRule} the alarm manager rule
@@ -84,9 +84,10 @@ function getAlarmClock (switchItem, alarmFunc) {
         triggers.ItemStateChangeTrigger(switchItem + '_SUN')
       ],
       execute: event => {
+        // As far as openHAB stable relies uses openhab-js 1.2.2, rules.removeRule(id) can be used.
         if (!(ruleRegistry.get(switchItem) == null)) {
           ruleRegistry.remove(switchItem);
-          logger.info('Removing rule: Alarm Clock {}', switchItem);
+          logger.debug('Removing rule: Alarm Clock {}', switchItem);
         }
         getClockRule(switchItem, alarmFunc);
       }
