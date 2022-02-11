@@ -29,7 +29,7 @@
     
     <input type="text" id="nav-search" placeholder="Search" />
     
-    <h2><a href="index.html">Home</a></h2><h3>Namespaces</h3><ul><li><a href="itemutils.html">itemutils</a><ul class='methods'><li data-type='method'><a href="itemutils.html#.getGroup">getGroup</a></li></ul></li><li><a href="rulesx.html">rulesx</a><ul class='methods'><li data-type='method'><a href="rulesx.html#.getClockRule">getClockRule</a></li><li data-type='method'><a href="rulesx.html#.getAlarmClock">getAlarmClock</a></li><li data-type='method'><a href="rulesx.html#.getSceneEngine">getSceneEngine</a></li></ul></li></ul><h3>Classes</h3><ul><li><a href="itemutils.GroupUtils.html">GroupUtils</a><ul class='methods'><li data-type='method'><a href="itemutils.GroupUtils.html#membersCount">membersCount</a></li><li data-type='method'><a href="itemutils.GroupUtils.html#descendentsCount">descendentsCount</a></li></ul></li><li><a href="rulesx.SceneEngine.html">SceneEngine</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Namespaces</h3><ul><li><a href="itemutils.html">itemutils</a><ul class='methods'><li data-type='method'><a href="itemutils.html#.dimmer">dimmer</a></li><li data-type='method'><a href="itemutils.html#.getGroup">getGroup</a></li></ul></li><li><a href="rulesx.html">rulesx</a><ul class='methods'><li data-type='method'><a href="rulesx.html#.getClockRule">getClockRule</a></li><li data-type='method'><a href="rulesx.html#.getAlarmClock">getAlarmClock</a></li><li data-type='method'><a href="rulesx.html#.getSceneEngine">getSceneEngine</a></li></ul></li></ul><h3>Classes</h3><ul><li><a href="itemutils.GroupUtils.html">GroupUtils</a><ul class='methods'><li data-type='method'><a href="itemutils.GroupUtils.html#membersCount">membersCount</a></li><li data-type='method'><a href="itemutils.GroupUtils.html#descendentsCount">descendentsCount</a></li></ul></li><li><a href="rulesx.SceneEngine.html">SceneEngine</a></li></ul>
 </nav>
 
 <div id="main">
@@ -135,6 +135,386 @@
 
     
         <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    <h4 class="name" id=".dimmer"><span class="type-signature">(static) </span>dimmer<span class="signature">(managerId, targetItem, targetState, step, time, ignoreExternalChange<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Object}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="itemutils_dimmer.js.html">itemutils/dimmer.js</a>, <a href="itemutils_dimmer.js.html#line30">line 30</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Controls an Item step-by-step to a target state. Only works for Items with support for float states.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Example</h5>
+    
+    <pre class="prettyprint"><code>itemutils.dimmer('exampleManager', targetItem, targetState, step, time);</code></pre>
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>managerId</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last"><p>id for the dimmer manager, used as key for the cache</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>targetItem</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last"><p>name of the Item to control</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>targetState</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last"><p>target to dim to</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>step</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last"><p>dimming step size</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>time</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last"><p>time in milliseconds between each step</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>ignoreExternalChange</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>true</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>whether to break dimmer if Item receives large external change</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Throws:</h5>
+<ul>
+        <li>
+
+    <div class="param-desc usertext">
+    
+        <p>error when collection is no object</p>
+    
+    </div>
+
+</li>
+    
+        <li>
+
+    <div class="param-desc usertext">
+    
+        <p>error when targetItem does not support float state</p>
+    
+    </div>
+
+</li>
+    </ul>
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>object holding the existing dimmers (only for debugging)</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Object</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
 
         
             
@@ -314,7 +694,7 @@
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.7</a> on Sun Jan 16 2022 11:53:22 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.7</a> on Fri Feb 11 2022 19:30:45 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>
