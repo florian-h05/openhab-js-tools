@@ -9,7 +9,7 @@
  */
 
 const { items, rules, triggers } = require('openhab');
-const logger = require('openhab').log('org.openhab.automation.js.@florian-h05/openhab-tools.rulesx.AlarmClock');
+const logger = require('openhab').log('org.openhab.automation.js.@hotzware/openhab-tools.rulesx.AlarmClock');
 const { ruleRegistry } = require('@runtime/RuleSupport');
 
 /**

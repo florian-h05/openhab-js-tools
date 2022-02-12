@@ -9,7 +9,7 @@
  */
 
 const { cache, items, log } = require('openhab');
-const logger = log('org.openhab.automation.js.@florian-h05/openhab-tools.itemutils.dimmer');
+const logger = log('org.openhab.automation.js.@hotzware/openhab-tools.itemutils.dimmer');
 
 /**
  * Controls an Item step-by-step to a target state. Only works for Items with support for float states.
