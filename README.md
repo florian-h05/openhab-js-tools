@@ -81,7 +81,7 @@ Identifier | Purpose | Type | Required
 
 ### Scene rule
 ```javascript
-require('@florian-h05/openhab-tools').rulesx.getSceneEngine(scenes, engineId);
+require('@hotzware/openhab-tools').rulesx.getSceneEngine(scenes, engineId);
 ```
 Parameter | Purpose | required
 -|-|-
@@ -113,7 +113,7 @@ _switchItem_``_Time`` | Displays the alarm time as String.
 
 ### Alarm Rule
 ```javascript
-require('@florian-h05/openhab-tools').rulesx.getAlarmClock(switchItem, data => { console.log('Successfully tested alarm clock.'); });
+require('@hotzware/openhab-tools').rulesx.getAlarmClock(switchItem, data => { console.log('Successfully tested alarm clock.'); });
 ```
 
 ***
@@ -126,7 +126,7 @@ These are a GraalJS compatible fork of the my original `groupUtils` from [rkosha
 
 ### Examples
 ```javascript
-const { itemutils } = require('@florian-h05/openhab-tools');
+const { itemutils } = require('@hotzware/openhab-tools');
 // The name of the member with the maximum state.
 itemutils.getGroup(group).membersMax.name;
 // The sum of states.
@@ -141,7 +141,7 @@ The Item Dimmer allows you to dim a given item step-by-step to a target state.
 Dimming step size and time between steps are configurable.
 
 ```javascript
-require('@florian-h05/openhab-tools').itemutils.dimmer(managerId, targetItem, targetState, step, time, ignoreExternalChange);
+require('@hotzware/openhab-tools').itemutils.dimmer(managerId, targetItem, targetState, step, time, ignoreExternalChange);
 ```
 Parameter | Purpose | type | required
 -|-|-|-
@@ -154,6 +154,6 @@ ignoreExternalChange | whether to ignore large Item state changes during dimming
 
 ### Example
 ```javascript
-require('@florian-h05/openhab-tools').itemutils.dimmer('sampleManager', 'Kitchen_Lights', 100, 1, 1000);
+require('@hotzware/openhab-tools').itemutils.dimmer('sampleManager', 'Kitchen_Lights', 100, 1, 1000);
 ```
 This dims the kitchen light to 100% with steps of 1% each second.
