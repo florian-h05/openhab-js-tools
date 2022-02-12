@@ -25,8 +25,5 @@
     "docdash": "^1.2.0",
     "jsdoc": "^3.6.3"
   },
-  "private": false,
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com"
-  }
+  "private": false
 }
