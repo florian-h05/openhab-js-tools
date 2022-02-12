@@ -30,7 +30,7 @@ Therefore it is only listed in the devDependencies of this package.
 - Requires the openHAB [JavaScript binding](https://www.openhab.org/addons/automation/jsscripting/) which comes with a version of the [openHAB
 library](https://www.npmjs.com/package/openhab).
 - Go to the javascript user scripts directory: `cd $OPENHAB_CONF/automation/js`
-- Run `npm install github:florian-h05/openhab-js-tools#semver:1.2.6` (you may need to install npm)
+- Run `npm install @hotzware/openhab-tools` (you may need to install npm)
 
 ***
 ## Scene Engine
