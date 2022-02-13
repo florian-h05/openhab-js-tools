@@ -15,6 +15,7 @@ const logger = log('org.openhab.automation.js.@hotzware/openhab-tools.itemutils.
  * Controls an Item step-by-step to a target state. Only works for Items with support for float states.
  *
  * @memberof itemutils
+ * @param {string} managerID id for the dimmer manager, used as key for the cache
  * @param {string} targetItem name of the Item to control
  * @param {number} targetState target to dim to
  * @param {number} step dimming step size
@@ -24,8 +25,8 @@ const logger = log('org.openhab.automation.js.@hotzware/openhab-tools.itemutils.
  * @example
  * itemutils.dimmer('exampleManager', targetItem, targetState, step, time);
  */
- const dimmer = (targetItem, targetState, step, time, ignoreExternalChange = false) => {
-  const CACHE_KEY = 'itemutils-dimmer';
+const dimmer = (managerID, targetItem, targetState, step, time, ignoreExternalChange = false) => {
+  const CACHE_KEY = managerID;
   // Check Item for compatibility.
   const item = items.getItem(targetItem);
   if (!item.rawState.floatValue) throw Error('targetItem must support float states.');
@@ -43,7 +44,7 @@ const logger = log('org.openhab.automation.js.@hotzware/openhab-tools.itemutils.
     return;
   }
   // Initialize and create dimmer.
-  logger.info(`Dimming ${targetItem} to ${state}.`);
+  logger.info(`Dimming ${targetItem} to ${targetState}.`);
   const interval = setInterval(() => {
     // Function to call when the dimmer finishes or cancels.
     const breakDimmer = (msg) => {

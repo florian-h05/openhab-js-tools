@@ -7,7 +7,8 @@ The JavaScript Add-On is using the NodeJS version found in [openhab/openhab-addo
 Please note that it depends on the [openHAB JavaScript Library](https://github.com/openhab/openhab-js), which is included in the JS Scripting Add-On by default.
 Therefore it is only listed in the devDependencies of this package.
 
-[![js-semistandard-style](https://raw.githubusercontent.com/standard/semistandard/master/badge.svg)](https://github.com/standard/semistandard)
+[![js-semistandard-style](https://img.shields.io/badge/code%20style-semistandard-brightgreen.svg)](https://github.com/standard/semistandard)
+[![npm version](https://badge.fury.io/js/@hotzware%2Fopenhab-tools.svg)](https://badge.fury.io/js/@hotzware%2Fopenhab-tools)
 
 ## Table of Contents
 - [Table of Contents](#table-of-contents)
@@ -140,12 +141,24 @@ itemutils.getGroup(group).membersCount(item => item.state === 'ON');
 The Item Dimmer allows you to dim a given item step-by-step to a target state.
 Dimming step size and time between steps are configurable.
 
+The dimmer uses the cache to avoid that multiple dimmers are running on the same Item at same time.
+Therefore it is recommended to use the same `managerID` in UI based scripts.
+
+Only for file based scripts: To avoid that the dimmer manager crashes due to file reload during dimming process, use the [`scriptUnloaded`](https://github.com/openhab/openhab-js#scriptunloaded) function to clear the cache. 
+You may use multiple `managerID`s to not cancel all dimmers when one script reloads.
+
 ```javascript
-require('@hotzware/openhab-tools').itemutils.dimmer(managerId, targetItem, targetState, step, time, ignoreExternalChange);
+var MANAGER_KEY = 'managerID';
+require('@hotzware/openhab-tools').itemutils.dimmer(MANAGER_KEY, targetItem, targetState, step, time, ignoreExternalChange);
+
+// Only for file based scripts:
+scriptUnloaded = function () {
+  cache.remove(MANAGER_KEY);
+};
 ```
 Parameter | Purpose | type | required
 -|-|-|-
-managerId | id used in cache | string | yes
+managerID | id used for cache | string | yes
 targetItem | name of Item to control, item must support float states | string | yes
 targetState | target to dim to | number | yes
 step | size of dimming steps | number | yes
