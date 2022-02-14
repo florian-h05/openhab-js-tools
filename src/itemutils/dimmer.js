@@ -37,9 +37,9 @@ const dimmer = (managerID, targetItem, targetState, step, time, ignoreExternalCh
     return;
   }
   // If targetState not met, create dimmer.
-  const collection = cache.get(CACHE_KEY, () => { return {}; });
+  const collection = cache.get(CACHE_KEY, () => { return new Map(); });
   // If dimmer for targetItem already exists, do not create new one.
-  if (targetItem in collection) {
+  if (collection.has(targetItem)) {
     logger.debug(`Dimmer ${targetItem}: already exists, skipping.`);
     return;
   }
@@ -50,7 +50,7 @@ const dimmer = (managerID, targetItem, targetState, step, time, ignoreExternalCh
     const breakDimmer = (msg) => {
       logger.debug(`Dimmer ${targetItem}: Cancelled due to: ${msg}.`);
       clearInterval(interval);
-      delete collection[targetItem];
+      collection.delete(targetItem);
     };
     // Cancel when targetState is reached.
     if (state === targetState) {
@@ -71,7 +71,7 @@ const dimmer = (managerID, targetItem, targetState, step, time, ignoreExternalCh
     logger.debug(`Dimmer ${targetItem}: Sending command ${state} to ${targetItem}.`);
     item.sendCommand(state);
   }, time);
-  collection[targetItem] = interval;
+  collection.set(targetItem, interval);
   cache.put(CACHE_KEY, collection);
 };
 
