@@ -9,7 +9,7 @@
  */
 
 const { items, rules, triggers } = require('openhab');
-const logger = require('openhab').log('org.openhab.automation.js.@hotzware/openhab-tools.rulesx.AlarmClock');
+const logger = require('openhab').log('org.openhab.automation.js.openhab-tools.rulesx.AlarmClock');
 const { ruleRegistry } = require('@runtime/RuleSupport');
 
 /**
@@ -87,7 +87,7 @@ function getAlarmClock (switchItem, alarmFunc) {
         // As far as openHAB stable relies uses openhab-js 1.2.2, rules.removeRule(id) can be used.
         if (!(ruleRegistry.get(switchItem) == null)) {
           ruleRegistry.remove(switchItem);
-          logger.debug('Removing rule: Alarm Clock {}', switchItem);
+          logger.info('Removing rule: Alarm Clock {}', switchItem);
         }
         getClockRule(switchItem, alarmFunc);
       }

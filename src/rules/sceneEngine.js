@@ -9,7 +9,7 @@
  */
 
 const { items, rules, triggers } = require('openhab');
-const logger = require('openhab').log('org.openhab.automation.js.@hotzware/openhab-tools.rulesx.SceneEngine');
+const logger = require('openhab').log('org.openhab.automation.js.openhab-tools.rulesx.SceneEngine');
 
 /**
  * Scene Engine

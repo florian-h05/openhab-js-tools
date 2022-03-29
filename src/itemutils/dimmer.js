@@ -9,7 +9,7 @@
  */
 
 const { cache, items, log } = require('openhab');
-const logger = log('org.openhab.automation.js.@hotzware/openhab-tools.itemutils.dimmer');
+const logger = log('org.openhab.automation.js.openhab-tools.itemutils.dimmer');
 
 /**
  * Controls an Item step-by-step to a target state. Only works for Items with support for float states.
@@ -48,7 +48,7 @@ const dimmer = (managerID, targetItem, targetState, step, time, ignoreExternalCh
   const interval = setInterval(() => {
     // Function to call when the dimmer finishes or cancels.
     const breakDimmer = (msg) => {
-      logger.debug(`Dimmer ${targetItem}: Cancelled due to: ${msg}.`);
+      logger.info(`Dimmer ${targetItem}: Cancelled due to: ${msg}.`);
       clearInterval(interval);
       collection.delete(targetItem);
     };
@@ -68,7 +68,7 @@ const dimmer = (managerID, targetItem, targetState, step, time, ignoreExternalCh
     }
     // Dim to target state.
     state = (state > targetState) ? (state - step) : (state < targetState) ? (state + step) : state;
-    logger.debug(`Dimmer ${targetItem}: Sending command ${state} to ${targetItem}.`);
+    logger.trace(`Dimmer ${targetItem}: Sending command ${state} to ${targetItem}.`);
     item.sendCommand(state);
   }, time);
   collection.set(targetItem, interval);
