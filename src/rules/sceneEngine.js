@@ -33,14 +33,15 @@ class SceneEngine {
   }
 
   /**
-   * Required triggers for the scene rule.
+   * Gets all required triggers for the scene rule.
    * For selectorItems command triggers, for scene members change triggers.
+   * Scene members that are not required are excluded from the triggers.
    * @private
    * @returns {triggers[]} rule triggers
    */
-  get triggers () {
-    let ruleTriggers = [];
-    let updateTriggers = [];
+  getTriggers () {
+    const ruleTriggers = [];
+    const updateTriggers = [];
     // For each sceneSelector the selectorItem.
     for (let i = 0; i < this.scenes.length; i++) {
       const currentSelector = this.scenes[i];
@@ -49,11 +50,11 @@ class SceneEngine {
       // For each selectorState.
       for (let j = 0; j < currentSelector.selectorStates.length; j++) {
         const currentState = currentSelector.selectorStates[j];
-        // For for each sceneTarget, the member items.
+        // For for each sceneTarget, the member items that are required (default is required).
         for (let k = 0; k < currentState.sceneTargets.length; k++) {
-          const targetItem = currentState.sceneTargets[k].item;
-          if (updateTriggers.indexOf(targetItem) === -1) {
-            updateTriggers.push(targetItem);
+          const target = currentState.sceneTargets[k];
+          if (target.required !== false && updateTriggers.indexOf(target.item) === -1) {
+            updateTriggers.push(target.item);
           }
         }
       }
@@ -111,10 +112,10 @@ class SceneEngine {
             // Check whether the current item states does not match the target state.
             if (!(
               (itemState === target.value) ||
-              (itemState === '0' && target.value.toString().toUpperCase() === 'OFF') ||
-              (itemState === '100' && target.value.toString().toUpperCase() === 'ON') ||
-              (itemState === '0' && target.value.toString().toUpperCase() === 'UP') ||
-              (itemState === '100' && target.value.toString().toUpperCase() === 'DOWN')
+               (itemState === '0' && target.value.toString().toUpperCase() === 'OFF') ||
+               (itemState === '100' && target.value.toString().toUpperCase() === 'ON') ||
+               (itemState === '0' && target.value.toString().toUpperCase() === 'UP') ||
+               (itemState === '100' && target.value.toString().toUpperCase() === 'DOWN')
             )) {
               statesMatchingValue = false;
               logger.debug('Check scene (selectorState [{}] of sceneSelector [{}]): Scene member [{}] with state [{}] does not match [{}].', this.scenes[curSelector].selectorStates[curState].selectorValue, this.scenes[curSelector].selectorItem, target.item, itemState, target.value);
@@ -139,11 +140,11 @@ class SceneEngine {
    * @private
    * @returns {HostRule} openHAB Rule
    */
-  get rule () {
+  getRule () {
     return rules.JSRule({
       name: 'SceneEngine with id: ' + this.engineId,
       description: 'Rule to run the SceneEngine.',
-      triggers: this.triggers,
+      triggers: this.getTriggers(),
       execute: event => {
         if (event.triggerType === 'ItemCommandTrigger') {
           logger.info('Call scene: Event [{}] of [{}].', event.triggerType, event.itemName);
@@ -168,7 +169,7 @@ class SceneEngine {
  * rulesx.getSceneEngine(scenes, engineId);
  */
 const getSceneEngine = (scenes, engineId) => {
-  return new SceneEngine(scenes, engineId).rule;
+  return new SceneEngine(scenes, engineId).getRule();
 };
 
 module.exports = {

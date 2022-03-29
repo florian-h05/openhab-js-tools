@@ -31,7 +31,7 @@ function getClockRule (switchItem, alarmFunc) {
   // Post time string.
   items.getItem(switchItem + '_Time').postUpdate(hour.toString() + ':' + ((minute < 10) ? '0' : '') + minute.toString());
   // Generate Array for days of week.
-  let days = [];
+  const days = [];
   if (items.getItem(switchItem + '_MON').state === 'ON') days.push('MON');
   if (items.getItem(switchItem + '_TUE').state === 'ON') days.push('TUE');
   if (items.getItem(switchItem + '_WED').state === 'ON') days.push('WED');
