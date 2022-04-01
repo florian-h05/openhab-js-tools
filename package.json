@@ -1,6 +1,6 @@
 {
   "name": "@hotzware/openhab-tools",
-  "version": "1.3.2",
+  "version": "1.3.3",
   "description": "Tools for the openHAB JavaScript Automation Add-On.",
   "keywords": [
     "openHAB",
@@ -20,10 +20,10 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "semistandard": "*",
+    "docdash": "*",
+    "jsdoc": "^3.6.10",
     "openhab": "^1.2.2",
-    "docdash": "^1.2.0",
-    "jsdoc": "^3.6.3"
+    "semistandard": "*"
   },
   "private": false
 }
