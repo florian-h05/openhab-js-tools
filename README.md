@@ -82,7 +82,7 @@ Identifier | Purpose | Type | Required
 
 ### Scene rule
 ```javascript
-require('@hotzware/openhab-tools').rulesx.getSceneEngine(scenes, engineId);
+rulesx.getSceneEngine(scenes, engineId);
 ```
 Parameter | Purpose | required
 -|-|-
@@ -114,7 +114,7 @@ _switchItem_``_Time`` | Displays the alarm time as String.
 
 ### Alarm Rule
 ```javascript
-require('@hotzware/openhab-tools').rulesx.getAlarmClock(switchItem, data => { console.log('Successfully tested alarm clock.'); });
+rulesx.getAlarmClock(switchItem, data => { console.log('Successfully tested alarm clock.'); });
 ```
 
 ***
@@ -149,24 +149,25 @@ You may use multiple `managerID`s to not cancel all dimmers when one script relo
 
 ```javascript
 var MANAGER_KEY = 'managerID';
-require('@hotzware/openhab-tools').itemutils.dimmer(MANAGER_KEY, targetItem, targetState, step, time, ignoreExternalChange);
+itemutils.dimmer(MANAGER_KEY, targetItem, targetState, step, time, ignoreExternalChange);
 
 // Only for file based scripts:
 scriptUnloaded = function () {
   cache.remove(MANAGER_KEY);
 };
 ```
-Parameter | Purpose | type | required
--|-|-|-
-managerID | id used for cache | string | yes
-targetItem | name of Item to control, item must support float states | string | yes
-targetState | target to dim to | number | yes
-step | size of dimming steps | number | yes
-time | time in milliseconds between each step | number | yes
-ignoreExternalChange | whether to ignore large Item state changes during dimming, default to false | boolean | no
+| Parameter            | Purpose                                                                     | Type    | Required | Default |
+|----------------------|-----------------------------------------------------------------------------|---------|----------|---------|
+| managerID            | id used for cache                                                           | string  | yes      |         |
+| targetItem           | name of Item to control, item must support float states                     | string  | yes      |         |
+| targetState          | target to dim to                                                            | number  | yes      |         |
+| step                 | size of dimming steps                                                       | number  | yes      |         |
+| time                 | time in milliseconds between each step                                      | number  | yes      |         |
+| ignoreExternalChange | whether to ignore large Item state changes during dimming, default to false | boolean | no       | false   |
+| overwrite            | whether to cancel an existing dimmer and create a new one                   | boolean | no       | false   |
 
 ### Example
 ```javascript
-require('@hotzware/openhab-tools').itemutils.dimmer('sampleManager', 'Kitchen_Lights', 100, 1, 1000);
+itemutils.dimmer('sampleManager', 'Kitchen_Lights', 100, 1, 1000);
 ```
 This dims the kitchen light to 100% with steps of 1% each second.
