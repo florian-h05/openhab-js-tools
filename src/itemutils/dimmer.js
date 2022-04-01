@@ -22,15 +22,21 @@ const logger = log('org.openhab.automation.js.openhab-tools.itemutils.dimmer');
  * @param {number} time time in milliseconds between each step
  * @param {boolean} [ignoreExternalChange=false] whether to break dimmer if Item receives large external change
  * @param {boolean} [overwrite=false] whether to cancel an existing dimmer and create a new one
- * @throws error when targetItem does not support float state
+ * @throws error when targetItem does not support float state or a parameter has wrong type
+ *
  * @example
  * itemutils.dimmer('exampleManager', targetItem, targetState, step, time);
  */
 const dimmer = (managerID, targetItem, targetState, step, time, ignoreExternalChange = false, overwrite = false) => {
   const CACHE_KEY = managerID;
-  // Check Item for compatibility.
+  // Check Item and parameters.
+  if (!typeof managerID == 'string') throw Error('managerID must be a string.');
   const item = items.getItem(targetItem);
   if (!item.rawState.floatValue) throw Error('targetItem must support float states.');
+  if (!typeof targetState == 'number') throw Error('targetState must be a number.');
+  if (!typeof step == 'number') throw Error('step must be a number.');
+  if (!typeof time == 'number') throw Error('time must be a number.');
+  
   // If targetState already met, do not create a dimmer.
   let state = parseFloat(item.state);
   if (state === targetState) {
