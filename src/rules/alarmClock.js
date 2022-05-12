@@ -29,7 +29,7 @@ function getClockRule (switchItem, alarmFunc) {
   const hour = parseInt(items.getItem(switchItem + '_H').state);
   const minute = parseInt(items.getItem(switchItem + '_M').state);
   // Post time string.
-  items.getItem(switchItem + '_Time').postUpdate(hour.toString() + ':' + ((minute < 10) ? '0' : '') + minute.toString());
+  items.getItem(switchItem + '_Time').postUpdate(((hour < 10) ? '0' : '') + hour.toString() + ':' + ((minute < 10) ? '0' : '') + minute.toString());
   // Generate Array for days of week.
   const days = [];
   if (items.getItem(switchItem + '_MON').state === 'ON') days.push('MON');
