@@ -14,16 +14,19 @@
     "url": "git+https://github.com/florian-h05/openhab-js-tools.git"
   },
   "scripts": {
-    "lint": "semistandard",
-    "test": "",
-    "docs": "rm -Rf ./docs/* && ./node_modules/.bin/jsdoc --configure docs_config.json && mv ./docs/$npm_package_name/$npm_package_version/* ./docs/ && rm -Rf ./docs/$npm_package_name/$npm_package_version"
+    "test": "npm run lint",
+    "docs": "rm -Rf ./docs/* && ./node_modules/.bin/jsdoc --configure docs_config.json && mv ./docs/$npm_package_name/$npm_package_version/* ./docs/ && rm -Rf ./docs/$npm_package_name/$npm_package_version",
+    "deploy": "npm test && npm run docs",
+    "lint": "npx standardx | snazzy",
+    "fix-codestyle": "npx standardx --fix"
   },
   "dependencies": {},
   "devDependencies": {
     "docdash": "*",
     "jsdoc": "^3.6.10",
     "openhab": "^1.2.2",
-    "semistandard": "*"
+    "snazzy": "^9.0.0",
+    "standardx": "^7.0.0"
   },
   "private": false
 }
