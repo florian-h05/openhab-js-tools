@@ -518,7 +518,7 @@ Also creates and removes the alarm clock rule on ON/OFF of switchItem.</p>
 
     
 
-    <h4 class="name" id=".getSceneEngine"><span class="type-signature">(static) </span>getSceneEngine<span class="signature">(scenes, engineId)</span><span class="type-signature"> &rarr; {HostRule}</span></h4>
+    <h4 class="name" id=".getSceneEngine"><span class="type-signature">(static) </span>getSceneEngine<span class="signature">(sceneDefinition)</span><span class="type-signature"> &rarr; {HostRule}</span></h4>
 
     
 
@@ -530,7 +530,7 @@ Also creates and removes the alarm clock rule on ON/OFF of switchItem.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="rules_sceneEngine.js.html">rules/sceneEngine.js</a>, <a href="rules_sceneEngine.js.html#line171">line 171</a>
+        <a href="rules_sceneEngine.js.html">rules/sceneEngine.js</a>, <a href="rules_sceneEngine.js.html#line184">line 184</a>
     </li></ul></dd>
     
 
@@ -581,11 +581,6 @@ Also creates and removes the alarm clock rule on ON/OFF of switchItem.</p>
 
 
 
-    <h5>Example</h5>
-    
-    <pre class="prettyprint"><code>rulesx.getSceneEngine(scenes, engineId);</code></pre>
-
-
 
 
     <h5>Parameters:</h5>
@@ -613,13 +608,13 @@ Also creates and removes the alarm clock rule on ON/OFF of switchItem.</p>
 
         <tr>
             
-                <td class="name"><code>scenes</code></td>
+                <td class="name"><code>sceneDefinition</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">*</span>
+<span class="param-type">Object</span>
 
 
             
@@ -629,14 +624,33 @@ Also creates and removes the alarm clock rule on ON/OFF of switchItem.</p>
 
             
 
-            <td class="description last"><p>scenes definiton, have a look at the README</p></td>
-        </tr>
+            <td class="description last"><p>scenes definiton</p>
+                <h6>Properties</h6>
+                
 
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
     
 
         <tr>
             
-                <td class="name"><code>engineId</code></td>
+                <td class="name"><code>controller</code></td>
             
 
             <td class="type">
@@ -652,7 +666,285 @@ Also creates and removes the alarm clock rule on ON/OFF of switchItem.</p>
 
             
 
-            <td class="description last"><p>instance name</p></td>
+            <td class="description last"><p>name of Item that calls the scenes</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>scenes</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;Object></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Array of scenes</p>
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>value</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>integer identifying the scene</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>targets</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;Object></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Array of scene members</p>
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>item</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last"><p>name of Item</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>value</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last"><p>target state of Item</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>required</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Boolean</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>true</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>whether the Item's state must match the target state when the engine gets the current scene on change of a member</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>conditionFn</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last"><p>the Item is only commanded and required for scene checks if the evaluation of this function returns true</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
         </tr>
 
     
@@ -719,7 +1011,7 @@ Also creates and removes the alarm clock rule on ON/OFF of switchItem.</p>
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.10</a> on Thu May 12 2022 20:43:27 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.10</a> on Fri May 13 2022 22:47:41 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>
