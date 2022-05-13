@@ -178,7 +178,7 @@ class SceneEngine {
  * @param {String} sceneDefinition.scenes[].targets[].item name of Item
  * @param {String} sceneDefinition.scenes[].targets[].value target state of Item
  * @param {Boolean} [sceneDefinition.scenes[].targets[].required=true] whether the Item's state must match the target state when the engine gets the current scene on change of a member
- * @param {Function} [sceneDefinition.scenes[].targets[].conditionFn] the Item is only commanded if the evaluation of this function returns true
+ * @param {Function} [sceneDefinition.scenes[].targets[].conditionFn] the Item is only commanded and required for scene checks if the evaluation of this function returns true
  * @returns {HostRule} SceneEngine rule
  */
 const getSceneEngine = (sceneDefinition) => {
