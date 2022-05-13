@@ -52,42 +52,35 @@ except to 0.
 ### Scene definition
 Scene defintion works with an array of objects.
 ```javascript
-const scenes = [ // For each sceneItem one object.
-  { // Object of the first sceneItem.
-    selectorItem: 'scene call item name',
-    selectorStates: [ // For each numeric state of the sceneItem one object.
-      { // Object for the value 1 of the sceneItem.
-        selectorValue: 1,
-        sceneTargets: [ // Target states of items in the scene. Parameters explained later.
-          { item: 'Florian_Licht', value: 'ON', required: true },
-          { item: 'Florian_LED_Stripes', value: 'OFF', required: false }
-        ] 
-      },
-      { // Object for the value 15 of the sceneItem.
-        selectorValue: 15,
-        sceneTargets: [ // Target states of items in the scene. Parameters explained later.
-          { item: 'Florian_LED_Stripes', value: 'ON', required: true }
-        ]
-      }
-    ]
-  }
-];
+const sceneDefinition = {
+  controller: 'scene call item name',
+  scenes: [ // For each numeric state of the controller Item one object.
+    { // Object for the value 1 of the controller Item.
+      value: 1,
+      targets: [ // Target states of items in the scene. Parameters explained later.
+        { item: 'Florian_Licht', value: 'ON', required: true, conditionFn: function() { return parseFloat(items.getItem('Helligkeit').state) >= 10000; } },
+        { item: 'Florian_LED_Stripes', value: 'OFF', required: false }
+      ] 
+    },
+    { // Object for the value 15 of the controller Item.
+      value: 15,
+      targets: [ // Target states of items in the scene. Parameters explained later.
+        { item: 'Florian_LED_Stripes', value: 'ON', required: true }
+      ]
+    }
+  ]
+};
 ```
-__sceneTargets__' parameters
-Identifier | Purpose | Type | Required
--|-|-|-
-`item` | Name of a scene member. | String | yes
-`value` | Target state of that member. | String | yes
-`required` | Whether that member must match the target state when the scene is checked. | Boolean | no, defaults to true
+
+See [JSDoc: getSceneEngine()](https://florian-h05.github.io/openhab-js-tools/rulesx.html#.getSceneEngine) for documentation of parameters.
 
 ### Scene rule
 ```javascript
-rulesx.getSceneEngine(scenes, engineId);
+rulesx.getSceneEngine(sceneDefinition);
 ```
-Parameter | Purpose | required
--|-|-
-scenes | The scene definition array of objects. | yes
-engineId | The id of the scene engine, used in description. | yes
+| Parameter       | Purpose                                | Required |
+|-----------------|----------------------------------------|----------|
+| sceneDefinition | The scene definition array of objects. | yes      |
 
 ***
 ## Alarm Clock
