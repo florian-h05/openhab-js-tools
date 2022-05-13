@@ -113,19 +113,22 @@ class SceneEngine {
           let result = true;
           if (typeof target.conditionFn === 'function') {
             if (target.conditionFn() !== true) {
+              console.debug(`Check scene (value [${this.scenes[curState].value}] of controller [${this.controller}]): Scene member [${target.item}] with state [${itemState}] is not required to match as conditionFn did not return true.`);
               result = false;
             }
           }
+          if (result === true) {
           // Check whether the current Item state does not match the target state.
-          if (!(
-            (itemState === target.value) ||
+            if (!(
+              (itemState === target.value) ||
              (itemState === '0' && target.value.toString().toUpperCase() === 'OFF') ||
              (itemState === '100' && target.value.toString().toUpperCase() === 'ON') ||
              (itemState === '0' && target.value.toString().toUpperCase() === 'UP') ||
              (itemState === '100' && target.value.toString().toUpperCase() === 'DOWN')
-          ) || result !== true) { // Check whether conditionFn not returns true if conditionFn is defined.
-            statesMatchingValue = false;
-            console.debug(`Check scene (value [${this.scenes[curState].value}] of controller [${this.controller}]): Scene member [${target.item}] with state [${itemState}] does not match [${target.value}].`);
+            )) {
+              statesMatchingValue = false;
+              console.debug(`Check scene (value [${this.scenes[curState].value}] of controller [${this.controller}]): Scene member [${target.item}] with state [${itemState}] does not match [${target.value}] or is not required to match.`);
+            }
           }
         }
       }
