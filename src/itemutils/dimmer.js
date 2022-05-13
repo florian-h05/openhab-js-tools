@@ -30,13 +30,13 @@ const logger = log('org.openhab.automation.js.openhab-tools.itemutils.dimmer');
 const dimmer = (managerID, targetItem, targetState, step, time, ignoreExternalChange = false, overwrite = false) => {
   const CACHE_KEY = managerID;
   // Check Item and parameters.
-  if (!typeof managerID == 'string') throw Error('managerID must be a string.');
+  if (typeof managerID !== 'string') throw Error('managerID must be a string.');
   const item = items.getItem(targetItem);
   if (!item.rawState.floatValue) throw Error('targetItem must support float states.');
-  if (!typeof targetState == 'number') throw Error('targetState must be a number.');
-  if (!typeof step == 'number') throw Error('step must be a number.');
-  if (!typeof time == 'number') throw Error('time must be a number.');
-  
+  if (typeof targetState !== 'number') throw Error('targetState must be a number.');
+  if (typeof step !== 'number') throw Error('step must be a number.');
+  if (typeof time !== 'number') throw Error('time must be a number.');
+
   // If targetState already met, do not create a dimmer.
   let state = parseFloat(item.state);
   if (state === targetState) {
