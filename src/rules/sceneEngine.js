@@ -18,15 +18,15 @@ const { items, rules, triggers } = require('openhab');
 class SceneEngine {
   /**
    * Constructor to create an instance. Do not call directly, instead call {@link getSceneEngine}.
-   * @param {*} sceneDefiniton definition of scenes following a special scheme (see README.md)
+   * @param {*} sceneDefiniton definition of scenes following a special scheme (see {@link getSceneEngine})
    * @hideconstructor
    */
   constructor (sceneDefinition) {
     if (typeof sceneDefinition.controller !== 'string') {
-      throw Error('selectorItem is not supplied or is not string!');
+      throw Error('controller is not supplied or is not string!');
     }
     if (typeof sceneDefinition.scenes !== 'object') {
-      throw Error('selectorValues is not an Array!');
+      throw Error('scenes is not an Array!');
     }
     this.controller = sceneDefinition.controller;
     this.scenes = sceneDefinition.scenes;
@@ -34,7 +34,7 @@ class SceneEngine {
 
   /**
    * Gets all required triggers for the scene rule.
-   * For selectorItems command triggers, for scene members change triggers.
+   * For the controller a command trigger, for scene members change triggers.
    * Scene members that are not required are excluded from the triggers.
    * @private
    * @returns {triggers[]} rule triggers
@@ -65,20 +65,30 @@ class SceneEngine {
   /**
    * Calls the scene. Sets the scene members to the given target state.
    * @private
-   * @param {Number} sceneNumber value of selectorState / number of scene to call
+   * @param {Number} sceneNumber value of controller / number of scene to call
    */
   callScene (sceneNumber) {
     sceneNumber = parseInt(sceneNumber);
-    // Get the correct selectorState.
+    // Get the correct scene value.
     for (let j = 0; j < this.scenes.length; j++) {
-      // Get the correct sceneTargets.
+      // Get the correct scene targets.
       if (this.scenes[j].value === sceneNumber) {
-        console.info(`Call scene: Found selectorState [${this.scenes[j].value}] of sceneSelector [${this.controller}].`);
+        console.info(`Call scene: Found value [${this.scenes[j].value}] of controller [${this.controller}].`);
         const targets = this.scenes[j].targets;
         // Send commands to member items.
         for (let curTarget = 0; curTarget < targets.length; curTarget++) {
-          console.info(`Call scene: Commanding ${targets[curTarget].item} to ${targets[curTarget].value}.`);
-          items.getItem(targets[curTarget].item).sendCommand(targets[curTarget].value);
+          if (typeof targets[curTarget].conditionFn === 'function') {
+            const result = targets[curTarget].conditionFn();
+            if (result === true) {
+              console.info(`Call scene: Commanding ${targets[curTarget].item} to ${targets[curTarget].value} as condition is met (conditionFn returned ${result}).`);
+              items.getItem(targets[curTarget].item).sendCommand(targets[curTarget].value);
+            } else {
+              console.info(`Call scene: Not commanding ${targets[curTarget].item} to ${targets[curTarget].value} as condition is not met (conditionFn returned ${result}).`);
+            }
+          } else {
+            console.info(`Call scene: Commanding ${targets[curTarget].item} to ${targets[curTarget].value}.`);
+            items.getItem(targets[curTarget].item).sendCommand(targets[curTarget].value);
+          }
         }
       }
     }
@@ -91,36 +101,42 @@ class SceneEngine {
   checkScene () {
     let selectorValueMatching = 0; // The selector value of the matching scene.
     let sceneFound = false;
-    // Check each selectorState. The first one matching is used.
+    // Check each scene. The first one matching is used.
     for (let curState = 0; curState < this.scenes.length && sceneFound === false; curState++) {
       let statesMatchingValue = true;
-      // Checks whether sceneTargets are matching. As soon as one is not matching it's target value, the next selector state is checked.
+      // Checks whether scene's targets are matching. As soon as one is not matching it's target value, the next selector state is checked.
       for (let curTarget = 0; curTarget < this.scenes[curState].targets.length && statesMatchingValue === true; curTarget++) {
         const target = this.scenes[curState].targets[curTarget];
         if (!(target.required === false)) {
           const itemState = items.getItem(target.item).state.toString();
-          console.debug(`Check scene (selectorState [${this.scenes[curState].value}] of sceneSelector [${this.controller}]): Checking scene member [${target.item}] with state [${itemState}].`);
-          // Check whether the current item states does not match the target state.
+          console.debug(`Check scene (value [${this.scenes[curState].value}] of controller [${this.controller}]): Checking scene member [${target.item}] with state [${itemState}].`);
+          let result = true;
+          if (typeof target.conditionFn === 'function') {
+            if (target.conditionFn() !== true) {
+              result = false;
+            }
+          }
+          // Check whether the current Item state does not match the target state.
           if (!(
             (itemState === target.value) ||
              (itemState === '0' && target.value.toString().toUpperCase() === 'OFF') ||
              (itemState === '100' && target.value.toString().toUpperCase() === 'ON') ||
              (itemState === '0' && target.value.toString().toUpperCase() === 'UP') ||
              (itemState === '100' && target.value.toString().toUpperCase() === 'DOWN')
-          )) {
+          ) || result !== true) { // Check whether conditionFn not returns true if conditionFn is defined.
             statesMatchingValue = false;
-            console.debug(`Check scene (selectorState [${this.scenes[curState].value}] of sceneSelector [${this.controller}]): Scene member [${target.item}] with state [${itemState}] does not match [${target.value}].`);
+            console.debug(`Check scene (value [${this.scenes[curState].value}] of controller [${this.controller}]): Scene member [${target.item}] with state [${itemState}] does not match [${target.value}].`);
           }
         }
       }
       // When all members match the target value
       if (statesMatchingValue === true) {
-        console.info(`Check scene: Found matching selectorValue [${this.scenes[curState].value}] of sceneSelector [${this.controller}].`);
-        // Store the current selectorValue, that is matching all required targets.
+        console.info(`Check scene: Found matching value [${this.scenes[curState].value}] of controller [${this.controller}].`);
+        // Store the current value that is matching all required targets.
         selectorValueMatching = this.scenes[curState].value;
         sceneFound = true;
       }
-      // Update sceneSelector.
+      // Update controller.
       items.getItem(this.controller).postUpdate(selectorValueMatching);
     }
   }
@@ -151,14 +167,19 @@ class SceneEngine {
 /**
  * Provides the {@link rulesx.SceneEngine}.
  * @memberof rulesx
- * @param {*} scenes scenes definiton, have a look at the README
+ * @param {Object} sceneDefinition scenes definiton
+ * @param {String} sceneDefinition.controller name of Item that calls the scenes
+ * @param {Array<Object>} sceneDefinition.scenes Array of scenes
+ * @param {Number} sceneDefinition.scenes[].value integer identifying the scene
+ * @param {Array<Object>} sceneDefinition.scenes[].targets Array of scene members
+ * @param {String} sceneDefinition.scenes[].targets[].item name of Item
+ * @param {String} sceneDefinition.scenes[].targets[].value target state of Item
+ * @param {Boolean} [sceneDefinition.scenes[].targets[].required=true] whether the Item's state must match the target state when the engine gets the current scene on change of a member
+ * @param {Function} [sceneDefinition.scenes[].targets[].conditionFn] the Item is only commanded if the evaluation of this function returns true
  * @returns {HostRule} SceneEngine rule
- *
- * @example
- * rulesx.getSceneEngine(scenes, engineId);
  */
-const getSceneEngine = (scenes) => {
-  return new SceneEngine(scenes).getRule();
+const getSceneEngine = (sceneDefinition) => {
+  return new SceneEngine(sceneDefinition).getRule();
 };
 
 module.exports = {
