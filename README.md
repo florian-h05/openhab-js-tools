@@ -52,26 +52,24 @@ except to 0.
 ### Scene definition
 Scene defintion works with an array of objects.
 ```javascript
-const scenes = [ // For each sceneItem one object.
-  { // Object of the first sceneItem.
-    selectorItem: 'scene call item name',
-    selectorStates: [ // For each numeric state of the sceneItem one object.
-      { // Object for the value 1 of the sceneItem.
-        selectorValue: 1,
-        sceneTargets: [ // Target states of items in the scene. Parameters explained later.
-          { item: 'Florian_Licht', value: 'ON', required: true },
-          { item: 'Florian_LED_Stripes', value: 'OFF', required: false }
-        ] 
-      },
-      { // Object for the value 15 of the sceneItem.
-        selectorValue: 15,
-        sceneTargets: [ // Target states of items in the scene. Parameters explained later.
-          { item: 'Florian_LED_Stripes', value: 'ON', required: true }
-        ]
-      }
-    ]
-  }
-];
+const sceneDefinition = {
+  controller: 'scene call item name',
+  scenes: [ // For each numeric state of the sceneItem one object.
+    { // Object for the value 1 of the sceneItem.
+      value: 1,
+      targets: [ // Target states of items in the scene. Parameters explained later.
+        { item: 'Florian_Licht', value: 'ON', required: true },
+        { item: 'Florian_LED_Stripes', value: 'OFF', required: false }
+      ] 
+    },
+    { // Object for the value 15 of the sceneItem.
+      value: 15,
+      targets: [ // Target states of items in the scene. Parameters explained later.
+        { item: 'Florian_LED_Stripes', value: 'ON', required: true }
+      ]
+    }
+  ]
+};
 ```
 __sceneTargets__' parameters
 Identifier | Purpose | Type | Required
