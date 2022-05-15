@@ -67,7 +67,8 @@ const dimmer = (managerID, targetItem, targetState, step, time, ignoreExternalCh
       collection.delete(targetItem);
     };
     // Cancel when targetState is reached.
-    if (state === targetState) {
+    // Workaround for an issue where the target state is never exactly met and therefore the dimmer never ends.
+    if (Math.abs(state - targetState) <= 1) {
       breakDimmer('reached targetState');
       return;
     }
