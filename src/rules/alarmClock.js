@@ -9,7 +9,6 @@
  */
 
 const { items, rules, triggers } = require('openhab');
-const logger = require('openhab').log('org.openhab.automation.js.openhab-tools.rulesx.AlarmClock');
 const { ruleRegistry } = require('@runtime/RuleSupport');
 
 /**
@@ -33,6 +32,9 @@ function getClockRule (switchItem, alarmFunc) {
   const minute = parseInt(items.getItem(switchItem + '_M').state);
   // If hour or minute is NaN, return and initialize default values.
   if (isNaN(hour) || isNaN(minute)) {
+    items.getItem(switchItem + '_H').postUpdate('7');
+    items.getItem(switchItem + '_M').postUpdate('0');
+    items.getItem(switchItem + '_Time').postUpdate('07:00');
     return;
   }
   // Post time string.
@@ -92,7 +94,7 @@ function getAlarmClock (switchItem, alarmFunc) {
         // As soon as openHAB stable uses openhab-js 1.2.2, rules.removeRule(id) can be used.
         if (!(ruleRegistry.get(switchItem) == null)) {
           ruleRegistry.remove(switchItem);
-          logger.info('Removing rule: Alarm Clock {}', switchItem);
+          console.info('Removing rule: Alarm Clock {}', switchItem);
         }
         getClockRule(switchItem, alarmFunc);
       }
