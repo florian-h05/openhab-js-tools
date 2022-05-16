@@ -25,8 +25,6 @@ const { ruleRegistry } = require('@runtime/RuleSupport');
  * @returns {(HostRule | null)} the alarm clock rule or null
  */
 function getClockRule (switchItem, alarmFunc) {
-  // If switchItem is OFF, return.
-  if (items.getItem(switchItem).state !== 'ON') return;
   // Get Items' states for time configuration.
   const hour = parseInt(items.getItem(switchItem + '_H').state);
   const minute = parseInt(items.getItem(switchItem + '_M').state);
@@ -39,6 +37,8 @@ function getClockRule (switchItem, alarmFunc) {
   }
   // Post time string.
   items.getItem(switchItem + '_Time').postUpdate(((hour < 10) ? '0' : '') + hour.toString() + ':' + ((minute < 10) ? '0' : '') + minute.toString());
+  // If switchItem is OFF, return.
+  if (items.getItem(switchItem).state !== 'ON') return;
   // Generate Array for days of week.
   const days = [];
   if (items.getItem(switchItem + '_MON').state === 'ON') days.push('MON');
@@ -94,7 +94,7 @@ function getAlarmClock (switchItem, alarmFunc) {
         // As soon as openHAB stable uses openhab-js 1.2.2, rules.removeRule(id) can be used.
         if (!(ruleRegistry.get(switchItem) == null)) {
           ruleRegistry.remove(switchItem);
-          console.info('Removing rule: Alarm Clock {}', switchItem);
+          console.info('Removing rule: Alarm Clock ' + switchItem);
         }
         getClockRule(switchItem, alarmFunc);
       }
