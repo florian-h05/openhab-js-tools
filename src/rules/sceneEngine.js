@@ -162,7 +162,9 @@ class SceneEngine {
           console.info(`Check scene: Event [${event.triggerType}] of [${event.itemName}].`);
           this.checkScene();
         }
-      }
+      },
+      id: `sceneEngine-for-${this.controller}`,
+      tags: ['@hotzware/openhab-tools', 'sceneEngine']
     });
   }
 }

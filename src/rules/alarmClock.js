@@ -58,7 +58,8 @@ function getClockRule (switchItem, alarmFunc) {
     description: 'The Alarm Clock itself.',
     triggers: [triggers.GenericCronTrigger(quartz)],
     execute: alarmFunc,
-    id: switchItem
+    id: 'alarmClock-for-' + switchItem,
+    tags: ['@hotzware/openhab-tools', 'alarmClock', 'Schedule']
   });
 }
 
@@ -97,7 +98,9 @@ function getAlarmClock (switchItem, alarmFunc) {
           console.info('Removing rule: Alarm Clock ' + switchItem);
         }
         getClockRule(switchItem, alarmFunc);
-      }
+      },
+      id: 'alarmClock-manager-for-' + switchItem,
+      tags: ['@hotzware/openhab-tools', 'alarmClock manager']
     }),
     getClockRule(switchItem, alarmFunc)
   ];
