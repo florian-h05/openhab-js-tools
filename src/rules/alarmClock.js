@@ -9,7 +9,6 @@
  */
 
 const { items, rules, triggers } = require('openhab');
-const { ruleRegistry } = require('@runtime/RuleSupport');
 
 /**
  * Provides the alarm clock rule with QUARTZ cron trigger.
@@ -33,12 +32,14 @@ function getClockRule (switchItem, alarmFunc) {
     items.getItem(switchItem + '_H').postUpdate('7');
     items.getItem(switchItem + '_M').postUpdate('0');
     items.getItem(switchItem + '_Time').postUpdate('07:00');
-    return;
+    return console.info('Not adding clock rule for ' + switchItem + ' due to missing time configuration.');
   }
   // Post time string.
   items.getItem(switchItem + '_Time').postUpdate(((hour < 10) ? '0' : '') + hour.toString() + ':' + ((minute < 10) ? '0' : '') + minute.toString());
   // If switchItem is OFF, return.
-  if (items.getItem(switchItem).state !== 'ON') return;
+  if (items.getItem(switchItem).state !== 'ON') {
+    return console.info('Not adding clock rule for ' + switchItem + ' because alarm is switched off.');
+  }
   // Generate Array for days of week.
   const days = [];
   if (items.getItem(switchItem + '_MON').state === 'ON') days.push('MON');
@@ -49,7 +50,10 @@ function getClockRule (switchItem, alarmFunc) {
   if (items.getItem(switchItem + '_SAT').state === 'ON') days.push('SAT');
   if (items.getItem(switchItem + '_SUN').state === 'ON') days.push('SUN');
   // If no day is selected, return and turn of the switchItem.
-  if (days.length === 0) return items.getItem(switchItem).sendCommand('OFF');
+  if (days.length === 0) {
+    items.getItem(switchItem).sendCommand('OFF');
+    return console.info('Not adding clock rule for ' + switchItem + ' because no day is enabled.');
+  }
   // Generate the QUARTZ cron expression.
   const quartz = '0 ' + minute + ' ' + hour + ' ? * ' + days.join(',') + ' *';
   // Return the JSRule.
@@ -59,7 +63,8 @@ function getClockRule (switchItem, alarmFunc) {
     triggers: [triggers.GenericCronTrigger(quartz)],
     execute: alarmFunc,
     id: 'alarmClock-for-' + switchItem,
-    tags: ['@hotzware/openhab-tools', 'alarmClock', 'Schedule']
+    tags: ['@hotzware/openhab-tools', 'alarmClock', 'Schedule'],
+    overwrite: true
   });
 }
 
@@ -92,11 +97,7 @@ function getAlarmClock (switchItem, alarmFunc) {
         triggers.ItemStateChangeTrigger(switchItem + '_SUN')
       ],
       execute: (event) => {
-        // As soon as openHAB stable uses openhab-js 1.2.2, rules.removeRule(id) can be used.
-        if (!(ruleRegistry.get(switchItem) == null)) {
-          ruleRegistry.remove(switchItem);
-          console.info('Removing rule: Alarm Clock ' + switchItem);
-        }
+        rules.removeRule('alarmClock-for-' + switchItem);
         getClockRule(switchItem, alarmFunc);
       },
       id: 'alarmClock-manager-for-' + switchItem,
