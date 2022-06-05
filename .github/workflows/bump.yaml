@@ -1,0 +1,13 @@
+- name:  'Automated Version Bump'
+  uses:  'phips28/gh-action-bump-version@master'
+  env:
+    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  with:
+    minor-wording:  '(minor),add,Adds,new'
+    major-wording:  '(major),MAJOR,cut-major'
+    patch-wording:  '(patch),patch,fixes'     # Providing patch-wording will override commits
+                                      # defaulting to a patch bump.
+    rc-wording:     'RELEASE,alpha'
+    tag-prefix: 'v'
+    commit-message: 'CI: bump version to {{version}} [skip ci]'
+    bump-policy: 'all'
