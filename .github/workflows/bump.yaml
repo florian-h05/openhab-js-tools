@@ -1,3 +1,5 @@
+name: 'Automated Version Bump'
+
 on:
   push:
     paths:
