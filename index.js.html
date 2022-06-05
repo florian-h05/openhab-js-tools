@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>SceneEngine - Documentation</title>
+    <title>index.js - Documentation</title>
     
     
     <script src="scripts/prettify/prettify.js"></script>
@@ -34,55 +34,42 @@
 
 <div id="main">
     
-    <h1 class="page-title">SceneEngine</h1>
+    <h1 class="page-title">index.js</h1>
     
 
     
 
 
 
-
-<section>
-
-<header>
     
-        <h2>
-            <span class="ancestors"><a href="rulesx.html">rulesx</a>.</span>
-        
-        SceneEngine
-        </h2>
-        
-            <div class="class-description usertext"><p>Scene Engine</p>
-<p>Call scenes using an Item as controller and update the Item's state to the matching scene number on scene members' change.</p></div>
-        
-    
-</header>
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * @typedef {Object} HostState Native Java openHAB State (instance of {@link https://www.openhab.org/javadoc/latest/org/openhab/core/types/state org.openhab.core.types.State})
+ */
+/**
+ * @typedef {Object} HostItem Native Java openHAB Item (instance of {@link https://www.openhab.org/javadoc/latest/org/openhab/core/items/item org.openhab.core.items.Item})
+ */
+/**
+ * @typedef {Object} HostClass Native Java Class Object (instance of java.lang.Class)
+ */
+/**
+ * @typedef {Object} HostRule Native Jave openHAB Rule (instance of {@link https://www.openhab.org/javadoc/latest/org/openhab/core/automation/rule org.openhab.core.automation.Rule})
+ */
+/**
+ * @typedef {Object} HostTrigger Native Jave openHAB Trigger (instance of {@link https://www.openhab.org/javadoc/latest/org/openhab/core/automation/trigger org.openhab.core.automation.Trigger})
+ */
+/**
+ * @typedef {Object} HostThing Native Java openHAB Thing (instance of {@link https://www.openhab.org/javadoc/latest/org/openhab/core/thing/thing org.openhab.core.thing.Thing})
+ */
 
-<article>
-    
-
-    
-
-    
-
-    
-    
-    
-
-     
-
-    
-
-    
-
-    
-
-    
-
-    
-</article>
-
-</section>
+module.exports = {
+  get rulesx () { return require('./rules'); },
+  get itemutils () { return require('./itemutils'); }
+};
+</code></pre>
+        </article>
+    </section>
 
 
 
