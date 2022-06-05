@@ -2,8 +2,8 @@ name: 'Bump Version'
 
 on:
   push:
-    branches:
-      - 'main'
+    paths:
+      - '**.js'
 
 jobs:
   bump-version:
