@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>rules/index.js - Documentation</title>
+    <title>index.js - Documentation</title>
     
     
     <script src="scripts/prettify/prettify.js"></script>
@@ -34,7 +34,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">rules/index.js</h1>
+    <h1 class="page-title">index.js</h1>
     
 
     
@@ -45,16 +45,27 @@
     <section>
         <article>
             <pre class="prettyprint source linenums"><code>/**
- * Rules namespace
- *
- * This namespace provides complete rules with specific functions.
- * It is not comparable to but uses the namespace rules from openhab-js.
- * @namespace rulesx
+ * @typedef {Object} HostState Native Java openHAB State (instance of {@link https://www.openhab.org/javadoc/latest/org/openhab/core/types/state org.openhab.core.types.State})
+ */
+/**
+ * @typedef {Object} HostItem Native Java openHAB Item (instance of {@link https://www.openhab.org/javadoc/latest/org/openhab/core/items/item org.openhab.core.items.Item})
+ */
+/**
+ * @typedef {Object} HostClass Native Java Class Object (instance of java.lang.Class)
+ */
+/**
+ * @typedef {Object} HostRule Native Jave openHAB Rule (instance of {@link https://www.openhab.org/javadoc/latest/org/openhab/core/automation/rule org.openhab.core.automation.Rule})
+ */
+/**
+ * @typedef {Object} HostTrigger Native Jave openHAB Trigger (instance of {@link https://www.openhab.org/javadoc/latest/org/openhab/core/automation/trigger org.openhab.core.automation.Trigger})
+ */
+/**
+ * @typedef {Object} HostThing Native Java openHAB Thing (instance of {@link https://www.openhab.org/javadoc/latest/org/openhab/core/thing/thing org.openhab.core.thing.Thing})
  */
 
 module.exports = {
-  ...require('./sceneEngine.js'),
-  ...require('./alarmClock.js')
+  get rulesx () { return require('./rules'); },
+  get itemutils () { return require('./itemutils'); }
 };
 </code></pre>
         </article>
