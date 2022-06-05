@@ -1,13 +1,13 @@
-name: 'Bump Version'
+name: 'Automated npm publish'
 
 on:
   push:
-    branches:
-      - 'main'
+    paths:
+      - '**.js'
 
 jobs:
-  bump-version:
-    name: 'Bump Version on master'
+  auto-publish:
+    name: 'Bump Version on master & publish'
     runs-on: ubuntu-latest
 
     steps:
@@ -33,3 +33,13 @@ jobs:
         env:
           NEW_TAG: ${{ steps.version-bump.outputs.newTag }}
         run: echo "new tag $NEW_TAG"
+      - name: 'Setup NodeJS 12.x'
+        uses: actions/setup-node@v2
+        with:
+          node-version: '12.x'
+          registry-url: 'https://registry.npmjs.org'
+      - run: npm ci
+      - name: 'npm publish'
+        run: npm publish --access=public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
