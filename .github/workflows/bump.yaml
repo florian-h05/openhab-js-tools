@@ -1,23 +1,35 @@
-name: 'Automated Version Bump'
+name: 'Bump Version'
 
 on:
   push:
-    paths:
-      - '**.js'
+    branches:
+      - 'main'
 
 jobs:
-  version_bump:
+  bump-version:
+    name: 'Bump Version on master'
     runs-on: ubuntu-latest
+
     steps:
-      - name:  'Automated Version Bump'
-        uses:  'phips28/gh-action-bump-version@master'
+      - name: 'Checkout source code'
+        uses: 'actions/checkout@v2'
+        with:
+          ref: ${{ github.ref }}
+      - name: 'cat package.json'
+        run: cat ./package.json
+      - name: 'Automated Version Bump'
+        id: version-bump
+        uses: 'phips28/gh-action-bump-version@master'
+        with:
+          minor-wording:  '(minor)'
+          major-wording:  '(major)'
+          patch-wording:  '(patch)' # Providing patch-wording will override commits defaulting to a patch bump.
+          tag-prefix: 'v'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          minor-wording:  '(minor),add,Adds,new'
-          major-wording:  '(major),MAJOR'
-          patch-wording:  '(patch),(Patch),patch,fixes'     # Providing patch-wording will override commits defaulting to a patch bump.
-          rc-wording:     'RELEASE,alpha'
-          tag-prefix:     'v'
-          commit-message: 'CI: bump version to {{version}} [skip ci]'
-          bump-policy:    'all'
+      - name: 'cat package.json'
+        run: cat ./package.json
+      - name: 'Output Step'
+        env:
+          NEW_TAG: ${{ steps.version-bump.outputs.newTag }}
+        run: echo "new tag $NEW_TAG"
