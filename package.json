@@ -24,7 +24,7 @@
   "devDependencies": {
     "docdash": "*",
     "jsdoc": "^3.6.10",
-    "openhab": "^1.2.2",
+    "openhab": "^1.2.3",
     "snazzy": "^9.0.0",
     "standardx": "^7.0.0"
   },
