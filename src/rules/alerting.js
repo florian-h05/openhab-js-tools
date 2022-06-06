@@ -98,7 +98,9 @@ const getRainalarmRule = (config) => {
       } else {
         _rainalarmContactFunction(event.itemName, windspeed, config);
       }
-    }
+    },
+    id: `rainalarm-for-${config.rainalarmItemName}`,
+    tags: ['@hotzware/openhab-tools', 'getRainalarmRule', 'Alerting']
   });
 };
 
