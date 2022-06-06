@@ -101,9 +101,14 @@ const getRainalarmRule = (config) => {
           _rainalarmContactFunction(groupMembers[i], windspeed, config);
         }
       } else if (event.itemName !== null) {
-        if (items.getItem(config.rainalarmItemName).state === 'OPEN') return;
+        if (items.getItem(config.rainalarmItemName).state === 'CLOSED') return;
         console.info(`Rainalarm rule is running on change, Item ${event.itemName}.`);
-        _rainalarmContactFunction(event.itemName, windspeed, config);
+        const timeoutFunc = function (itemname, windspeed, config) {
+          return () => {
+            _rainalarmContactFunction(itemname, windspeed, config);
+          };
+        };
+        setTimeout(timeoutFunc(event.itemName, windspeed, config), 2000);
       }
     },
     id: `rainalarm-for-${config.rainalarmItemName}`,
