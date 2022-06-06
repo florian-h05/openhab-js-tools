@@ -31,6 +31,7 @@ const { getRoofwindowOpenLevel } = require('../itemutils');
  * @param {rulexs.rainalarmConfig} config rainalarm configuration
  */
 const _rainalarmRoofwindow = (baseItemName, windspeed, config) => {
+  console.info(`Checking rainalarm for roofwindow ${baseItemName} ...`);
   const state = getRoofwindowOpenLevel(baseItemName);
   const label = items.getItem(baseItemName + '_zu').label;
   switch (state.int) {
@@ -54,6 +55,7 @@ const _rainalarmRoofwindow = (baseItemName, windspeed, config) => {
  * @param {String} contactItem name of the contact Item.
  */
 const _rainalarmSingleContact = (contactItem) => {
+  console.info(`Checking rainalarm for single contact ${contactItem} ...`);
   if (contactItem.state === 'OPEN') actions.NotificationAction.sendBroadcastNotification(`Achtung! Regenalarm: ${contactItem.label} geöffnet!`);
 };
 
@@ -88,15 +90,18 @@ const getRainalarmRule = (config) => {
       triggers.GroupStateChangeTrigger(config.contactGroupName)
     ],
     execute: (event) => {
+      if (items.getItem(config.rainalarmItemName).state === 'OPEN') return;
       const windspeed = parseFloat(items.getItem(config.windspeedItemName).state);
       if (event.itemName === config.rainalarmItemName) {
-        console.info('Rainalarm rule is running on alarm or manual execution');
+        console.info('Rainalarm rule is running on alarm.');
         const groupMembers = items.getItem(config.contactGroupName).members;
         for (const i in groupMembers) {
           // Check whether itemname is member of ignoreList.
+          console.info(`Rainalarm rule is checking Item ${groupMembers[i]}`);
           _rainalarmContactFunction(groupMembers[i], windspeed, config);
         }
-      } else {
+      } else if (event.itemName !== null && event.itemName !== 'null') {
+        console.info(`Rainalarm rule is running on change, Item ${event.itemName}.`);
         _rainalarmContactFunction(event.itemName, windspeed, config);
       }
     },
