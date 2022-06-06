@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2021 Florian Hotze
+ * Copyright (c) 2022 Florian Hotze
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -67,11 +67,13 @@ const _rainalarmSingleContact = (contactItem) => {
  * @param {rulesx.rainalarmConfig} config rainalarm config
  */
 const _rainalarmContactFunction = (itemname, windspeed, config) => {
-  const tags = items.getItem(itemname).tags;
-  if (tags.includes(config.roofwindowTag)) {
-    _rainalarmRoofwindow(itemname.replace('_zu', '').replace('_klLueftung', '').replace('_grLueftung', ''), windspeed, config);
-  } else {
-    _rainalarmSingleContact(itemname);
+  if (!config.ignoreList.includes(itemname)) {
+    const tags = items.getItem(itemname).tags;
+    if (tags.includes(config.roofwindowTag)) {
+      _rainalarmRoofwindow(itemname.replace('_zu', '').replace('_klLueftung', '').replace('_grLueftung', ''), windspeed, config);
+    } else {
+      _rainalarmSingleContact(itemname);
+    }
   }
 };
 
@@ -86,21 +88,20 @@ const getRainalarmRule = (config) => {
     name: 'Rainalarm',
     description: 'Sends a broadcast notification when a window is open when it rains.',
     triggers: [
-      triggers.ItemStateChangeTrigger(config.rainalarmItemName),
-      triggers.GroupStateChangeTrigger(config.contactGroupName)
+      triggers.ItemStateChangeTrigger(config.rainalarmItemName, 'CLOSED', 'OPEN'),
+      triggers.GroupStateChangeTrigger(config.contactGroupName, 'CLOSED', 'OPEN')
     ],
     execute: (event) => {
-      if (items.getItem(config.rainalarmItemName).state === 'OPEN') return;
       const windspeed = parseFloat(items.getItem(config.windspeedItemName).state);
       if (event.itemName === config.rainalarmItemName) {
         console.info('Rainalarm rule is running on alarm.');
-        const groupMembers = items.getItem(config.contactGroupName).members;
+        const groupMembers = items.getItem(config.contactGroupName).members.map((item) => item.name);
         for (const i in groupMembers) {
           // Check whether itemname is member of ignoreList.
-          console.info(`Rainalarm rule is checking Item ${groupMembers[i]}`);
           _rainalarmContactFunction(groupMembers[i], windspeed, config);
         }
-      } else if (event.itemName !== null && event.itemName !== 'null') {
+      } else if (event.itemName !== null) {
+        if (items.getItem(config.rainalarmItemName).state === 'OPEN') return;
         console.info(`Rainalarm rule is running on change, Item ${event.itemName}.`);
         _rainalarmContactFunction(event.itemName, windspeed, config);
       }
