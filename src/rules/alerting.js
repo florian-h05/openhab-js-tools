@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  */
 
-const { actions, rules, items } = require('openhab');
+const { actions, rules, items, triggers } = require('openhab');
 const { getRoofwindowOpenLevel } = require('../itemutils');
 
 /**
@@ -84,7 +84,8 @@ const getRainalarmRule = (config) => {
     name: 'Rainalarm',
     description: 'Sends a broadcast notification when a window is open when it rains.',
     triggers: [
-
+      triggers.ItemStateChangeTrigger(config.rainalarmItemName),
+      triggers.GroupStateChangeTrigger(config.contactGroupName)
     ],
     execute: (event) => {
       const windspeed = parseFloat(items.getItem(config.windspeedItemName).state);
