@@ -9,7 +9,7 @@
  */
 
 const { actions, rules, items } = require('openhab');
-const { getRoofwindowOpenLevel } = require('../utils');
+const { getRoofwindowOpenLevel } = require('../itemutils');
 
 /**
  * Sends a rainalarm notification for a roowindow.
@@ -48,7 +48,7 @@ const _rainalarmSingleContact = (contactItem) => {
  * @param {String} config.rainalarmItemName name of the rainalarm Item
  * @param {String} config.contactGroupName name of the contact group to monitor
  * @param {String[]} config.ignoreList list of contact Item names to ignore
- * @returns 
+ * @returns {HostRule}
  */
 const getRainalarmRule = (config) => {
   return rules.JSRule({
