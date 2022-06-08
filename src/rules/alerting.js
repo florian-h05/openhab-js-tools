@@ -47,8 +47,8 @@ const getTemperatureDifferenceInToOut = (roomname, outsideTemperatureItem, tempe
 /**
  * Rainalarm
  *
- * @memberof rulesx
  * Issues a rainalarm notification if the given window/door is open (and windspeed is high enough).
+ * @memberof rulesx
  */
 class Rainalarm {
   /**
@@ -166,25 +166,32 @@ const getRainalarmRule = (config) => {
  * @typedef {Object} heatfrostalarmConfig configuration for rainalarm
  * @memberof rulesx
  * @property {String} type alarm type, either `heat` or `frost`
- * @property {String} alarmLevelItem
- * @property {String} outsideTemperatureItem
+ * @property {String} alarmLevelItem name of Item that holds the alarm level
+ * @property {String} outsideTemperatureItem name of outside temperature Item
  * @property {String} contactGroupName name of the contact group to monitor
  * @property {String[]} ignoreList list of contact Item names to ignore
- * @property {Number} tempTreshold
- * @property {Object} notification
- * @property {Object} notification.alarm
+ * @property {String} roofwindowTag tag that all roofwindow contacts have for identification
+ * @property {Number} tempTreshold Temperature treshold, for difference between inside temp to outside. Example: -2 means at least 2 degrees lower temp on the outside.
+ * @property {Object} notification notification to send
+ * @property {Object} notification.alarm alarm notification
  * @property {String} notification.alarm.title
  * @property {String} notification.alarm.message
- * @property {Object} notification.warning
+ * @property {Object} notification.warning warning notification
  * @property {String} notification.warning.title
  * @property {String} notification.warning.message
- * @property {Object} time
+ * @property {Object} time Times until an alarm is sent.
  * @property {Number} time.open
- * @property {Number} time.halfOpen
- * @property {Number} time.klLueftung
- * @property {Number} time.addForWarning
+ * @property {Number} time.halfOpen window is tilted or roofwindow is on "große Lüftung"
+ * @property {Number} time.klLueftung roofwindow is on "kleine Lüftung"
+ * @property {Number} time.addForWarning Time to add when it's only a warning.
  */
 
+/**
+ * Heat- / Frostalarm
+ *
+ * Issues a heat- or frostalarm notification if the given window/door is open, it is hot or cold enough and enough time passed by.
+ * @memberof rulesx
+ */
 class HeatFrostalarm {
   /**
    * Constructor to create an instance. Do not call directly, instead call {@link rulesx.}.
@@ -270,7 +277,7 @@ class HeatFrostalarm {
   }
 
   checkAlarm (itemname) {
-    if (parseInt(items.getItem(this.config.alarmLevelItem).state) === 0) return;
+    // The alarm level must not be checked here, otherwise scheduleOrPerformAlarm can't cancel a timer.
     if (!this.config.ignoreList.includes(itemname)) {
       const tags = items.getItem(itemname).tags;
       if (tags.includes(this.config.roofwindowTag)) {
@@ -283,6 +290,12 @@ class HeatFrostalarm {
   }
 }
 
+/**
+ * Returns the heatalarm rule.
+ * @memberof rulesx
+ * @param {rulesx.heatfrostalarmConfig} config alarm configuration
+ * @returns {HostRule}
+ */
 const getHeatalarmRule = (config) => {
   const timerMgr = new TimerMgr();
   return rules.JSRule({
@@ -293,7 +306,7 @@ const getHeatalarmRule = (config) => {
       triggers.GroupStateChangeTrigger(config.contactGroupName)
     ],
     execute: (event) => {
-      if (parseInt(items.getItem(config.alarmLevelItem).state) === 0) return;
+      // The alarm level must not be checked here, otherwise scheduleOrPerformAlarm can't cancel a timer.
       const HeatalarmImpl = new HeatFrostalarm(config, timerMgr);
       if (event.itemName === config.outsideTemperatureItem) {
         console.info('Heatalarm rule is running on temperature change.');
