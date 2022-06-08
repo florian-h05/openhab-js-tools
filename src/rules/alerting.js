@@ -57,7 +57,7 @@ class Rainalarm {
    * @hideconstructor
    */
   constructor (config) {
-    if (typeof this.config.rainalarmItemName !== 'string') {
+    if (typeof config.rainalarmItemName !== 'string') {
       throw Error('rainalarmItemName is not supplied ot not string!');
     }
     if (typeof config.ignoreList !== 'object' || config.ignoreList === null) {
