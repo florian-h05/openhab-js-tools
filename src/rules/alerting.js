@@ -130,6 +130,7 @@ class Rainalarm {
  * @returns {HostRule}
  */
 const getRainalarmRule = (config) => {
+  const RainalarmImpl = new Rainalarm(config);
   return rules.JSRule({
     name: 'Rainalarm',
     description: 'Sends a broadcast notification when a window is open when it rains.',
@@ -139,7 +140,6 @@ const getRainalarmRule = (config) => {
     ],
     execute: (event) => {
       const windspeed = parseFloat(items.getItem(config.windspeedItemName).state);
-      const RainalarmImpl = new Rainalarm(config);
       if (event.itemName === config.rainalarmItemName) {
         console.info('Rainalarm rule is running on alarm.');
         const groupMembers = items.getItem(config.contactGroupName).members.map((item) => item.name);
@@ -171,6 +171,7 @@ const getRainalarmRule = (config) => {
  * @property {String} contactGroupName name of the contact group to monitor
  * @property {String[]} ignoreList list of contact Item names to ignore
  * @property {String} roofwindowTag tag that all roofwindow contacts have for identification
+ * @property {String} [roomTemperatureItemSuffix=_Temperatur] suffix for the Item name of a room's temperature
  * @property {Number} tempTreshold Temperature treshold, for difference between inside temp to outside. Example: -2 means at least 2 degrees lower temp on the outside.
  * @property {Object} notification notification to send
  * @property {Object} notification.alarm alarm notification
@@ -200,12 +201,14 @@ class HeatFrostalarm {
    * @hideconstructor
    */
   constructor (config, timerMgr) {
-    if (typeof config.ignoreList !== 'object' || config.ignoreList === null) {
-      throw Error('contactGroupName is not supplied or is not Array!');
-    }
-    if (typeof config.roofwindowTag !== 'string') {
-      throw Error('roofwindowTag is not supplied or is not string!');
-    }
+    if (typeof config.alarmLevelItem !== 'string') throw Error('alarmLevelItem is not supplied or is not string!');
+    if (typeof config.outsideTemperatureItem !== 'string') throw Error('outsideTemperatureItem is not supplied or is not string!');
+    if (typeof config.ignoreList !== 'object' || config.ignoreList === null) throw Error('contactGroupName is not supplied or is not Array!');
+    if (typeof config.roofwindowTag !== 'string') throw Error('roofwindowTag is not supplied or is not string!');
+    if (typeof config.tempTreshold !== 'number') throw Error('tempTreshold is not supplied or is not string!');
+    if (typeof config.notification !== 'object' || config.notification === null) throw Error('notification is not supplied or is not object!');
+    if (typeof config.time !== 'object' || config.time === null) throw Error('time is not supplied or is not object!');
+    if (typeof config.time.open !== 'number') throw Error('time.open is not supplied or is not number!');
     this.config = config;
     this.timerMgr = timerMgr;
   }
@@ -243,7 +246,7 @@ class HeatFrostalarm {
     const alarmLevel = parseInt(items.getItem(this.config.alarmLevelItem).state);
     // If alarmLevel indicates no alarm or warning, return false.
     if (alarmLevel === 0) return console.info('checkContact: No alarms or warning should be sent, returning.');
-    const temperatureDifferenceInOut = getTemperatureDifferenceInToOut(contactItem, this.config.outsideTemperatureItem, '_Temperatur');
+    const temperatureDifferenceInOut = getTemperatureDifferenceInToOut(contactItem, this.config.outsideTemperatureItem, this.config.roomTemperatureItemSuffix);
     const tresholdReached = (temperatureDifferenceInOut == null) ? true : (this.config.tempTreshold < 0) ? (temperatureDifferenceInOut <= this.config.tempTreshold) : (temperatureDifferenceInOut >= this.config.tempTreshold);
     // If tempTreshold is not reached, return false.
     if (tresholdReached === false) return console.info(`checkContact: Temperature treshold for ${contactItem} (${this.config.type}) not reached, returning.`);
@@ -297,6 +300,7 @@ class HeatFrostalarm {
  */
 const getHeatalarmRule = (config) => {
   const timerMgr = new TimerMgr();
+  const HeatalarmImpl = new HeatFrostalarm(config, timerMgr);
   return rules.JSRule({
     name: 'Heatalarm',
     description: 'Send a broadcast notficiation when a window/door is too long open when it is too warm.',
@@ -306,7 +310,6 @@ const getHeatalarmRule = (config) => {
     ],
     execute: (event) => {
       // The alarm level must not be checked here, otherwise scheduleOrPerformAlarm can't cancel a timer.
-      const HeatalarmImpl = new HeatFrostalarm(config, timerMgr);
       if (event.itemName === config.outsideTemperatureItem) {
         console.info('Heatalarm rule is running on temperature change.');
         const groupMembers = items.getItem(config.contactGroupName).members.map((item) => item.name);
