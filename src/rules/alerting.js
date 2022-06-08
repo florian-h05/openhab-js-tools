@@ -157,7 +157,7 @@ const getRainalarmRule = (config) => {
         setTimeout(timeoutFunc(event.itemName, windspeed), 2000);
       }
     },
-    id: `rainalarm-for-${config.rainalarmItemName}`,
+    id: `rainalarm-for-${config.contactGroupName}`,
     tags: ['@hotzware/openhab-tools', 'getRainalarmRule', 'Alerting']
   });
 };
@@ -283,6 +283,42 @@ class HeatFrostalarm {
   }
 }
 
+const getHeatalarmRule = (config) => {
+  const timerMgr = new TimerMgr();
+  return rules.JSRule({
+    name: 'Heatalarm',
+    description: 'Send a broadcast notficiation when a window/door is too long open when it is too warm.',
+    triggers: [
+      triggers.ItemStateChangeTrigger(config.outsideTemperatureItem),
+      triggers.GroupStateChangeTrigger(config.contactGroupName)
+    ],
+    execute: (event) => {
+      if (parseInt(items.getItem(config.alarmLevelItem).state) === 0) return;
+      const HeatalarmImpl = new HeatFrostalarm(config, timerMgr);
+      if (event.itemName === config.outsideTemperatureItem) {
+        console.info('Heatalarm rule is running on temperature change.');
+        const groupMembers = items.getItem(config.contactGroupName).members.map((item) => item.name);
+        for (const i in groupMembers) {
+          HeatalarmImpl.checkAlarm(groupMembers[i]);
+        }
+      } else if (event.itemName !== null) {
+        console.info(`Heatalarm rule is running on change, Item ${event.itemName}.`);
+        const timeoutFunc = function (itemname) {
+          return () => {
+            HeatalarmImpl.checkAlarm(itemname);
+          };
+        };
+        setTimeout(timeoutFunc(event.itemName), 2000);
+      }
+    },
+    id: `heatalarm-for-${config.contactGroupName}`,
+    tags: ['@hotzware/openhab-tools', 'getHeatalarmRule', 'Alerting']
+  });
+};
+
+// TO DO: Add frostalarm getter
+
 module.exports = {
-  getRainalarmRule
+  getRainalarmRule,
+  getHeatalarmRule
 };
