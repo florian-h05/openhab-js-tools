@@ -57,6 +57,9 @@ class Rainalarm {
    * @hideconstructor
    */
   constructor (config) {
+    if (typeof this.config.rainalarmItemName !== 'string') {
+      throw Error('rainalarmItemName is not supplied ot not string!');
+    }
     if (typeof config.ignoreList !== 'object' || config.ignoreList === null) {
       throw Error('contactGroupName is not supplied or is not Array!');
     }
@@ -67,11 +70,11 @@ class Rainalarm {
   }
 
   /**
- * Sends a rainalarm notification for a roowindow.
- * @private
- * @param {String} baseItemName base of the Items names, e.g. Florian_Dachfenster
- * @param {Number} windspeed current windspeed
- */
+   * Sends a rainalarm notification for a roowindow.
+   * @private
+   * @param {String} baseItemName base of the Items names, e.g. Florian_Dachfenster
+   * @param {Number} windspeed current windspeed
+   */
   alarmRoofwindow (baseItemName, windspeed) {
     console.info(`Checking rainalarm for roofwindow ${baseItemName} ...`);
     const state = getRoofwindowOpenLevel(baseItemName);
@@ -92,22 +95,23 @@ class Rainalarm {
   }
 
   /**
- * Send a rainalarm notification for a single contact.
- * @private
- * @param {String} contactItem name of the contact Item.
- */
+   * Send a rainalarm notification for a single contact.
+   * @private
+   * @param {String} contactItem name of the contact Item.
+   */
   alarmSingleContact (contactItem) {
     console.info(`Checking rainalarm for single contact ${contactItem} ...`);
     if (contactItem.state === 'OPEN') actions.NotificationAction.sendBroadcastNotification(`Achtung! Regenalarm: ${contactItem.label} geöffnet!`);
   }
 
   /**
- * Calls the appropiate function depending on the type of window/door.
- * @private
- * @param {String} itemname name of the Item
- * @param {Number} windspeed current windspeed
- */
+   * Calls the appropiate function depending on the type of window/door.
+   * @private
+   * @param {String} itemname name of the Item
+   * @param {Number} windspeed current windspeed
+   */
   checkAlarm (itemname, windspeed) {
+    if (items.getItem(this.config.rainalarmItemName).state === 'CLOSED') return;
     if (!this.config.ignoreList.includes(itemname)) {
       const tags = items.getItem(itemname).tags;
       if (tags.includes(this.config.roofwindowTag)) {
@@ -145,12 +149,12 @@ const getRainalarmRule = (config) => {
       } else if (event.itemName !== null) {
         if (items.getItem(config.rainalarmItemName).state === 'CLOSED') return;
         console.info(`Rainalarm rule is running on change, Item ${event.itemName}.`);
-        const timeoutFunc = function (itemname, windspeed, config) {
+        const timeoutFunc = function (itemname, windspeed) {
           return () => {
             RainalarmImpl.checkAlarm(itemname, windspeed);
           };
         };
-        setTimeout(timeoutFunc(event.itemName, windspeed, config), 2000);
+        setTimeout(timeoutFunc(event.itemName, windspeed), 2000);
       }
     },
     id: `rainalarm-for-${config.rainalarmItemName}`,
