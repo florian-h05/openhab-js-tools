@@ -8,6 +8,13 @@
  * SPDX-License-Identifier: EPL-2.0
  */
 
+/**
+ * Alerting namespace
+ *
+ * This namespace provides alerting rules, e.g. for open windows on rain.
+ * @namespace rulesx.alerting
+ */
+
 const { actions, rules, items, triggers } = require('openhab');
 const { TimerMgr } = require('openhab_rules_tools/timerMgr');
 const { getRoofwindowOpenLevel } = require('../itemutils');
@@ -34,7 +41,7 @@ const getTemperatureDifferenceInToOut = (roomname, outsideTemperatureItem, tempe
 
 /**
  * @typedef {Object} rainalarmConfig configuration for rainalarm
- * @memberof rulesx
+ * @memberof rulesx.alerting
  * @property {String} rainalarmItemName name of the rainalarm Item
  * @property {String} windspeedItemName bame of the windspeed Item-
  * @property {String} contactGroupName name of the contact group to monitor
@@ -48,12 +55,12 @@ const getTemperatureDifferenceInToOut = (roomname, outsideTemperatureItem, tempe
  * Rainalarm
  *
  * Issues a rainalarm notification if the given window/door is open (and windspeed is high enough).
- * @memberof rulesx
+ * @memberof rulesx.alerting
  */
 class Rainalarm {
   /**
    * Constructor to create an instance. Do not call directly, instead call {@link rulesx.getRainalarmRule}.
-   * @param {rulesx.rainalarmConfig} config rainalarm configuration
+   * @param {rainalarmConfig} config rainalarm configuration
    * @hideconstructor
    */
   constructor (config) {
@@ -125,8 +132,8 @@ class Rainalarm {
 
 /**
  * Returns the rainalarm rule.
- * @memberof rulesx
- * @param {rulesx.rainalarmConfig} config rainalarm configuration
+ * @memberof rulesx.alerting
+ * @param {rulesx.alerting.rainalarmConfig} config rainalarm configuration
  * @returns {HostRule}
  */
 const getRainalarmRule = (config) => {
@@ -164,7 +171,7 @@ const getRainalarmRule = (config) => {
 
 /**
  * @typedef {Object} heatfrostalarmConfig configuration for rainalarm
- * @memberof rulesx
+ * @memberof rulesx.alerting
  * @property {String} type alarm type, either `heat` or `frost`
  * @property {String} alarmLevelItem name of Item that holds the alarm level
  * @property {String} outsideTemperatureItem name of outside temperature Item
@@ -191,12 +198,12 @@ const getRainalarmRule = (config) => {
  * Heat- / Frostalarm
  *
  * Issues a heat- or frostalarm notification if the given window/door is open, it is hot or cold enough and enough time passed by.
- * @memberof rulesx
+ * @memberof rulesx.alerting
  */
 class HeatFrostalarm {
   /**
    * Constructor to create an instance. Do not call directly, instead call {@link rulesx.}.
-   * @param {rulesx.heatfrostalarmConfig} config configuration
+   * @param {heatfrostalarmConfig} config configuration
    * @param {TimerMgr} timerMgr instance of {@link TimerMgr}
    * @hideconstructor
    */
@@ -278,6 +285,11 @@ class HeatFrostalarm {
     }
   }
 
+  /**
+   * Calls the alarm logic with the appropiate parameters depending on the type of window/door.
+   * @private
+   * @param {String} itemname name of the Item
+   */
   checkAlarm (itemname) {
     // The alarm level must not be checked here, otherwise scheduleOrPerformAlarm can't cancel a timer.
     if (!this.config.ignoreList.includes(itemname)) {
@@ -294,8 +306,8 @@ class HeatFrostalarm {
 
 /**
  * Returns the heatalarm rule.
- * @memberof rulesx
- * @param {rulesx.heatfrostalarmConfig} config alarm configuration
+ * @memberof rulesx.alerting
+ * @param {rulesx.alerting.heatfrostalarmConfig} config alarm configuration
  * @returns {HostRule}
  */
 const getHeatalarmRule = (config) => {
@@ -333,8 +345,8 @@ const getHeatalarmRule = (config) => {
 
 /**
  * Returns the frostalarm rule.
- * @memberof rulesx
- * @param {rulesx.heatfrostalarmConfig} config alarm configuration
+ * @memberof rulesx.alerting
+ * @param {heatfrostalarmConfig} config alarm configuration
  * @returns {HostRule}
  */
 const getFrostalarmRule = (config) => {
@@ -369,8 +381,6 @@ const getFrostalarmRule = (config) => {
     tags: ['@hotzware/openhab-tools', 'getFrostalarmRule', 'Alerting']
   });
 };
-
-// TO DO: Add frostalarm getter
 
 module.exports = {
   getRainalarmRule,
