@@ -12,6 +12,26 @@ const { actions, rules, items, triggers } = require('openhab');
 const { getRoofwindowOpenLevel } = require('../itemutils');
 
 /**
+ * Get the temperature difference from the temperature in a room to the outside temperature.
+ *
+ * The temperatures's Itemname must be: ${roomname}${temperatureItemSuffix}.
+ * @private
+ * @param {String} roomname name of room
+ * @param {Number} ousideTemperatureItemname outside temperature Item name
+ * @param {String} [temperatureItemSuffix=_Temperatur]
+ * @returns {Number|null} temperature difference (outside-inside) or null if no inside temperature is available
+ */
+const getTemperatureDifferenceInToOut = (roomname, ousideTemperatureItemname, temperatureItemSuffix = '_Temperatur') => {
+  const temperatureItem = items.getItem(roomname + temperatureItemSuffix, true);
+  if (temperatureItem == null) return null;
+  const insideTemperature = parseFloat(temperatureItem.state);
+  const outsideItem = items.getItem(ousideTemperatureItemname, true);
+  if (outsideItem == null) return null;
+  const outsideTemperature = parseFloat(outsideItem.state);
+  return outsideTemperature - insideTemperature;
+};
+
+/**
  * @typedef {Object} rainalarmConfig configuration for rainalarm
  * @memberof rulesx
  * @property {String} rainalarmItemName name of the rainalarm Item
@@ -136,6 +156,12 @@ const getRainalarmRule = (config) => {
     tags: ['@hotzware/openhab-tools', 'getRainalarmRule', 'Alerting']
   });
 };
+
+/**
+ * @typedef {Object} heatfrostalarmConfig configuration for rainalarm
+ * @memberof rulesx
+ * @property {String} alarmLevelItem
+ */
 
 module.exports = {
   getRainalarmRule
