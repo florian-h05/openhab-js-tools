@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>itemutils/windows.js - Documentation</title>
+    <title>HeatFrostalarm - Documentation</title>
     
     
     <script src="scripts/prettify/prettify.js"></script>
@@ -34,75 +34,55 @@
 
 <div id="main">
     
-    <h1 class="page-title">itemutils/windows.js</h1>
+    <h1 class="page-title">HeatFrostalarm</h1>
     
 
     
 
 
 
+
+<section>
+
+<header>
     
-    <section>
-        <article>
-            <pre class="prettyprint source linenums"><code>/**
- * Copyright (c) 202s Florian Hotze
- *
- * This program and the accompanying materials are made available under the
- * terms of the Eclipse Public License 2.0 which is available at
- * http://www.eclipse.org/legal/epl-2.0
- *
- * SPDX-License-Identifier: EPL-2.0
- */
+        <h2>
+            <span class="ancestors"><a href="rulesx.html">rulesx</a><a href="rulesx.alerting.html">.alerting</a>.</span>
+        
+        HeatFrostalarm
+        </h2>
+        
+            <div class="class-description usertext"><p>Heat- / Frostalarm</p>
+<p>Issues a heat- or frostalarm notification if the given window/door is open, it is hot or cold enough and enough time passed by.</p></div>
+        
+    
+</header>
 
-const { items } = require('openhab');
+<article>
+    
 
-/**
-  * @typedef {Object} roofwindowState representation of roofwindow state / openess level
-  * @memberof itemutils
-  * @property {String} text textual representation of openess level (in German)
-  * @property {Number} int Integer reprentation of openess level: 100 for completely closed, 1 for a little bit opened, 2 for a bit opened &amp; 4 for completely opened (5 on error)
-  */
+    
 
-/**
-  * Get the level a roofwindow is opened.
-  * The roofwindow can either be completely opened or a bit opened (große Lüftung) or a little bit opened (kleine Lüftung) or closed.
-  * Item naming scheme is required: `baseItem` + `_zu`, `_klLueftung`, `grLueftung`.
-  *
-  * @memberof itemutils
-  * @param {String} baseItem base of the Items names, e.g. `Florian_Dachfenster`
-  * @returns {itemutils.roofwindowState} {@link roofwindowState}
-  */
-const getRoofwindowOpenLevel = (baseItem) => {
-  const output = {};
-  const stateClosed = items.getItem(baseItem + '_zu').state;
-  const stateKlLueftung = items.getItem(baseItem + '_klLueftung').state;
-  const stateGrLueftung = items.getItem(baseItem + '_grLueftung').state;
-  // checks for the different states.
-  if (stateClosed === 'CLOSED' &amp;&amp; stateKlLueftung === 'CLOSED' &amp;&amp; stateGrLueftung === 'CLOSED') { // geschlossen
-    output.text = 'geschlossen';
-    output.int = 100;
-  } else if (stateClosed === 'OPEN' &amp;&amp; stateKlLueftung === 'CLOSED' &amp;&amp; stateGrLueftung === 'CLOSED') { // kleine Lüftung
-    output.text = 'kleine Lüftung';
-    output.int = 1;
-  } else if (stateClosed === 'OPEN' &amp;&amp; stateKlLueftung === 'OPEN' &amp;&amp; stateGrLueftung === 'CLOSED') { // große Lüftung
-    output.text = 'große Lüftung';
-    output.int = 2;
-  } else if (stateClosed === 'OPEN' &amp;&amp; stateKlLueftung === 'OPEN' &amp;&amp; stateGrLueftung === 'OPEN') { // ganz geöffnet
-    output.text = 'ganz geöffnet';
-    output.int = 4;
-  } else {
-    output.text = 'Fehler!';
-    output.int = 5;
-  }
-  return output;
-};
+    
 
-module.exports = {
-  getRoofwindowOpenLevel
-};
-</code></pre>
-        </article>
-    </section>
+    
+    
+    
+
+     
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
 
 
 
