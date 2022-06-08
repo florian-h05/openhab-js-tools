@@ -9,6 +9,7 @@
  */
 
 const { actions, rules, items, triggers } = require('openhab');
+const { TimerMgr } = require('openhab_rules_tools/timerMgr');
 const { getRoofwindowOpenLevel } = require('../itemutils');
 
 /**
@@ -17,15 +18,15 @@ const { getRoofwindowOpenLevel } = require('../itemutils');
  * The temperatures's Itemname must be: ${roomname}${temperatureItemSuffix}.
  * @private
  * @param {String} roomname name of room
- * @param {Number} ousideTemperatureItemname outside temperature Item name
+ * @param {Number} outsideTemperatureItem outside temperature Item name
  * @param {String} [temperatureItemSuffix=_Temperatur]
  * @returns {Number|null} temperature difference (outside-inside) or null if no inside temperature is available
  */
-const getTemperatureDifferenceInToOut = (roomname, ousideTemperatureItemname, temperatureItemSuffix = '_Temperatur') => {
+const getTemperatureDifferenceInToOut = (roomname, outsideTemperatureItem, temperatureItemSuffix = '_Temperatur') => {
   const temperatureItem = items.getItem(roomname + temperatureItemSuffix, true);
   if (temperatureItem == null) return null;
   const insideTemperature = parseFloat(temperatureItem.state);
-  const outsideItem = items.getItem(ousideTemperatureItemname, true);
+  const outsideItem = items.getItem(outsideTemperatureItem, true);
   if (outsideItem == null) return null;
   const outsideTemperature = parseFloat(outsideItem.state);
   return outsideTemperature - insideTemperature;
@@ -160,8 +161,123 @@ const getRainalarmRule = (config) => {
 /**
  * @typedef {Object} heatfrostalarmConfig configuration for rainalarm
  * @memberof rulesx
+ * @property {String} type alarm type, either `heat` or `frost`
  * @property {String} alarmLevelItem
+ * @property {String} outsideTemperatureItem
+ * @property {String} contactGroupName name of the contact group to monitor
+ * @property {String[]} ignoreList list of contact Item names to ignore
+ * @property {Number} tempTreshold
+ * @property {Object} notification
+ * @property {Object} notification.alarm
+ * @property {String} notification.alarm.title
+ * @property {String} notification.alarm.message
+ * @property {Object} notification.warning
+ * @property {String} notification.warning.title
+ * @property {String} notification.warning.message
+ * @property {Object} time
+ * @property {Number} time.open
+ * @property {Number} time.halfOpen
+ * @property {Number} time.klLueftung
+ * @property {Number} time.addForWarning
  */
+
+class HeatFrostalarm {
+  /**
+   * Constructor to create an instance. Do not call directly, instead call {@link rulesx.}.
+   * @param {rulesx.heatfrostalarmConfig} config configuration
+   * @param {TimerMgr} timerMgr instance of {@link TimerMgr}
+   * @hideconstructor
+   */
+  constructor (config, timerMgr) {
+    if (typeof config.ignoreList !== 'object' || config.ignoreList === null) {
+      throw Error('contactGroupName is not supplied or is not Array!');
+    }
+    if (typeof config.roofwindowTag !== 'string') {
+      throw Error('roofwindowTag is not supplied or is not string!');
+    }
+    this.config = config;
+    this.timerMgr = timerMgr;
+  }
+
+  /**
+   * Function generator for the function to run when the timer expires.
+   * @private
+   * @param {String} contactItem name of contact item
+   * @returns {Function} function to run when the timer expires
+   */
+  timerFuncGenerator (contactItem) {
+    return () => {
+      const outsideTemperature = parseFloat(items.getItem(this.config.outsideTemperatureItem).state);
+      this.scheduleOrPerformAlarm(this.timerMgr, this.config, contactItem, outsideTemperature, true);
+    };
+  }
+
+  /**
+   * Schedules a timer for a given contact or sends the notification.
+   * Checks whether all conditions are met.
+   * @private
+   * @param {String} contactItem name of contact Item
+   * @param {Boolean} [calledOnExpire=false] if true, send notification
+   * @param {Number} [time] time in minutes until timer expires, not required if `calledOnExpire === true`
+   */
+  scheduleOrPerformAlarm (contactItem, calledOnExpire = false, time) {
+    console.info(`checkContact: Checking ${contactItem} (called from expired timer: ${calledOnExpire}).`);
+    // If contact is closed, return false.
+    if (items.getItem(contactItem).state === 'CLOSED') {
+      if (this.timerMgr.hasTimer(contactItem)) {
+        this.timerMgr.cancel(contactItem);
+        return console.info(`checkContact: ${contactItem} is closed, cancelling timer.`);
+      }
+      return console.info(`checkContact: ${contactItem} is closed, returning.`);
+    }
+    const alarmLevel = parseInt(items.getItem(this.config.alarmLevelItem).state);
+    // If alarmLevel indicates no alarm or warning, return false.
+    if (alarmLevel === 0) return console.info('checkContact: No alarms or warning should be sent, returning.');
+    const temperatureDifferenceInOut = getTemperatureDifferenceInToOut(contactItem, this.config.outsideTemperatureItem);
+    const tresholdReached = (temperatureDifferenceInOut == null) ? true : (this.config.tempTreshold < 0) ? (temperatureDifferenceInOut <= this.config.tempTreshold) : (temperatureDifferenceInOut >= this.config.tempTreshold);
+    // If tempTreshold is not reached, return false.
+    if (tresholdReached === false) return console.info(`checkContact: Temperature treshold for ${contactItem} (${this.config.type}) not reached, returning.`);
+    // Send notification if called on expire of timer.
+    if (calledOnExpire === true) {
+      console.info(`Timer for ${contactItem} (${this.config.type}) expired, sending notification.`);
+      if (alarmLevel === 4) return actions.NotificationAction.sendBroadcastNotification(`${this.config.notification.alarm.title}${items.getItem(contactItem).label}${this.config.notification.alarm.message}`);
+      return actions.NotificationAction.sendBroadcastNotification(`${this.config.notification.warning.title}${items.getItem(contactItem).label}${this.config.notification.warning.message}`);
+    }
+    // If not called on expire of timer, schedule timer.
+    const timerTime = (alarmLevel !== 4) ? time + this.config.time.addForWarning + 'm' : time + 'm';
+    if (this.timerMgr.hasTimer(contactItem)) {
+      console.info(`checkContact: Timer for ${contactItem} (${this.config.type}) already exists, skipping!`);
+    } else {
+      this.timerMgr.check(contactItem, timerTime, this.timerFuncGenerator(this.configtimerMgr, this.config, contactItem));
+      console.info(`checkContact: Created timer for ${contactItem} (${this.config.type}) with time ${timerTime}.`);
+    }
+  }
+
+  getTimeForRoofwindow (contactItem) {
+    const state = getRoofwindowOpenLevel(contactItem.replace('_zu', '').replace('_klLueftung', '').replace('_grLueftung', ''));
+    switch (state.int) {
+      case 1: // kleine Lüftung
+        return this.config.time.klLueftung;
+      case 2: // große Lüftung
+        return this.config.time.halfOpen;
+      default:
+        return this.config.time.open;
+    }
+  }
+
+  checkAlarm (itemname) {
+    if (parseInt(items.getItem(this.config.alarmLevelItem).state) === 0) return;
+    if (!this.config.ignoreList.includes(itemname)) {
+      const tags = items.getItem(itemname).tags;
+      if (tags.includes(this.config.roofwindowTag)) {
+        const time = this.getTimeForRoofwindow(itemname.replace('_zu', '').replace('_klLueftung', '').replace('_grLueftung', ''));
+        this.scheduleOrPerformAlarm(itemname, false, time);
+      } else {
+        this.scheduleOrPerformAlarm(itemname, false, this.config.time.open);
+      }
+    }
+  }
+}
 
 module.exports = {
   getRainalarmRule
