@@ -24,58 +24,79 @@ const { getRoofwindowOpenLevel } = require('../itemutils');
  */
 
 /**
+ * Rainalarm
+ *
+ * @memberof rulesx
+ * Issues a rainalarm notification if the given window/door is open (and windspeed is high enough).
+ */
+class Rainalarm {
+  /**
+   * Constructor to create an instance. Do not call directly, instead call {@link rulesx.getRainalarmRule}.
+   * @param {rulesx.rainalarmConfig} config rainalarm configuration
+   * @hideconstructor
+   */
+  constructor (config) {
+    if (typeof config.ignoreList !== 'object' || config.ignoreList === null) {
+      throw Error('contactGroupName is not supplied or is not Array!');
+    }
+    if (typeof config.roofwindowTag !== 'string') {
+      throw Error('roofwindowTag is not supplied or is not string!');
+    }
+    this.config = config;
+  }
+
+  /**
  * Sends a rainalarm notification for a roowindow.
  * @private
  * @param {String} baseItemName base of the Items names, e.g. Florian_Dachfenster
  * @param {Number} windspeed current windspeed
- * @param {rulexs.rainalarmConfig} config rainalarm configuration
  */
-const _rainalarmRoofwindow = (baseItemName, windspeed, config) => {
-  console.info(`Checking rainalarm for roofwindow ${baseItemName} ...`);
-  const state = getRoofwindowOpenLevel(baseItemName);
-  const label = items.getItem(baseItemName + '_zu').label;
-  switch (state.int) {
-    case 1: // kleine Lüftung
-      if (windspeed >= config.windspeedKlLueftung) actions.NotificationAction.sendBroadcastNotification(`Achtung! Regenalarm: ${label} kleine Lüftung!`);
-      break;
-    case 2: // große Lüftung
-      if (windspeed >= config.windspeedGrLueftung) actions.NotificationAction.sendBroadcastNotification(`Achtung! Regenalarm: ${label} große Lüftung!`);
-      break;
-    case 4:
-      actions.NotificationAction.sendBroadcastNotification(`Achtung! Regenalarm: ${label} geöffnet!`);
-      break;
-    default:
-      break;
+  alarmRoofwindow (baseItemName, windspeed) {
+    console.info(`Checking rainalarm for roofwindow ${baseItemName} ...`);
+    const state = getRoofwindowOpenLevel(baseItemName);
+    const label = items.getItem(baseItemName + '_zu').label;
+    switch (state.int) {
+      case 1: // kleine Lüftung
+        if (windspeed >= this.config.windspeedKlLueftung) actions.NotificationAction.sendBroadcastNotification(`Achtung! Regenalarm: ${label} kleine Lüftung!`);
+        break;
+      case 2: // große Lüftung
+        if (windspeed >= this.config.windspeedGrLueftung) actions.NotificationAction.sendBroadcastNotification(`Achtung! Regenalarm: ${label} große Lüftung!`);
+        break;
+      case 4:
+        actions.NotificationAction.sendBroadcastNotification(`Achtung! Regenalarm: ${label} geöffnet!`);
+        break;
+      default:
+        break;
+    }
   }
-};
 
-/**
+  /**
  * Send a rainalarm notification for a single contact.
  * @private
  * @param {String} contactItem name of the contact Item.
  */
-const _rainalarmSingleContact = (contactItem) => {
-  console.info(`Checking rainalarm for single contact ${contactItem} ...`);
-  if (contactItem.state === 'OPEN') actions.NotificationAction.sendBroadcastNotification(`Achtung! Regenalarm: ${contactItem.label} geöffnet!`);
-};
+  alarmSingleContact (contactItem) {
+    console.info(`Checking rainalarm for single contact ${contactItem} ...`);
+    if (contactItem.state === 'OPEN') actions.NotificationAction.sendBroadcastNotification(`Achtung! Regenalarm: ${contactItem.label} geöffnet!`);
+  }
 
-/**
+  /**
  * Calls the appropiate function depending on the type of window/door.
  * @private
  * @param {String} itemname name of the Item
  * @param {Number} windspeed current windspeed
- * @param {rulesx.rainalarmConfig} config rainalarm config
  */
-const _rainalarmContactFunction = (itemname, windspeed, config) => {
-  if (!config.ignoreList.includes(itemname)) {
-    const tags = items.getItem(itemname).tags;
-    if (tags.includes(config.roofwindowTag)) {
-      _rainalarmRoofwindow(itemname.replace('_zu', '').replace('_klLueftung', '').replace('_grLueftung', ''), windspeed, config);
-    } else {
-      _rainalarmSingleContact(itemname);
+  checkAlarm (itemname, windspeed) {
+    if (!this.config.ignoreList.includes(itemname)) {
+      const tags = items.getItem(itemname).tags;
+      if (tags.includes(this.config.roofwindowTag)) {
+        this.alarmRoofwindow(itemname.replace('_zu', '').replace('_klLueftung', '').replace('_grLueftung', ''), windspeed);
+      } else {
+        this.alarmSingleContact(itemname);
+      }
     }
   }
-};
+}
 
 /**
  * Returns the rainalarm rule.
@@ -93,19 +114,19 @@ const getRainalarmRule = (config) => {
     ],
     execute: (event) => {
       const windspeed = parseFloat(items.getItem(config.windspeedItemName).state);
+      const RainalarmImpl = new Rainalarm(config);
       if (event.itemName === config.rainalarmItemName) {
         console.info('Rainalarm rule is running on alarm.');
         const groupMembers = items.getItem(config.contactGroupName).members.map((item) => item.name);
         for (const i in groupMembers) {
-          // Check whether itemname is member of ignoreList.
-          _rainalarmContactFunction(groupMembers[i], windspeed, config);
+          RainalarmImpl.checkAlarm(groupMembers[i], windspeed);
         }
       } else if (event.itemName !== null) {
         if (items.getItem(config.rainalarmItemName).state === 'CLOSED') return;
         console.info(`Rainalarm rule is running on change, Item ${event.itemName}.`);
         const timeoutFunc = function (itemname, windspeed, config) {
           return () => {
-            _rainalarmContactFunction(itemname, windspeed, config);
+            RainalarmImpl.checkAlarm(itemname, windspeed);
           };
         };
         setTimeout(timeoutFunc(event.itemName, windspeed, config), 2000);
