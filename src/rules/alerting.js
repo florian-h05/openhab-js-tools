@@ -218,8 +218,7 @@ class HeatFrostalarm {
    */
   timerFuncGenerator (contactItem) {
     return () => {
-      const outsideTemperature = parseFloat(items.getItem(this.config.outsideTemperatureItem).state);
-      this.scheduleOrPerformAlarm(this.timerMgr, this.config, contactItem, outsideTemperature, true);
+      this.scheduleOrPerformAlarm(contactItem, true);
     };
   }
 
@@ -244,7 +243,7 @@ class HeatFrostalarm {
     const alarmLevel = parseInt(items.getItem(this.config.alarmLevelItem).state);
     // If alarmLevel indicates no alarm or warning, return false.
     if (alarmLevel === 0) return console.info('checkContact: No alarms or warning should be sent, returning.');
-    const temperatureDifferenceInOut = getTemperatureDifferenceInToOut(contactItem, this.config.outsideTemperatureItem);
+    const temperatureDifferenceInOut = getTemperatureDifferenceInToOut(contactItem, this.config.outsideTemperatureItem, '_Temperatur');
     const tresholdReached = (temperatureDifferenceInOut == null) ? true : (this.config.tempTreshold < 0) ? (temperatureDifferenceInOut <= this.config.tempTreshold) : (temperatureDifferenceInOut >= this.config.tempTreshold);
     // If tempTreshold is not reached, return false.
     if (tresholdReached === false) return console.info(`checkContact: Temperature treshold for ${contactItem} (${this.config.type}) not reached, returning.`);
@@ -259,7 +258,7 @@ class HeatFrostalarm {
     if (this.timerMgr.hasTimer(contactItem)) {
       console.info(`checkContact: Timer for ${contactItem} (${this.config.type}) already exists, skipping!`);
     } else {
-      this.timerMgr.check(contactItem, timerTime, this.timerFuncGenerator(this.configtimerMgr, this.config, contactItem));
+      this.timerMgr.check(contactItem, timerTime, this.timerFuncGenerator(contactItem));
       console.info(`checkContact: Created timer for ${contactItem} (${this.config.type}) with time ${timerTime}.`);
     }
   }
