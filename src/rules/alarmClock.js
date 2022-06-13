@@ -135,7 +135,7 @@ function createAlarmClockItems (switchItemName, switchItemLabel, persistenceGrou
     groups: [persistenceGroup]
   }, 'OFF');
   // Create weekday Items
-  const weekdaysNames = ['_MON', '_TUE', '_WED', '_WED', '_THU', '_FRI', '_SAT', '_SUN'];
+  const weekdaysNames = ['_MON', '_TUE', '_WED', '_THU', '_FRI', '_SAT', '_SUN'];
   for (const i in weekdaysNames) {
     createItemAndSetState({
       type: 'Switch',
@@ -191,7 +191,7 @@ function createAlarmClockItems (switchItemName, switchItemLabel, persistenceGrou
   }, '07:00');
 
   const sitemapText =
-  `Text label="Wecker 1 [%s]" item=${switchItemName}_Time icon="time" valuecolor=${switchItemName}==ON="green", ${switchItemName}==OFF="grey" {
+  `Text label="Wecker 1 [%s]" item=${switchItemName}_Time icon="time" valuecolor=[${switchItemName}==ON="green", ${switchItemName}==OFF="grey"] {
     Default item=${switchItemName}
     Frame label="Zeit" {
       Setpoint item=${switchItemName}_H minValue=0 maxValue=23 step=1
