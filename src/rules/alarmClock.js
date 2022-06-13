@@ -114,9 +114,10 @@ function getAlarmClock (switchItem, alarmFunc) {
  * @param {String} switchItemName name of Item to switch alarm on/off
  * @param {String} switchItemLabel label of Item to switch alarm on/off
  * @param {String} persistenceGroup name of group whose members are persisted & restored on startup
+ * @param {Boolean} [sitemapSnippet=false] whether to output a Sitemap snippet for alarm configuration
  * @param {String[]} [weekdaysLabels=['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag']] names of weekdays in your language, starting with Monday & ending with Sunday
  */
-function createAlarmClockItems (switchItemName, switchItemLabel, persistenceGroup, weekdaysLabels = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag']) {
+function createAlarmClockItems (switchItemName, switchItemLabel, persistenceGroup, sitemapSnippet = false, weekdaysLabels = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag']) {
   function createItemAndSetState (itemConfig, state) {
     try {
       items.addItem(itemConfig);
@@ -188,6 +189,25 @@ function createAlarmClockItems (switchItemName, switchItemLabel, persistenceGrou
       }
     }
   }, '07:00');
+
+  const sitemapText =
+  `Text label="Wecker 1 [%s]" item=${switchItemName}_Time icon="time" valuecolor=${switchItemName}==ON="green", ${switchItemName}==OFF="grey" {
+    Default item=${switchItemName}
+    Frame label="Zeit" {
+      Setpoint item=${switchItemName}_H minValue=0 maxValue=23 step=1
+      Setpoint item=${switchItemName}_M minValue=0 maxValue=55 step=5
+    }
+    Frame label="Wochentage" {
+      Switch item=${switchItemName}_MON
+      Switch item=${switchItemName}_TUE
+      Switch item=${switchItemName}_WED
+      Switch item=${switchItemName}_THU
+      Switch item=${switchItemName}_FRI
+      Switch item=${switchItemName}_SAT
+      Switch item=${switchItemName}_SUN
+    }
+  }`;
+  if (sitemapSnippet === true) console.info(`alarm clock configuration Sitemap snippet: \n${sitemapText}`);
 }
 
 module.exports = {
