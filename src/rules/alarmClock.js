@@ -107,6 +107,110 @@ function getAlarmClock (switchItem, alarmFunc) {
   ];
 }
 
+/**
+ * Creates all required Items for an alarm clock.
+ *
+ * @memberof rulesx
+ * @param {String} switchItemName name of Item to switch alarm on/off
+ * @param {String} switchItemLabel label of Item to switch alarm on/off
+ * @param {String} persistenceGroup name of group whose members are persisted & restored on startup
+ * @param {Boolean} [sitemapSnippet=false] whether to output a Sitemap snippet for alarm configuration
+ * @param {String[]} [weekdaysLabels=['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag']] names of weekdays in your language, starting with Monday & ending with Sunday
+ */
+function createAlarmClockItems (switchItemName, switchItemLabel, persistenceGroup, sitemapSnippet = false, weekdaysLabels = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag']) {
+  function createItemAndSetState (itemConfig, state) {
+    try {
+      items.addItem(itemConfig);
+    } catch (error) {
+      console.warn(`Failed to create Item ${itemConfig.name}: ${error}`);
+    }
+    items.getItem(itemConfig.name).postUpdate(state);
+  }
+  // Create switchItem
+  createItemAndSetState({
+    type: 'Switch',
+    name: switchItemName,
+    label: switchItemLabel,
+    category: 'time',
+    groups: [persistenceGroup]
+  }, 'OFF');
+  // Create weekday Items
+  const weekdaysNames = ['_MON', '_TUE', '_WED', '_THU', '_FRI', '_SAT', '_SUN'];
+  for (const i in weekdaysNames) {
+    createItemAndSetState({
+      type: 'Switch',
+      name: switchItemName + weekdaysNames[i],
+      label: weekdaysLabels[i],
+      category: 'switch',
+      groups: [persistenceGroup]
+    }, 'OFF');
+  }
+  // Create hour & minute Items
+  createItemAndSetState({
+    type: 'Number',
+    name: switchItemName + '_H',
+    label: 'Stunde',
+    category: 'time',
+    groups: [persistenceGroup],
+    metadata: {
+      stateDescription: {
+        config: {
+          pattern: '%d'
+        }
+      }
+    }
+  }, '7');
+  createItemAndSetState({
+    type: 'Number',
+    name: switchItemName + '_M',
+    label: 'Minute',
+    category: 'time',
+    groups: [persistenceGroup],
+    metadata: {
+      stateDescription: {
+        config: {
+          pattern: '%d'
+        }
+      }
+    }
+  }, '0');
+  // Create state Item
+  createItemAndSetState({
+    type: 'String',
+    name: switchItemName + '_Time',
+    label: '',
+    category: 'time',
+    groups: [persistenceGroup],
+    metadata: {
+      stateDescription: {
+        config: {
+          pattern: '%s'
+        }
+      }
+    }
+  }, '07:00');
+
+  const sitemapText =
+  `Text label="Wecker 1 [%s]" item=${switchItemName}_Time icon="time" valuecolor=[${switchItemName}==ON="green", ${switchItemName}==OFF="grey"] {
+    Default item=${switchItemName}
+    Frame label="Zeit" {
+      Setpoint item=${switchItemName}_H minValue=0 maxValue=23 step=1
+      Setpoint item=${switchItemName}_M minValue=0 maxValue=55 step=5
+    }
+    Frame label="Wochentage" {
+      Switch item=${switchItemName}_MON
+      Switch item=${switchItemName}_TUE
+      Switch item=${switchItemName}_WED
+      Switch item=${switchItemName}_THU
+      Switch item=${switchItemName}_FRI
+      Switch item=${switchItemName}_SAT
+      Switch item=${switchItemName}_SUN
+    }
+  }`;
+  if (sitemapSnippet === true) console.info(`alarm clock configuration Sitemap snippet: \n${sitemapText}`);
+}
+
 module.exports = {
-  getAlarmClock
+  getAlarmClock,
+  createAlarmClockItems
 };
