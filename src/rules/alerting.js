@@ -178,7 +178,6 @@ const getRainalarmRule = (config) => {
  * @property {String} contactGroupName name of the contact group to monitor
  * @property {String[]} ignoreList list of contact Item names to ignore
  * @property {String} roofwindowTag tag that all roofwindow contacts have for identification
- * @property {String} [roomTemperatureItemSuffix=_Temperatur] suffix for the Item name of a room's temperature
  * @property {Number} tempTreshold Temperature treshold, for difference between inside temp to outside. Example: -2 means at least 2 degrees lower temp on the outside.
  * @property {Object} notification notification to send
  * @property {Object} notification.alarm alarm notification
@@ -208,7 +207,7 @@ const getRainalarmRule = (config) => {
  *
  * Item naming scheme is required:
  *  - for roofwindows see {@link itemutils.getRoofwindowOpenLevel}
- *  - generally: roomname + `_`... for contacts and then roomname + `_Temperatur` for the room's temperature
+ *  - generally: roomname + `_`... for contacts and then roomname + `_Temperatur` for the room's temperature (roomname must always be before the first `_`)
  *
  * This class respects an alarm level (hold by an Item) which is an integer:
  *  - `0` for no alarm
@@ -270,7 +269,8 @@ class HeatFrostalarm {
     const alarmLevel = parseInt(items.getItem(this.config.alarmLevelItem).state);
     // If alarmLevel indicates no alarm or warning, return false.
     if (alarmLevel === 0) return console.info('checkContact: No alarms or warning should be sent, returning.');
-    const temperatureDifferenceInOut = getTemperatureDifferenceInToOut(contactItem, this.config.outsideTemperatureItem, this.config.roomTemperatureItemSuffix);
+    const roomname = contactItem.split('_')[0];
+    const temperatureDifferenceInOut = getTemperatureDifferenceInToOut(roomname, this.config.outsideTemperatureItem, this.config.roomTemperatureItemSuffix);
     const tresholdReached = (temperatureDifferenceInOut == null) ? true : (this.config.tempTreshold < 0) ? (temperatureDifferenceInOut <= this.config.tempTreshold) : (temperatureDifferenceInOut >= this.config.tempTreshold);
     // If tempTreshold is not reached, return false.
     if (tresholdReached === false) return console.info(`checkContact: Temperature treshold for ${contactItem} (${this.config.type}) not reached, returning.`);
