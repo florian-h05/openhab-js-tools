@@ -25,8 +25,8 @@ const { getRoofwindowOpenLevel } = require('../itemutils');
  * The temperatures's Itemname must be: ${roomname}${temperatureItemSuffix}.
  * @private
  * @param {String} roomname name of room
- * @param {Number} outsideTemperatureItem outside temperature Item name
- * @param {String} [temperatureItemSuffix=_Temperatur]
+ * @param {String} outsideTemperatureItem outside temperature Item name
+ * @param {String} [temperatureItemSuffix=_Temperatur] string to append to the roomname to get the temperatur Item's name
  * @returns {Number|null} temperature difference (outside-inside) or null if no inside temperature is available
  */
 const getTemperatureDifferenceInToOut = (roomname, outsideTemperatureItem, temperatureItemSuffix = '_Temperatur') => {
@@ -198,6 +198,23 @@ const getRainalarmRule = (config) => {
  * Heat- / Frostalarm
  *
  * Issues a heat- or frostalarm notification if the given window/door is open, it is hot or cold enough and enough time passed by.
+ *
+ * Before a noficiation is sent, the logic checks for the following conditions:
+ *  - contact is open
+ *  - alarm level is not `0`
+ *  - configured temperature difference between inside and outside is reached
+ *
+ * Then logic decides depending on the alarm level and the openess level of the window/door, whether to send warning or alarm and which time to choose.
+ *
+ * Item naming scheme is required:
+ *  - for roofwindows see {@link itemutils.getRoofwindowOpenLevel}
+ *  - generally: roomname + `_`... for contacts and then roomname + `_Temperatur` for the room's temperature
+ *
+ * This class respects an alarm level (hold by an Item) which is an integer:
+ *  - `0` for no alarm
+ *  - `0` < x < `4` for warning
+ *  - `4` for alarm
+ * You may use a rule to set the alarm level depending on the outside temperature.
  * @memberof rulesx.alerting
  */
 class HeatFrostalarm {

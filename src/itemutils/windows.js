@@ -20,7 +20,10 @@ const { items } = require('openhab');
 /**
   * Get the level a roofwindow is opened.
   * The roofwindow can either be completely opened or a bit opened (große Lüftung) or a little bit opened (kleine Lüftung) or closed.
-  * Item naming scheme is required: `baseItem` + `_zu`, `_klLueftung`, `grLueftung`.
+  * Item naming scheme is required:
+  *  - baseitemname + `_zu`
+  *  - baseitemname + `_klLueftung`
+  *  - baseitemname + `_grLueftung`
   *
   * @memberof itemutils
   * @param {String} baseItem base of the Items names, e.g. `Florian_Dachfenster`
