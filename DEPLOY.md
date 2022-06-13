@@ -12,6 +12,16 @@ This will output API documentation to `./docs`
 
 This also happens automatically on every push to `main` and is published using Github Pages, see [openhab-js-tools API Documentation](https://florian-h05.github.io/openhab-js-tools/) for the latest version. 
 
+# Types
+
+openhab-js-tools has type definition files (`.d.ts`).
+
+``bash
+tsc
+``
+
+This will generate the type definition files.
+
 # Publish to NPM
 
 A CD action automatically publishes a new version to [npm](https://npmjs.com) on midnight if changes were done that day.
