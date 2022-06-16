@@ -22,4 +22,19 @@ export type HostTrigger = any;
  * Native Java openHAB Thing (instance of {@link https ://www.openhab.org/javadoc/latest/org/openhab/core/thing/thing org.openhab.core.thing.Thing})
  */
 export type HostThing = any;
+declare const rulesx: {
+    alerting: typeof import("./rulesx/alerting");
+    getAlarmClock: typeof import("./rulesx/alarmClock").getAlarmClock;
+    createAlarmClockItems: typeof import("./rulesx/alarmClock").createAlarmClockItems;
+    getSceneEngine: (sceneDefinition: {
+        controller: string;
+        scenes: any[];
+    }) => HostRule;
+};
+declare const itemutils: {
+    getRoofwindowOpenLevel: (baseItem: string) => itemutils.roofwindowState;
+    dimmer: (managerID: string, targetItem: string, targetState: number, step: number, time: number, ignoreExternalChange?: boolean, overwrite?: boolean) => void;
+    getGroup: (name: string) => itemutils.GroupUtils;
+};
+export {};
 //# sourceMappingURL=index.d.ts.map

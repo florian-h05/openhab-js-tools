@@ -18,6 +18,6 @@
  */
 
 module.exports = {
-  get rulesx () { return require('./rulesx'); },
-  get itemutils () { return require('./itemutils'); }
+  rulesx: require('./rulesx'),
+  itemutils: require('./itemutils')
 };

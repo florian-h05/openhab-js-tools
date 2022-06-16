@@ -9,5 +9,5 @@
 module.exports = {
   ...require('./sceneEngine.js'),
   ...require('./alarmClock.js'),
-  get alerting () { return require('./alerting'); }
+  alerting: require('./alerting')
 };
