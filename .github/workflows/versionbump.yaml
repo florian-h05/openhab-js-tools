@@ -1,16 +1,14 @@
 # This job automatically published a new version to npm at midnight if changes were done.
-name: autopublish
+name: versionbump
 
 on:
   schedule:
     - cron: '0 0 * * *' # run at midnight
-  workflow_dispatch: 
 
 jobs:
-  auto-publish:
-    name: 'Publish nightly on changes'
+  automated-versionbump:
+    name: 'Bump version nightly on changes'
     runs-on: ubuntu-latest
-
     steps:
       - name: 'Checkout source code'
         uses: 'actions/checkout@v2'
@@ -35,16 +33,3 @@ jobs:
         env:
           NEW_VERSION: ${{ steps.version-bump.outputs.newVersion }}
         run: echo "new version $NEW_VERSION"
-        # Publish new version to npm
-      - uses: actions/setup-node@v2
-        if: steps.version-bump.outputs.bumped == 'true'
-        with:
-          node-version: '12.x'
-          registry-url: 'https://registry.npmjs.org'
-      - run: npm ci
-        if: steps.version-bump.outputs.bumped == 'true'
-      - name: 'Publish to npm'  
-        run: npm publish --access=public
-        if: steps.version-bump.outputs.bumped == 'true'
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
