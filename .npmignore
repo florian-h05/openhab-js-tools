@@ -1,6 +1,11 @@
+.eslintrc
 .git
-.github
-.vscode
+.gitattributes
 .gitignore
-docs_config.json
+.github
+.idea
+.vscode
 docs
+hotzware-openhab-tools-*.tgz
+tsconfig.*
+jsdoc.conf.json
