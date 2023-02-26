@@ -16,7 +16,8 @@ const HEADERS = new Map([['accept', 'application/json']]);
 
 class MlscRestClient {
   constructor (effectItemName, colorItemName, url, deviceId, switchItemName, effectDefault = 'effect_gradient', refreshInterval = 15000) {
-    if (typeof baseItemName !== 'string') throw new Error('baseItemName must be a string!');
+    if (typeof effectItemName !== 'string') throw new Error('effectItemName must be a string!');
+    if (typeof colorItemName !== 'string') throw new Error('colorItemName must be a string!');
     if (typeof url !== 'string') throw new Error('url must be a string!');
     if (typeof deviceId !== 'string') throw new Error('deviceId must be a string!');
 
