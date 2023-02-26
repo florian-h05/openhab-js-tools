@@ -14,7 +14,24 @@ const HSBType = Java.type('org.openhab.core.library.types.HSBType'); // eslint-d
 
 const HEADERS = new Map([['accept', 'application/json']]);
 
+/**
+ * music_led_strip_control REST client
+ *
+ * Class providing state fetching from and command sending to the REST API of {@link https://github.com/TobKra96/music_led_strip_control music_led_strip_control}.
+ * It is using a scheduled job to fetch states and a rule to handle commands.
+ */
 class MlscRestClient {
+  /**
+   * Be aware that you need to call {@link scheduleStateFetching} and {@link createCommandHandlingRule} to fully initialize the REST client.
+   *
+   * @param {string} effectItemName Name of `String` Item for mslc effect
+   * @param {string} colorItemName Name of `Color` Item for `effect_single` color
+   * @param {string} url Full URL of mlsc host, e.g. `http://127.0.0.1:8080`
+   * @param {deviceId} deviceId ID of device inside mlsc, use HTTP GET `/api/system/devices` to get a list of available devices
+   * @param {string} [switchItemName] Name of `Switch` Item to switch mlsc on/off
+   * @param {string} [effectDefault='effect_gradient'] Default effect for the `Switch` Item
+   * @param {number} [refreshInterval=15000] Refresh interval in milliseconds
+   */
   constructor (effectItemName, colorItemName, url, deviceId, switchItemName, effectDefault = 'effect_gradient', refreshInterval = 15000) {
     if (typeof effectItemName !== 'string') throw new Error('effectItemName must be a string!');
     if (typeof colorItemName !== 'string') throw new Error('colorItemName must be a string!');
@@ -30,6 +47,11 @@ class MlscRestClient {
     this.refreshInterval = refreshInterval;
   }
 
+  /**
+   * Schedules the state fetching using `setInterval`
+   *
+   * @returns {number} `intervalId`
+   */
   scheduleStateFetching () {
     const logMsg = `"${this.deviceId}"" of "${this.url}"`;
     console.info(`Initializing state fetching for ${logMsg} ...`);
@@ -54,6 +76,11 @@ class MlscRestClient {
     }, this.refreshInterval);
   }
 
+  /**
+   * Creates the rule used for command handling.
+   *
+   * @returns {HostRule} command handling rule
+   */
   createCommandHandlingRule () {
     const logMsg = `"${this.deviceId}"" of "${this.url}"`;
     const ruleConfig = {
