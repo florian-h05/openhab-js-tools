@@ -9,17 +9,17 @@ export type heatfrostalarmConfig = any;
 /**
  * Returns the rainalarm rule.
  * @memberof rulesx.alerting
- * @param {rulesx.alerting.rainalarmConfig} config rainalarm configuration
+ * @param {rainalarmConfig} config rainalarm configuration
  * @returns {HostRule}
  */
-export function getRainalarmRule(config: rulesx.alerting.rainalarmConfig): HostRule;
+export function getRainalarmRule(config: rainalarmConfig): HostRule;
 /**
  * Returns the heatalarm rule.
  * @memberof rulesx.alerting
- * @param {rulesx.alerting.heatfrostalarmConfig} config alarm configuration
+ * @param {heatfrostalarmConfig} config alarm configuration
  * @returns {HostRule}
  */
-export function getHeatalarmRule(config: rulesx.alerting.heatfrostalarmConfig): HostRule;
+export function getHeatalarmRule(config: heatfrostalarmConfig): HostRule;
 /**
  * Returns the frostalarm rule.
  * @memberof rulesx.alerting

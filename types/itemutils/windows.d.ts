@@ -18,7 +18,7 @@ export type roofwindowState = any;
   *
   * @memberof itemutils
   * @param {String} baseItem base of the Items names, e.g. `Florian_Dachfenster`
-  * @returns {itemutils.roofwindowState} {@link roofwindowState}
+  * @returns {roofwindowState} {@link items.roofwindowState}
   */
-export function getRoofwindowOpenLevel(baseItem: string): itemutils.roofwindowState;
+export function getRoofwindowOpenLevel(baseItem: string): roofwindowState;
 //# sourceMappingURL=windows.d.ts.map
