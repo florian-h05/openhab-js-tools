@@ -74,6 +74,7 @@ class MlscRestClient {
             device: this.deviceId,
             effect: event.receivedCommand
           }));
+          if (this.switchItemName) items.getItem(this.switchItemName).postUpdate(event.receivedCommand === 'effect_off' ? 'OFF' : 'ON')
         } else if (event.itemName === this.colorItemName) {
           const hsb = HSBType.valueOf(event.receivedCommand);
           const r = parseInt(hsb.getRed() * 2.55);
