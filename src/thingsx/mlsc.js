@@ -31,15 +31,16 @@ class MlscRestClient {
   }
 
   scheduleStateFetching () {
-    const logMsg = `from "${this.deviceId}"" of "${this.url}"`;
+    const logMsg = `"${this.deviceId}"" of "${this.url}"`;
+    console.info(`Initializing state fetching for ${logMsg} ...`)
     return setInterval(() => {
-      console.debug(`Refreshing Items ${logMsg} ...`);
+      console.debug(`Refreshing Items from ${logMsg} ...`);
       try {
         const response = actions.HTTP.sendHttpGetRequest(this.url + '/api/effect/active?device=' + this.deviceId, HEADERS, 1000);
         const json = JSON.parse(response);
         items.get(this.effectItemName).postUpdate(json.effect);
       } catch (e) {
-        console.warn(`Failed to fetch effect ${logMsg}:`, e);
+        console.warn(`Failed to fetch effect from ${logMsg}:`, e);
       }
       try {
         const response = actions.HTTP.sendHttpGetRequest(this.url + '/api/settings/effect?effect=effect_single&device=' + this.deviceId, HEADERS, 1000);
@@ -48,13 +49,13 @@ class MlscRestClient {
         const hsb = HSBType.fromRGB(rgb[0], rgb[1], rgb[2]);
         items.getItem(this.colorItemName).postUpdate(hsb.toString());
       } catch (e) {
-        console.warn(`Failed to fetch color ${logMsg}:`, e);
+        console.warn(`Failed to fetch color from ${logMsg}:`, e);
       }
     }, this.refreshInterval);
   }
 
   createCommandHandlingRule () {
-    const logMsg = `from "${this.deviceId}"" of "${this.url}"`;
+    const logMsg = `"${this.deviceId}"" of "${this.url}"`;
     const ruleConfig = {
       name: `mlsc REST client for "${this.deviceId}" of "${this.url}"`,
       description: 'Provides command handling, state fetching is done by a scheduled job',
@@ -87,12 +88,13 @@ class MlscRestClient {
               use_custom_color: true
             }
           }));
-          items.getItem(this.effectItemname).sendCommand('effect_single');
+          items.getItem(this.effectItemName).sendCommand('effect_single');
         }
       }
     };
     // Add switchItem as trigger if defined
     if (this.switchItemName) ruleConfig.triggers.push(triggers.ItemCommandTrigger(this.switchItemName));
+    console.info(`Creating command handling rule for ${logMsg} ...`)
     return rules.JSRule(ruleConfig);
   }
 }
