@@ -16,9 +16,9 @@ This also happens automatically on every push to `main` and is published using G
 
 openhab-js-tools has type definition files (`.d.ts`).
 
-``bash
-tsc
-``
+```shell
+npm run types
+```
 
 This will generate the type definition files.
 

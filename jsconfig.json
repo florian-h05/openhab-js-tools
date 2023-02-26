@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "checkJs": true,
+    "declaration": true,
+    "outDir": "types",
+    "declarationMap": true,
+    "target": "ES6",
+    "moduleResolution": "Node"
+  },
+  "include": ["src/**/*.js"],
+  "exclude": ["node_modules", "**/*.spec.js"]
+}
