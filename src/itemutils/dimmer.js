@@ -32,7 +32,8 @@ const dimmer = (managerID, targetItem, targetState, step, time, ignoreExternalCh
   // Check Item and parameters.
   if (typeof managerID !== 'string') throw Error('managerID must be a string.');
   const item = items.getItem(targetItem);
-  if (!item.rawState.floatValue) throw Error('targetItem must support float states.');
+  // @ts-ignore
+  if (!item.rawState.floatValue()) throw Error('targetItem must support float states.');
   if (typeof targetState !== 'number') throw Error('targetState must be a number.');
   if (typeof step !== 'number') throw Error('step must be a number.');
   if (typeof time !== 'number') throw Error('time must be a number.');
@@ -84,7 +85,7 @@ const dimmer = (managerID, targetItem, targetState, step, time, ignoreExternalCh
     // Dim to target state.
     state = (state > targetState) ? (state - step) : (state < targetState) ? (state + step) : state;
     logger.trace(`Dimmer ${targetItem}: Sending command ${state} to ${targetItem}.`);
-    item.sendCommand(state);
+    item.sendCommand(state.toString());
   }, time);
   collection.set(targetItem, interval);
   cache.put(CACHE_KEY, collection);

@@ -19,7 +19,7 @@
     "deploy": "npm run docs && npm run types && npm run types:test",
     "lint": "npx standardx | snazzy",
     "lint:fix": "npx standardx --fix",
-    "types": "tsc",
+    "types": "tsc --project jsconfig.json",
     "types:test": "tsc --project tsconfig.test.json"
   },
   "dependencies": {

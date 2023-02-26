@@ -34,7 +34,7 @@ class MlscRestClient {
    * @param {string} effectItemName Name of `String` Item for mslc effect
    * @param {string} colorItemName Name of `Color` Item for `effect_single` color
    * @param {string} url Full URL of mlsc host, e.g. `http://127.0.0.1:8080`
-   * @param {deviceId} deviceId ID of device inside mlsc, use HTTP GET `/api/system/devices` to get a list of available devices
+   * @param {string} deviceId ID of device inside mlsc, use HTTP GET `/api/system/devices` to get a list of available devices
    * @param {string} [switchItemName] Name of `Switch` Item to switch mlsc on/off
    * @param {string} [effectDefault='effect_gradient'] Default effect for the `Switch` Item
    * @param {number} [refreshInterval=15000] Refresh interval in milliseconds
@@ -111,8 +111,11 @@ class MlscRestClient {
           if (this.switchItemName) items.getItem(this.switchItemName).postUpdate(event.receivedCommand === 'effect_off' ? 'OFF' : 'ON');
         } else if (event.itemName === this.colorItemName) {
           const hsb = HSBType.valueOf(event.receivedCommand);
+          // @ts-ignore
           const r = parseInt(hsb.getRed() * 2.55);
+          // @ts-ignore
           const g = parseInt(hsb.getGreen() * 2.55);
+          // @ts-ignore
           const b = parseInt(hsb.getBlue() * 2.55);
           console.debug(`Commanding color of ${logMsg} to ${[r, g, b]}...`);
           actions.HTTP.sendHttpPostRequest(this.url + '/api/settings/effect', 'application/json', JSON.stringify({

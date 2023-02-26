@@ -22,7 +22,7 @@ const { getRoofwindowOpenLevel } = require('../itemutils');
 /**
  * Get the temperature difference from the temperature in a room to the outside temperature.
  *
- * The temperatures's Itemname must be: ${roomname}${temperatureItemSuffix}.
+ * The temperature's Itemname must be: ${roomname}${temperatureItemSuffix}.
  * @private
  * @param {String} roomname name of room
  * @param {String} outsideTemperatureItem outside temperature Item name
@@ -104,16 +104,17 @@ class Rainalarm {
   /**
    * Send a rainalarm notification for a single contact.
    * @private
-   * @param {String} contactItem name of the contact Item.
+   * @param {String} contactItemName name of the contact Item.
    */
-  alarmSingleContact (contactItem) {
+  alarmSingleContact (contactItemName) {
+    const contactItem = items.getItem(contactItemName);
     console.info(`Checking rainalarm for single contact ${contactItem} ...`);
     if (contactItem.state === 'OPEN') actions.NotificationAction.sendBroadcastNotification(`Achtung! Regenalarm: ${contactItem.label} geöffnet!`);
   }
 
   /**
-   * Calls the appropiate function depending on the type of window/door.
-   * @private
+   * Calls the appropriate function depending on the type of window/door.
+   * Do NOT call directly, instead use {@link getRainalarmRule}.
    * @param {String} itemname name of the Item
    * @param {Number} windspeed current windspeed
    */
@@ -133,7 +134,7 @@ class Rainalarm {
 /**
  * Returns the rainalarm rule.
  * @memberof rulesx.alerting
- * @param {rulesx.alerting.rainalarmConfig} config rainalarm configuration
+ * @param {rainalarmConfig} config rainalarm configuration
  * @returns {HostRule}
  */
 const getRainalarmRule = (config) => {
@@ -218,7 +219,7 @@ const getRainalarmRule = (config) => {
  */
 class HeatFrostalarm {
   /**
-   * Constructor to create an instance. Do not call directly, instead call {@link rulesx.}.
+   * Constructor to create an instance. Do not call directly, instead call {@link rulesx.alerting.getHeatalarmRule} or {@link rulesx.alerting.getFrostalarmRule}.
    * @param {heatfrostalarmConfig} config configuration
    * @param {TimerMgr} timerMgr instance of {@link TimerMgr}
    * @hideconstructor
@@ -303,8 +304,8 @@ class HeatFrostalarm {
   }
 
   /**
-   * Calls the alarm logic with the appropiate parameters depending on the type of window/door.
-   * @private
+   * Calls the alarm logic with the appropriate parameters depending on the type of window/door.
+   * Do NOT call directly, instead use {@link getHeatalarmRule} or {@link getFrostalarmRule}.
    * @param {String} itemname name of the Item
    */
   checkAlarm (itemname) {
@@ -324,7 +325,7 @@ class HeatFrostalarm {
 /**
  * Returns the heatalarm rule.
  * @memberof rulesx.alerting
- * @param {rulesx.alerting.heatfrostalarmConfig} config alarm configuration
+ * @param {heatfrostalarmConfig} config alarm configuration
  * @returns {HostRule}
  */
 const getHeatalarmRule = (config) => {

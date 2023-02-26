@@ -32,13 +32,15 @@ function getClockRule (switchItem, alarmFunc) {
     items.getItem(switchItem + '_H').postUpdate('7');
     items.getItem(switchItem + '_M').postUpdate('0');
     items.getItem(switchItem + '_Time').postUpdate('07:00');
-    return console.info('Not adding clock rule for ' + switchItem + ' due to missing time configuration.');
+    console.info('Not adding clock rule for ' + switchItem + ' due to missing time configuration.');
+    return null;
   }
   // Post time string.
   items.getItem(switchItem + '_Time').postUpdate(((hour < 10) ? '0' : '') + hour.toString() + ':' + ((minute < 10) ? '0' : '') + minute.toString());
   // If switchItem is OFF, return.
   if (items.getItem(switchItem).state !== 'ON') {
-    return console.info('Not adding clock rule for ' + switchItem + ' because alarm is switched off.');
+    console.info('Not adding clock rule for ' + switchItem + ' because alarm is switched off.');
+    return null;
   }
   // Generate Array for days of week.
   const days = [];
@@ -52,7 +54,8 @@ function getClockRule (switchItem, alarmFunc) {
   // If no day is selected, return and turn of the switchItem.
   if (days.length === 0) {
     items.getItem(switchItem).sendCommand('OFF');
-    return console.info('Not adding clock rule for ' + switchItem + ' because no day is enabled.');
+    console.info('Not adding clock rule for ' + switchItem + ' because no day is enabled.');
+    return null;
   }
   // Generate the QUARTZ cron expression.
   const quartz = '0 ' + minute + ' ' + hour + ' ? * ' + days.join(',') + ' *';

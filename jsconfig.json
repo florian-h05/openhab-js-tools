@@ -4,8 +4,9 @@
     "declaration": true,
     "outDir": "types",
     "declarationMap": true,
-    "target": "ES6",
-    "moduleResolution": "Node"
+    "target": "ES2021",
+    "moduleResolution": "Node",
+    "resolveJsonModule": true
   },
   "include": ["src/**/*.js"],
   "exclude": ["node_modules", "**/*.spec.js"]

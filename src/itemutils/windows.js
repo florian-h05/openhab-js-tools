@@ -27,7 +27,7 @@ const { items } = require('openhab');
   *
   * @memberof itemutils
   * @param {String} baseItem base of the Items names, e.g. `Florian_Dachfenster`
-  * @returns {itemutils.roofwindowState} {@link roofwindowState}
+  * @returns {roofwindowState} {@link items.roofwindowState}
   */
 const getRoofwindowOpenLevel = (baseItem) => {
   const output = {};
