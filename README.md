@@ -164,3 +164,10 @@ scriptUnloaded = function () {
 itemutils.dimmer('sampleManager', 'Kitchen_Lights', 100, 1, 1000);
 ```
 This dims the kitchen light to 100% with steps of 1% each second.
+
+***
+## music_led_strip_control REST client
+
+The `thingsx.MlscRestClientClass` enables openHAB to control effect and color of a RGB stripe connected to [music_led_strip_control](https://github.com/TobKra96/music_led_strip_control).
+
+For more information and a code example, have a look at the [JSDoc](https://florian-h05.github.io/openhab-js-tools/thingsx.MlscRestClient.html).

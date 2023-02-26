@@ -19,6 +19,13 @@ const HEADERS = new Map([['accept', 'application/json']]);
  *
  * Class providing state fetching from and command sending to the REST API of {@link https://github.com/TobKra96/music_led_strip_control music_led_strip_control}.
  * It is using a scheduled job to fetch states and a rule to handle commands.
+ *
+ * @example
+ * var FlorianRGB = new MlscRestClient('FlorianRGB_effect', 'FlorianRGB_color', 'http://127.0.0.1:8080', 'device_0', 'FlorianRGB', 'effect_single');
+ * FlorianRGB.scheduleStateFetching();
+ * FlorianRGB.createCommandHandlingRule();
+ *
+ * @memberof thingsx
  */
 class MlscRestClient {
   /**
