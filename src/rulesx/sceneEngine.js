@@ -18,7 +18,15 @@ const { items, rules, triggers } = require('openhab');
 class SceneEngine {
   /**
    * Constructor to create an instance. Do not call directly, instead call {@link getSceneEngine}.
-   * @param {*} sceneDefiniton definition of scenes following a special scheme (see {@link getSceneEngine})
+   * @param {object} sceneDefinition scenes definition
+   * @param {string} sceneDefinition.controller name of Item that calls the scenes
+   * @param {object[]} sceneDefinition.scenes Array of scenes
+   * @param {number} sceneDefinition.scenes[].value integer identifying the scene
+   * @param {object[]} sceneDefinition.scenes[].targets Array of scene members
+   * @param {string} sceneDefinition.scenes[].targets[].item name of Item
+   * @param {string} sceneDefinition.scenes[].targets[].value target state of Item
+   * @param {boolean} [sceneDefinition.scenes[].targets[].required=true] whether the Item's state must match the target state when the engine gets the current scene on change of a member
+   * @param {function} [sceneDefinition.scenes[].targets[].conditionFn] the Item is only commanded and required for scene checks if the evaluation of this function returns true
    * @hideconstructor
    */
   constructor (sceneDefinition) {
@@ -37,7 +45,7 @@ class SceneEngine {
    * For the controller a command trigger, for scene members change triggers.
    * Scene members that are not required are excluded from the triggers.
    * @private
-   * @returns {triggers[]} rule triggers
+   * @returns {Array} rule triggers
    */
   getTriggers () {
     const ruleTriggers = [];
@@ -65,10 +73,10 @@ class SceneEngine {
   /**
    * Calls the scene. Sets the scene members to the given target state.
    * @private
-   * @param {Number} sceneNumber value of controller / number of scene to call
+   * @param {string|number} sceneNumber value of controller / number of scene to call
    */
   callScene (sceneNumber) {
-    sceneNumber = parseInt(sceneNumber);
+    sceneNumber = (typeof sceneNumber === 'number') ? sceneNumber : parseInt(sceneNumber);
     // Get the correct scene value.
     for (let j = 0; j < this.scenes.length; j++) {
       // Get the correct scene targets.
@@ -140,14 +148,14 @@ class SceneEngine {
         sceneFound = true;
       }
       // Update controller.
-      items.getItem(this.controller).postUpdate(selectorValueMatching);
+      items.getItem(this.controller).postUpdate(selectorValueMatching.toString());
     }
   }
 
   /**
-   * The JSRule to run the scene engine.
-   * @private
-   * @returns {HostRule} openHAB Rule
+   * Returns the scene engine rule.
+   * Do NOT call directly, instead use {@link getSceneEngine}.
+   * @returns {HostRule}
    */
   getRule () {
     return rules.JSRule({
@@ -172,15 +180,15 @@ class SceneEngine {
 /**
  * Provides the {@link rulesx.SceneEngine}.
  * @memberof rulesx
- * @param {Object} sceneDefinition scenes definiton
- * @param {String} sceneDefinition.controller name of Item that calls the scenes
- * @param {Array<Object>} sceneDefinition.scenes Array of scenes
- * @param {Number} sceneDefinition.scenes[].value integer identifying the scene
- * @param {Array<Object>} sceneDefinition.scenes[].targets Array of scene members
- * @param {String} sceneDefinition.scenes[].targets[].item name of Item
- * @param {String} sceneDefinition.scenes[].targets[].value target state of Item
- * @param {Boolean} [sceneDefinition.scenes[].targets[].required=true] whether the Item's state must match the target state when the engine gets the current scene on change of a member
- * @param {Function} [sceneDefinition.scenes[].targets[].conditionFn] the Item is only commanded and required for scene checks if the evaluation of this function returns true
+ * @param {object} sceneDefinition scenes definition
+ * @param {string} sceneDefinition.controller name of Item that calls the scenes
+ * @param {object[]} sceneDefinition.scenes Array of scenes
+ * @param {number} sceneDefinition.scenes[].value integer identifying the scene
+ * @param {object[]} sceneDefinition.scenes[].targets Array of scene members
+ * @param {string} sceneDefinition.scenes[].targets[].item name of Item
+ * @param {string} sceneDefinition.scenes[].targets[].value target state of Item
+ * @param {boolean} [sceneDefinition.scenes[].targets[].required=true] whether the Item's state must match the target state when the engine gets the current scene on change of a member
+ * @param {function} [sceneDefinition.scenes[].targets[].conditionFn] the Item is only commanded and required for scene checks if the evaluation of this function returns true
  * @returns {HostRule} SceneEngine rule
  */
 const getSceneEngine = (sceneDefinition) => {
