@@ -31,18 +31,18 @@ class MlscRestClient {
   }
 
   scheduleStateFetching () {
-    const logMsg = `from "${this.deviceId}"" of "${this.host}"`;
+    const logMsg = `from "${this.deviceId}"" of "${this.url}"`;
     return setInterval(() => {
       console.debug(`Refreshing Items ${logMsg} ...`);
       try {
-        const response = actions.HTTP.sendHttpGetRequest(this.host + '/api/effect/active?device=' + this.deviceId, HEADERS, 1000);
+        const response = actions.HTTP.sendHttpGetRequest(this.url + '/api/effect/active?device=' + this.deviceId, HEADERS, 1000);
         const json = JSON.parse(response);
         items.get(this.effectItemName).postUpdate(json.effect);
       } catch (e) {
         console.warn(`Failed to fetch effect ${logMsg}:`, e);
       }
       try {
-        const response = actions.HTTP.sendHttpGetRequest(this.host + '/api/settings/effect?effect=effect_single&device=' + this.deviceId, HEADERS, 1000);
+        const response = actions.HTTP.sendHttpGetRequest(this.url + '/api/settings/effect?effect=effect_single&device=' + this.deviceId, HEADERS, 1000);
         const json = JSON.parse(response);
         const rgb = json.settings.custom_color;
         const hsb = HSBType.fromRGB(rgb[0], rgb[1], rgb[2]);
@@ -54,9 +54,9 @@ class MlscRestClient {
   }
 
   createCommandHandlingRule () {
-    const logMsg = `from "${this.deviceId}"" of "${this.host}"`;
+    const logMsg = `from "${this.deviceId}"" of "${this.url}"`;
     const ruleConfig = {
-      name: `mlsc REST client for "${this.deviceId}" of "${this.host}"`,
+      name: `mlsc REST client for "${this.deviceId}" of "${this.url}"`,
       description: 'Provides command handling, state fetching is done by a scheduled job',
       triggers: [
         triggers.ItemCommandTrigger(this.effectItemName),
@@ -69,7 +69,7 @@ class MlscRestClient {
           items.getItem(this.effectItemName).sendCommand((event.receivedCommand === 'ON') ? this.effectDefault : 'effect_off');
         } else if (event.itemName === this.effectItemName) {
           console.debug(`Commanding effect of ${logMsg} to ${event.receivedCommand} ...`);
-          actions.HTTP.sendHttpPostRequest(this.host + '/api/effect/active', 'application/json', JSON.stringify({
+          actions.HTTP.sendHttpPostRequest(this.url + '/api/effect/active', 'application/json', JSON.stringify({
             device: this.deviceId,
             effect: event.receivedCommand
           }));
@@ -79,7 +79,7 @@ class MlscRestClient {
           const g = parseInt(hsb.getGreen() * 2.55);
           const b = parseInt(hsb.getBlue() * 2.55);
           console.debug(`Commanding color of ${logMsg} to ${[r, g, b]}...`);
-          actions.HTTP.sendHttpPostRequest(this.host + '/api/settings/effect', 'application/json', JSON.stringify({
+          actions.HTTP.sendHttpPostRequest(this.url + '/api/settings/effect', 'application/json', JSON.stringify({
             device: this.deviceId,
             effect: 'effect_single',
             settings: {
