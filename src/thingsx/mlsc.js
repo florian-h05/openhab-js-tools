@@ -128,7 +128,9 @@ class MlscRestClient {
           }));
           items.getItem(this.effectItemName).sendCommand('effect_single');
         }
-      }
+      },
+      id: `mlsc-rest-client-${this.effectItemName}-${this.colorItemName}`,
+      tags: ['@hotzware/openhab-tools', 'MlscRestClient', 'music_led_strip_control']
     };
     // Add switchItem as trigger if defined
     if (this.switchItemName) ruleConfig.triggers.push(triggers.ItemCommandTrigger(this.switchItemName));
