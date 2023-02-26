@@ -45,7 +45,7 @@ const dimmer = (managerID, targetItem, targetState, step, time, ignoreExternalCh
     return;
   }
   // If targetState not met, create dimmer.
-  const collection = cache.get(CACHE_KEY, () => { return new Map(); });
+  const collection = cache.private.get(CACHE_KEY, () => { return new Map(); });
   // If dimmer for targetItem already exists, do not create new one.
   if (collection.has(targetItem)) {
     if (overwrite) {
@@ -88,7 +88,7 @@ const dimmer = (managerID, targetItem, targetState, step, time, ignoreExternalCh
     item.sendCommand(state.toString());
   }, time);
   collection.set(targetItem, interval);
-  cache.put(CACHE_KEY, collection);
+  cache.private.put(CACHE_KEY, collection);
 };
 
 module.exports = {
