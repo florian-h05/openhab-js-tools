@@ -16,7 +16,7 @@
   },
   "scripts": {
     "test": "npm run lint",
-    "docs": "rm -Rf ./docs/* && ./node_modules/.bin/jsdoc --configure docs_config.json && mv ./docs/$npm_package_name/$npm_package_version/* ./docs/ && rm -Rf ./docs/$npm_package_name/$npm_package_version",
+    "docs": "rm -Rf ./docs/* && jsdoc --configure jsdoc.conf.json && mv ./docs/$npm_package_name/$npm_package_version/* ./docs/ && rm -Rf ./docs/$npm_package_name/$npm_package_version",
     "deploy": "npm test && npm run docs",
     "lint": "npx standardx | snazzy",
     "fix-codestyle": "npx standardx --fix"
@@ -25,8 +25,9 @@
     "openhab_rules_tools": "^1.1.1"
   },
   "devDependencies": {
-    "docdash": "*",
-    "jsdoc": "^3.6.10",
+    "docdash": "^2.0.1",
+    "jsdoc": "^4.0.2",
+    "jsdoc-tsimport-plugin": "^1.0.5",
     "openhab": "^1.2.3",
     "snazzy": "^9.0.0",
     "standardx": "^7.0.0",
