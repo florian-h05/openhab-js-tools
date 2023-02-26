@@ -1,7 +1,9 @@
 {
   "compilerOptions": {
+    "allowJs": true,
     "checkJs": true,
     "declaration": true,
+    "emitDeclarationOnly": true,
     "outDir": "types",
     "declarationMap": true,
     "target": "ES2021",
