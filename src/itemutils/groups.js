@@ -28,7 +28,7 @@ class GroupUtils {
    * @hideconstructor
    */
   constructor (jsItem) {
-    if (jsItem.rawItem.getType() !== 'GroupItem') throw new Error('Supplied Item must be a group Item!')
+    if (jsItem.type !== 'GroupItem') throw new Error('Supplied Item must be a group Item!')
     this.jsItem = jsItem;
   }
 
@@ -80,7 +80,7 @@ class GroupUtils {
    * @type {number}
    */
   get membersSum () {
-    return this.members.filter(item => (item.getType() === 'NumberItem' || item.getType() === 'DimmerItem' || item.getType() === 'RollershutterItem') && !item.isUninitialized).reduce((sum, item) => sum + parseFloat(item.state), 0);
+    return this.members.filter(item => (item.type === 'NumberItem' || item.type === 'DimmerItem' || item.type === 'RollershutterItem') && !item.isUninitialized).reduce((sum, item) => sum + parseFloat(item.state), 0);
   }
 
   /**
@@ -89,7 +89,7 @@ class GroupUtils {
    * @type {number}
    */
   get membersAvg () {
-    const numbers = this.members.filter(item => (item.getType() === 'NumberItem' || item.getType() === 'DimmerItem' || item.getType() === 'RollershutterItem') && !item.isUninitialized);
+    const numbers = this.members.filter(item => (item.type === 'NumberItem' || item.type === 'DimmerItem' || item.type === 'RollershutterItem') && !item.isUninitialized);
     return numbers.reduce((avg, item) => { return avg + parseFloat(item.state) / numbers.length; }, 0);
   }
 
@@ -141,7 +141,7 @@ class GroupUtils {
    * @type {number}
    */
   get descendentsSum () {
-    return this.descendents.filter(item => (item.getType() === 'NumberItem' || item.getType() === 'DimmerItem' || item.getType() === 'RollershutterItem') && !item.isUninitialized).reduce((sum, item) => sum + parseFloat(item.state), 0);
+    return this.descendents.filter(item => (item.type === 'NumberItem' || item.type === 'DimmerItem' || item.type === 'RollershutterItem') && !item.isUninitialized).reduce((sum, item) => sum + parseFloat(item.state), 0);
   }
 
   /**
@@ -150,7 +150,7 @@ class GroupUtils {
    * @type {number}
    */
   get descendentsAvg () {
-    const numbers = this.descendents.filter(item => (item.getType() === 'NumberItem' || item.getType() === 'DimmerItem' || item.getType() === 'RollershutterItem') && !item.isUninitialized);
+    const numbers = this.descendents.filter(item => (item.type === 'NumberItem' || item.type === 'DimmerItem' || item.type === 'RollershutterItem') && !item.isUninitialized);
     return numbers.reduce((avg, item) => { return avg + parseFloat(item.state) / numbers.length; }, 0);
   }
 
