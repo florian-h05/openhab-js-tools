@@ -64,40 +64,11 @@
     <section class="readme usertext">
         <article><h1>openHAB JS Automation Tools</h1>
 <p>This library provides some utilites for the openHAB JS Scripting Add-On.</p>
-<p>The JavaScript Add-On is using the NodeJS version found in <a href="https://github.com/openhab/openhab-addons/blob/main/bundles/org.openhab.automation.jsscripting/pom.xml#L53">openhab/openhab-addons/bundles/org.openhab.automation.jsscripting/pom.xml</a> (currently v12.16.1).</p>
+<p>The JavaScript Add-On is using the NodeJS version found in <a href="https://github.com/openhab/openhab-addons/blob/main/bundles/org.openhab.automation.jsscripting/pom.xml#L53">openhab/openhab-addons/bundles/org.openhab.automation.jsscripting/pom.xml</a> (currently v16.17.1).</p>
 <p>Please note that it depends on the <a href="https://github.com/openhab/openhab-js">openHAB JavaScript Library</a>, which is included in the JS Scripting Add-On by default.
-Therefore it is only listed in the devDependencies of this package.</p>
+Therefore, it is only listed in the devDependencies of this package.</p>
 <p><a href="https://github.com/standard/semistandard"><img src="https://img.shields.io/badge/code%20style-semistandard-brightgreen.svg" alt="js-semistandard-style"></a>
 <a href="https://badge.fury.io/js/@hotzware%2Fopenhab-tools"><img src="https://badge.fury.io/js/@hotzware%2Fopenhab-tools.svg" alt="npm version"></a></p>
-<h2>Table of Contents</h2>
-<ul>
-<li><a href="#table-of-contents">Table of Contents</a></li>
-<li><a href="#installation">Installation</a></li>
-<li><a href="#scene-engine">Scene Engine</a>
-<ul>
-<li><a href="#the-sceneitem">The <code>sceneItem</code></a></li>
-<li><a href="#scene-definition">Scene definition</a></li>
-<li><a href="#scene-rule">Scene rule</a></li>
-</ul>
-</li>
-<li><a href="#alarm-clock">Alarm Clock</a>
-<ul>
-<li><a href="#required-items">Required Items</a></li>
-<li><a href="#alarm-rule">Alarm Rule</a></li>
-</ul>
-</li>
-<li><a href="#group-utilities">Group Utilities</a>
-<ul>
-<li><a href="#examples">Examples</a></li>
-</ul>
-</li>
-<li><a href="#item-dimmer">Item Dimmer</a>
-<ul>
-<li><a href="#example">Example</a></li>
-</ul>
-</li>
-</ul>
-<hr>
 <h2>Installation</h2>
 <ul>
 <li>Requires the openHAB <a href="https://www.openhab.org/addons/automation/jsscripting/">JavaScript binding</a> which comes with a version of the <a href="https://www.npmjs.com/package/openhab">openHAB
@@ -105,7 +76,8 @@ library</a>.</li>
 <li>Go to the javascript user scripts directory: <code>cd $OPENHAB_CONF/automation/js</code></li>
 <li>Run <code>npm install @hotzware/openhab-tools</code> (you may need to install npm)</li>
 </ul>
-<hr>
+<h2>Compatibility</h2>
+<p>This library depends on <code>openhab</code> &gt;= 3.1.0 (which is included since openHAB 3.4.x) and <code>openhab_rules_tools</code> &gt;= 2.0.1.</p>
 <h2>Scene Engine</h2>
 <p>Call scene by sending a command to the <code>sceneItem</code>.</p>
 <p>When a member of the scene changes it's state, the rule will check whether a
@@ -137,31 +109,14 @@ except to 0.</p>
   ]
 };
 </code></pre>
-<p>See <a href="https://florian-h05.github.io/openhab-js-tools/rulesx.html#.getSceneEngine">JSDoc: getSceneEngine()</a> for documentation of parameters.</p>
+<p>See <a href="https://florian-h05.github.io/openhab-js-tools/rulesx.html#.getSceneEngine">JSDoc: getSceneEngine()</a> for full API documentation.</p>
 <h3>Scene rule</h3>
 <pre class="prettyprint source lang-javascript"><code>rulesx.getSceneEngine(sceneDefinition);
 </code></pre>
-<table>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Purpose</th>
-<th>Required</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>sceneDefinition</td>
-<td>The scene definition array of objects.</td>
-<td>yes</td>
-</tr>
-</tbody>
-</table>
-<hr>
 <h2>Alarm Clock</h2>
 <p>Provides an alarm clock that is configured via Items.</p>
 <p>Under the hood, two rules are created. The first rule, so called manager rule, watches for configuration changes and updates the cron trigger of the second rule, the alarm clock itself.
-It also disable and enables the alarm clock rule based on the <em>switchItem</em>.</p>
+It also disables and enables the alarm clock rule based on the <em>switchItem</em>.</p>
 <h3>Required Items</h3>
 <p>Configuration Items must follow a specific naming scheme, <em>switchItem</em> can be anything.</p>
 <table>
@@ -221,11 +176,10 @@ It also disable and enables the alarm clock rule based on the <em>switchItem</em
 <h3>Alarm Rule</h3>
 <pre class="prettyprint source lang-javascript"><code>rulesx.getAlarmClock(switchItem, data => { console.log('Successfully tested alarm clock.'); });
 </code></pre>
+<p>See <a href="https://florian-h05.github.io/openhab-js-tools/rulesx.html#.getAlarmClock">JSDoc: getAlarmClock()</a> for full API documentation.</p>
 <hr>
 <h2>Group Utilities</h2>
 <p>The Group Utilities provide a number of functions on groups, e.g. arithmetic operations like min/max and count operations.</p>
-<p>For supported methods look at the <a href="https://florian-h05.github.io/openhab-js-tools/itemutils.GroupUtils.html">GroupUtils JSDoc</a>.</p>
-<p>These are a GraalJS compatible fork of the my original <code>groupUtils</code> from <a href="https://github.com/rkoshak/openhab-rules-tools/tree/main/group_utils">rkoshak/openhab-rules-tools</a>.</p>
 <h3>Examples</h3>
 <pre class="prettyprint source lang-javascript"><code>const { itemutils } = require('@hotzware/openhab-tools');
 // The name of the member with the maximum state.
@@ -235,12 +189,12 @@ itemutils.getGroup(group).membersSum;
 // Count how many members are on.
 itemutils.getGroup(group).membersCount(item => item.state === 'ON');
 </code></pre>
-<hr>
+<p>See <a href="https://florian-h05.github.io/openhab-js-tools/itemutils.GroupUtils.html">JSDoc: GroupUtils</a> for full API documentation.</p>
 <h2>Item Dimmer</h2>
 <p>The Item Dimmer allows you to dim a given item step-by-step to a target state.
 Dimming step size and time between steps are configurable.</p>
 <p>The dimmer uses the cache to avoid that multiple dimmers are running on the same Item at same time.
-Therefore it is recommended to use the same <code>managerID</code> in UI based scripts.</p>
+Therefore, it is recommended to use the same <code>managerID</code> in UI based scripts.</p>
 <p>Only for file based scripts: To avoid that the dimmer manager crashes due to file reload during dimming process, use the <a href="https://github.com/openhab/openhab-js#scriptunloaded"><code>scriptUnloaded</code></a> function to clear the cache.
 You may use multiple <code>managerID</code>s to not cancel all dimmers when one script reloads.</p>
 <pre class="prettyprint source lang-javascript"><code>var MANAGER_KEY = 'managerID';
@@ -251,76 +205,14 @@ scriptUnloaded = function () {
   cache.remove(MANAGER_KEY);
 };
 </code></pre>
-<table>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Purpose</th>
-<th>Type</th>
-<th>Required</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>managerID</td>
-<td>id used for cache</td>
-<td>string</td>
-<td>yes</td>
-<td></td>
-</tr>
-<tr>
-<td>targetItem</td>
-<td>name of Item to control, item must support float states</td>
-<td>string</td>
-<td>yes</td>
-<td></td>
-</tr>
-<tr>
-<td>targetState</td>
-<td>target to dim to</td>
-<td>number</td>
-<td>yes</td>
-<td></td>
-</tr>
-<tr>
-<td>step</td>
-<td>size of dimming steps</td>
-<td>number</td>
-<td>yes</td>
-<td></td>
-</tr>
-<tr>
-<td>time</td>
-<td>time in milliseconds between each step</td>
-<td>number</td>
-<td>yes</td>
-<td></td>
-</tr>
-<tr>
-<td>ignoreExternalChange</td>
-<td>whether to ignore large Item state changes during dimming, default to false</td>
-<td>boolean</td>
-<td>no</td>
-<td>false</td>
-</tr>
-<tr>
-<td>overwrite</td>
-<td>whether to cancel an existing dimmer and create a new one</td>
-<td>boolean</td>
-<td>no</td>
-<td>false</td>
-</tr>
-</tbody>
-</table>
+<p>See <a href="https://florian-h05.github.io/openhab-js-tools/itemutils.html#.dimmer">JSDoc: dimmer()</a> for full API documentation.</p>
 <h3>Example</h3>
 <pre class="prettyprint source lang-javascript"><code>itemutils.dimmer('sampleManager', 'Kitchen_Lights', 100, 1, 1000);
 </code></pre>
 <p>This dims the kitchen light to 100% with steps of 1% each second.</p>
-<hr>
 <h2>music_led_strip_control REST client</h2>
 <p>The <code>thingsx.MlscRestClientClass</code> enables openHAB to control effect and color of a RGB stripe connected to <a href="https://github.com/TobKra96/music_led_strip_control">music_led_strip_control</a>.</p>
-<p>For more information and a code example, have a look at the <a href="https://florian-h05.github.io/openhab-js-tools/thingsx.MlscRestClient.html">JSDoc</a>.</p></article>
+<p>See <a href="https://florian-h05.github.io/openhab-js-tools/thingsx.MlscRestClient.html">JSDoc: MlscRestClient</a> for full API documentation.</p></article>
     </section>
 
 
@@ -335,7 +227,7 @@ scriptUnloaded = function () {
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.2</a> on Sun Feb 26 2023 15:21:55 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.2</a> on Sun Feb 26 2023 15:33:30 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>
