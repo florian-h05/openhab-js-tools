@@ -38,7 +38,7 @@ class MlscRestClient {
       try {
         const response = actions.HTTP.sendHttpGetRequest(this.url + '/api/effect/active?device=' + this.deviceId, HEADERS, 1000);
         const json = JSON.parse(response);
-        items.get(this.effectItemName).postUpdate(json.effect);
+        items.getItem(this.effectItemName).postUpdate(json.effect);
       } catch (e) {
         console.warn(`Failed to fetch effect from ${logMsg}:`, e);
       }
