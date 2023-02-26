@@ -32,7 +32,7 @@ class MlscRestClient {
 
   scheduleStateFetching () {
     const logMsg = `"${this.deviceId}"" of "${this.url}"`;
-    console.info(`Initializing state fetching for ${logMsg} ...`)
+    console.info(`Initializing state fetching for ${logMsg} ...`);
     return setInterval(() => {
       console.debug(`Refreshing Items from ${logMsg} ...`);
       try {
@@ -74,7 +74,7 @@ class MlscRestClient {
             device: this.deviceId,
             effect: event.receivedCommand
           }));
-          if (this.switchItemName) items.getItem(this.switchItemName).postUpdate(event.receivedCommand === 'effect_off' ? 'OFF' : 'ON')
+          if (this.switchItemName) items.getItem(this.switchItemName).postUpdate(event.receivedCommand === 'effect_off' ? 'OFF' : 'ON');
         } else if (event.itemName === this.colorItemName) {
           const hsb = HSBType.valueOf(event.receivedCommand);
           const r = parseInt(hsb.getRed() * 2.55);
@@ -95,7 +95,7 @@ class MlscRestClient {
     };
     // Add switchItem as trigger if defined
     if (this.switchItemName) ruleConfig.triggers.push(triggers.ItemCommandTrigger(this.switchItemName));
-    console.info(`Creating command handling rule for ${logMsg} ...`)
+    console.info(`Creating command handling rule for ${logMsg} ...`);
     return rules.JSRule(ruleConfig);
   }
 }
