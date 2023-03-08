@@ -33,7 +33,6 @@ const dimmer = (managerID, targetItem, targetState, step, time, ignoreExternalCh
   if (typeof managerID !== 'string') throw Error('managerID must be a string.');
   const item = items.getItem(targetItem);
   // @ts-ignore
-  if (!item.rawState.floatValue()) throw Error('targetItem must support float states.');
   if (typeof targetState !== 'number') throw Error('targetState must be a number.');
   if (typeof step !== 'number') throw Error('step must be a number.');
   if (typeof time !== 'number') throw Error('time must be a number.');
