@@ -16,7 +16,7 @@
   },
   "scripts": {
     "docs": "rm -Rf ./docs/* && jsdoc --configure jsdoc.conf.json",
-    "deploy": "npm run docs && npm run types && npm run types:test",
+    "deploy": "npm run lint:fix && npm run types && npm run types:test && npm run docs",
     "lint": "npx standardx | snazzy",
     "lint:fix": "npx standardx --fix",
     "types": "tsc --project tsconfig.json",
