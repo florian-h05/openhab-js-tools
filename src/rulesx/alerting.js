@@ -282,7 +282,8 @@ class HeatFrostalarm {
       return actions.NotificationAction.sendBroadcastNotification(`${this.config.notification.warning.title}${items.getItem(contactItem).label}${this.config.notification.warning.message}`);
     }
     // If not called on expire of timer, schedule timer.
-    const timerTime = (alarmLevel !== 4) ? 'PT' + time + this.config.time.addForWarning + 'M' : 'PT' + time + 'M';
+    // Brackets around time calculation are required, otherwise the numbers are appended as strings and not added
+    const timerTime = (alarmLevel !== 4) ? 'PT' + (time + this.config.time.addForWarning) + 'M' : 'PT' + time + 'M';
     if (this.timerMgr.hasTimer(contactItem)) {
       console.info(`checkContact: Timer for ${contactItem} (${this.config.type}) already exists, skipping!`);
     } else {
