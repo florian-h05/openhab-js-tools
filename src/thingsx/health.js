@@ -37,6 +37,20 @@ function _getThingNameFromStateItemName (itemName, patterns, replacements) {
 }
 
 /**
+ * Re-enables a Thing by disabling, and then enabling it again.
+ *
+ * @memberof thingsx
+ * @param {string} thingUID
+ */
+function reEnableThing (thingUID) {
+  const thing = things.getThing(thingUID);
+  thing.setEnabled(false);
+  setTimeout(() => {
+    thing.setEnabled(true);
+  }, 1000);
+}
+
+/**
  * Creates a rule that posts Thing statuses to String Items.
  * The rule takes the name of a group of String Items, generates a Thing UID for each member Item using string replace operations, and then posts the Thing status on every Thing status change to the Items.
  * The rule also runs when start level 100 is reached and regularly (every 5 minutes, starting with minute 0).
@@ -85,6 +99,31 @@ function createThingStatusRule (groupName, patterns, replacements) {
     tags: ['@hotzware/openhab-tools', 'createThingStatusRule', 'Things']
   });
 }
+
+/**
+ * Creates a rule that re-enabled a Thing on command ON to a given Item.
+ *
+ * @memberof thingsx
+ * @param {string} itemName
+ * @param {string} thingUID
+ */
+function createReEnableThingWithItemRule (itemName, thingUID) {
+  rules.JSRule({
+    name: 'Re-enable ' + thingUID + ' with ' + itemName,
+    description: 'Disables and then enables a Thing again on command ON.',
+    triggers: triggers.ItemCommandTrigger(itemName, 'ON'),
+    execute: (event) => {
+      reEnableThing(thingUID);
+      // Set command Item to OFF.
+      items.getItem(itemName).postUpdate('OFF');
+    },
+    id: 're-enable-' + thingUID + '-with-' + itemName,
+    tags: ['@hotzware/openhab-tools', 'createReEnableThingWithItemRule', 'Things']
+  });
+}
+
 module.exports = {
-  createThingStatusRule
+  reEnableThing,
+  createThingStatusRule,
+  createReEnableThingWithItemRule
 };
