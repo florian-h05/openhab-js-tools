@@ -28,7 +28,7 @@ const logger = log('org.openhab.automation.js.openhab-tools.itemutils.dimmer');
  * @throws {TypeError} when a parameter has wrong type
  *
  */
-const dimItem = (itemName, targetState, step, time, ignoreExternalChange = false, overwrite = false) => {
+function dimItem (itemName, targetState, step, time, ignoreExternalChange = false, overwrite = false) {
   // Get Item and check parameters.
   const item = items.getItem(itemName);
   // @ts-ignore
@@ -94,7 +94,7 @@ const dimItem = (itemName, targetState, step, time, ignoreExternalChange = false
     item.sendCommand(calculatedState.toString());
   }, time);
   cache.shared.put(CACHE_KEY, intervalId);
-};
+}
 
 module.exports = {
   dimItem

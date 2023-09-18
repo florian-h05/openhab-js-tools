@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 202s Florian Hotze
+ * Copyright (c) 2022 Florian Hotze
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -29,7 +29,7 @@ const { items } = require('openhab');
   * @param {String} baseItem base of the Items names, e.g. `Florian_Dachfenster`
   * @returns {roofwindowState} {@link items.roofwindowState}
   */
-const getRoofwindowOpenLevel = (baseItem) => {
+function getRoofwindowOpenLevel (baseItem) {
   const output = {};
   const stateClosed = items.getItem(baseItem + '_zu').state;
   const stateKlLueftung = items.getItem(baseItem + '_klLueftung').state;
@@ -52,7 +52,7 @@ const getRoofwindowOpenLevel = (baseItem) => {
     output.int = 5;
   }
   return output;
-};
+}
 
 module.exports = {
   getRoofwindowOpenLevel
