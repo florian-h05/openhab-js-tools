@@ -6,5 +6,6 @@
  */
 
 module.exports = {
+  ...require('./health'),
   ...require('./mlsc')
 };
