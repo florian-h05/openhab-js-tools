@@ -31,7 +31,7 @@
     <input type="text" id="nav-search" placeholder="Search" />
     
     
-    <h2><a href="index.html">Home</a></h2><h3>Namespaces</h3><ul><li><a href="itemutils.html">itemutils</a><ul class='methods'><li data-type='method'><a href="itemutils.html#.dimItem">dimItem</a></li><li data-type='method'><a href="itemutils.html#.getGroup">getGroup</a></li><li data-type='method'><a href="itemutils.html#.getRoofwindowOpenLevel">getRoofwindowOpenLevel</a></li></ul></li><li><a href="rulesx.html">rulesx</a><ul class='methods'><li data-type='method'><a href="rulesx.html#.createAlarmClockItems">createAlarmClockItems</a></li><li data-type='method'><a href="rulesx.html#.getAlarmClock">getAlarmClock</a></li><li data-type='method'><a href="rulesx.html#.getClockRule">getClockRule</a></li><li data-type='method'><a href="rulesx.html#.getSceneEngine">getSceneEngine</a></li></ul></li><li><a href="rulesx.alerting.html">alerting</a><ul class='methods'><li data-type='method'><a href="rulesx.alerting.html#.getFrostalarmRule">getFrostalarmRule</a></li><li data-type='method'><a href="rulesx.alerting.html#.getHeatalarmRule">getHeatalarmRule</a></li><li data-type='method'><a href="rulesx.alerting.html#.getRainalarmRule">getRainalarmRule</a></li></ul></li><li><a href="thingsx.html">thingsx</a><ul class='methods'><li data-type='method'><a href="thingsx.html#.createReEnableThingWithItemRule">createReEnableThingWithItemRule</a></li><li data-type='method'><a href="thingsx.html#.createThingStatusRule">createThingStatusRule</a></li><li data-type='method'><a href="thingsx.html#.reEnableThing">reEnableThing</a></li></ul></li></ul><h3>Classes</h3><ul><li><a href="itemutils.GroupUtils.html">GroupUtils</a><ul class='methods'><li data-type='method'><a href="itemutils.GroupUtils.html#descendentsCount">descendentsCount</a></li><li data-type='method'><a href="itemutils.GroupUtils.html#membersCount">membersCount</a></li></ul></li><li><a href="rulesx.SceneEngine.html">SceneEngine</a><ul class='methods'><li data-type='method'><a href="rulesx.SceneEngine.html#getRule">getRule</a></li></ul></li><li><a href="rulesx.alerting.HeatFrostalarm.html">HeatFrostalarm</a><ul class='methods'><li data-type='method'><a href="rulesx.alerting.HeatFrostalarm.html#checkAlarm">checkAlarm</a></li></ul></li><li><a href="rulesx.alerting.Rainalarm.html">Rainalarm</a><ul class='methods'><li data-type='method'><a href="rulesx.alerting.Rainalarm.html#checkAlarm">checkAlarm</a></li></ul></li><li><a href="thingsx.MlscRestClient.html">MlscRestClient</a><ul class='methods'><li data-type='method'><a href="thingsx.MlscRestClient.html#createCommandHandlingRule">createCommandHandlingRule</a></li><li data-type='method'><a href="thingsx.MlscRestClient.html#scheduleStateFetching">scheduleStateFetching</a></li></ul></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Namespaces</h3><ul><li><a href="itemutils.html">itemutils</a><ul class='methods'><li data-type='method'><a href="itemutils.html#.dimItem">dimItem</a></li><li data-type='method'><a href="itemutils.html#.getGroupUtils">getGroupUtils</a></li><li data-type='method'><a href="itemutils.html#.getRoofwindowOpenLevel">getRoofwindowOpenLevel</a></li></ul></li><li><a href="rulesx.html">rulesx</a><ul class='methods'><li data-type='method'><a href="rulesx.html#.createAlarmClock">createAlarmClock</a></li><li data-type='method'><a href="rulesx.html#.createAlarmClockItems">createAlarmClockItems</a></li><li data-type='method'><a href="rulesx.html#.createSceneEngine">createSceneEngine</a></li></ul></li><li><a href="rulesx.alerting.html">alerting</a><ul class='methods'><li data-type='method'><a href="rulesx.alerting.html#.createFrostAlarmRule">createFrostAlarmRule</a></li><li data-type='method'><a href="rulesx.alerting.html#.createHeatAlarmRule">createHeatAlarmRule</a></li><li data-type='method'><a href="rulesx.alerting.html#.createRainAlarmRule">createRainAlarmRule</a></li></ul></li><li><a href="thingsx.html">thingsx</a><ul class='methods'><li data-type='method'><a href="thingsx.html#.createReEnableThingWithItemRule">createReEnableThingWithItemRule</a></li><li data-type='method'><a href="thingsx.html#.createThingStatusRule">createThingStatusRule</a></li><li data-type='method'><a href="thingsx.html#.reEnableThing">reEnableThing</a></li></ul></li></ul><h3>Classes</h3><ul><li><a href="itemutils.GroupUtils.html">GroupUtils</a><ul class='methods'><li data-type='method'><a href="itemutils.GroupUtils.html#descendentsCount">descendentsCount</a></li><li data-type='method'><a href="itemutils.GroupUtils.html#membersCount">membersCount</a></li></ul></li><li><a href="rulesx.SceneEngine.html">SceneEngine</a></li><li><a href="rulesx.alerting.HeatFrostalarm.html">HeatFrostalarm</a></li><li><a href="rulesx.alerting.Rainalarm.html">Rainalarm</a></li><li><a href="thingsx.MlscRestClient.html">MlscRestClient</a><ul class='methods'><li data-type='method'><a href="thingsx.MlscRestClient.html#createCommandHandlingRule">createCommandHandlingRule</a></li><li data-type='method'><a href="thingsx.MlscRestClient.html#scheduleStateFetching">scheduleStateFetching</a></li></ul></li></ul>
     
 </nav>
 
@@ -73,12 +73,12 @@ const { items } = require('openhab');
 class GroupUtils {
   /**
    * Creates an instance of groupUtils. Don't use this constructor, instead call {@link getGroup}.
-   * @param {Item} jsItem Item from 'openhab'
+   * @param {Item} groupItem Item from 'openhab'
    * @hideconstructor
    */
-  constructor (jsItem) {
-    if (jsItem.type !== 'GroupItem') throw new Error('Supplied Item must be a group Item!');
-    this.jsItem = jsItem;
+  constructor (groupItem) {
+    if (groupItem.type !== 'GroupItem') throw new Error('Supplied Item must be a group Item!');
+    this.jsItem = groupItem;
   }
 
   /**
@@ -91,7 +91,7 @@ class GroupUtils {
 
   /**
    * Names of members / children / direct descendents of the current group Item (as returned by 'getMembers()')
-   * @type {Array}
+   * @type {string[]}
    */
   get membersNames () {
     return this.members.map(item => item.name);
@@ -99,7 +99,7 @@ class GroupUtils {
 
   /**
    * Labels of members / children / direct descendents of the current group Item (as returned by 'getMembers()') as a concatenated string
-   * @type {String}
+   * @type {string}
    */
   get membersLabelsString () {
     return this.members.map(item => item.label).join(', ');
@@ -152,7 +152,7 @@ class GroupUtils {
 
   /**
    * Names of all descendents of the current group item (as returned by 'getAllMembers()'). Must be a group item.
-   * @type {Array}
+   * @type {string[]}
    */
   get descendentsNames () {
     return this.descendents.map(item => item.name);
@@ -160,7 +160,7 @@ class GroupUtils {
 
   /**
    * Labels of all descendents of the current group item (as returned by 'getAllMembers()'). Must be a group item.
-   * @type {String}
+   * @type {string}
    */
   get descendentsLabelsString () {
     return this.descendents.map(item => item.label).join(', ');
@@ -231,15 +231,15 @@ class GroupUtils {
 /**
  * Gets an instance of groupUtils.
  * @memberof itemutils
- * @param {String} name the name of the group
+ * @param {string} groupName the name of the group
  * @returns {GroupUtils} {@link itemutils.GroupUtils}
  */
-const getGroup = (name) => {
-  return new GroupUtils(items.getItem(name));
-};
+function getGroupUtils (groupName) {
+  return new GroupUtils(items.getItem(groupName));
+}
 
 module.exports = {
-  getGroup
+  getGroupUtils
 };
 </code></pre>
         </article>
@@ -255,7 +255,7 @@ module.exports = {
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.2</a> on Mon Sep 18 2023 17:58:58 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.2</a> on Mon Sep 18 2023 18:58:33 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>
