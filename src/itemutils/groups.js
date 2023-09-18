@@ -24,12 +24,12 @@ const { items } = require('openhab');
 class GroupUtils {
   /**
    * Creates an instance of groupUtils. Don't use this constructor, instead call {@link getGroup}.
-   * @param {Item} jsItem Item from 'openhab'
+   * @param {Item} groupItem Item from 'openhab'
    * @hideconstructor
    */
-  constructor (jsItem) {
-    if (jsItem.type !== 'GroupItem') throw new Error('Supplied Item must be a group Item!')
-    this.jsItem = jsItem;
+  constructor (groupItem) {
+    if (groupItem.type !== 'GroupItem') throw new Error('Supplied Item must be a group Item!');
+    this.jsItem = groupItem;
   }
 
   /**
@@ -42,7 +42,7 @@ class GroupUtils {
 
   /**
    * Names of members / children / direct descendents of the current group Item (as returned by 'getMembers()')
-   * @type {Array}
+   * @type {string[]}
    */
   get membersNames () {
     return this.members.map(item => item.name);
@@ -50,7 +50,7 @@ class GroupUtils {
 
   /**
    * Labels of members / children / direct descendents of the current group Item (as returned by 'getMembers()') as a concatenated string
-   * @type {String}
+   * @type {string}
    */
   get membersLabelsString () {
     return this.members.map(item => item.label).join(', ');
@@ -103,7 +103,7 @@ class GroupUtils {
 
   /**
    * Names of all descendents of the current group item (as returned by 'getAllMembers()'). Must be a group item.
-   * @type {Array}
+   * @type {string[]}
    */
   get descendentsNames () {
     return this.descendents.map(item => item.name);
@@ -111,7 +111,7 @@ class GroupUtils {
 
   /**
    * Labels of all descendents of the current group item (as returned by 'getAllMembers()'). Must be a group item.
-   * @type {String}
+   * @type {string}
    */
   get descendentsLabelsString () {
     return this.descendents.map(item => item.label).join(', ');
@@ -182,13 +182,13 @@ class GroupUtils {
 /**
  * Gets an instance of groupUtils.
  * @memberof itemutils
- * @param {String} name the name of the group
+ * @param {string} groupName the name of the group
  * @returns {GroupUtils} {@link itemutils.GroupUtils}
  */
-const getGroup = (name) => {
-  return new GroupUtils(items.getItem(name));
-};
+function getGroupUtils (groupName) {
+  return new GroupUtils(items.getItem(groupName));
+}
 
 module.exports = {
-  getGroup
+  getGroupUtils
 };
