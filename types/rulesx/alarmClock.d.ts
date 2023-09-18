@@ -1,16 +1,17 @@
 /**
- * Provides the full alarm clock.
+ * Creates an alarm clock with time and days configurable over Items, therefore compatible with Sitemaps.
  *
- * The manager rule that creates and updates the alarm clock rule {@link rulesx.getClockRule} on change of settings Items.
- * Also creates and removes the alarm clock rule on ON/OFF of switchItem.
- * @memberof rulesx
- * @param {String} switchItem name of Item to switch the alarm on/off
- * @param {*} alarmFunc function to execute when the alarm clock fires
- * @returns {HostRule} the alarm manager rule
+ * The manager rule that creates and updates the alarm clock rule {@link _createClockRule} on change of settings Items.
+ * Also creates and removes the alarm clock rule on command ON/OFF of switchItem.
+ *
  * @example
- * rulesx.getAlarmClock(switchItem, data => { console.log('Successfully tested alarm clock.'); });
+ * rulesx.createAlarmClock('Florian_alarm1', data => { console.log('Successfully tested alarm clock.'); });
+ *
+ * @memberof rulesx
+ * @param {string} switchItem name of Item to switch the alarm on/off
+ * @param {function} alarmFunc function to execute when the alarm clock fires
  */
-export function getAlarmClock(switchItem: string, alarmFunc: any): HostRule;
+export function createAlarmClock(switchItem: string, alarmFunc: Function): void;
 /**
  * Creates all required Items for an alarm clock.
  *

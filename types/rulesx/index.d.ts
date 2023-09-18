@@ -1,8 +1,8 @@
 declare const _exports: {
     alerting: typeof import("./alerting");
-    getAlarmClock: typeof import("./alarmClock.js").getAlarmClock;
+    createAlarmClock: typeof import("./alarmClock.js").createAlarmClock;
     createAlarmClockItems: typeof import("./alarmClock.js").createAlarmClockItems;
-    getSceneEngine: (sceneDefinition: {
+    createSceneEngine: (sceneDefinition: {
         controller: string;
         scenes: {
             value: number;
@@ -13,7 +13,7 @@ declare const _exports: {
                 conditionFn?: Function;
             }[];
         }[];
-    }) => object;
+    }) => void;
 };
 export = _exports;
 //# sourceMappingURL=index.d.ts.map

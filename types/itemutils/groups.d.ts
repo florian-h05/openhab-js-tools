@@ -2,10 +2,10 @@ export type Item = object;
 /**
  * Gets an instance of groupUtils.
  * @memberof itemutils
- * @param {String} name the name of the group
+ * @param {string} groupName the name of the group
  * @returns {GroupUtils} {@link itemutils.GroupUtils}
  */
-export function getGroup(name: string): GroupUtils;
+export function getGroupUtils(groupName: string): GroupUtils;
 /**
  * @typedef {object} Item
  * @private
@@ -19,10 +19,10 @@ export function getGroup(name: string): GroupUtils;
 declare class GroupUtils {
     /**
      * Creates an instance of groupUtils. Don't use this constructor, instead call {@link getGroup}.
-     * @param {Item} jsItem Item from 'openhab'
+     * @param {Item} groupItem Item from 'openhab'
      * @hideconstructor
      */
-    constructor(jsItem: Item);
+    constructor(groupItem: Item);
     jsItem: any;
     /**
      * Members / children / direct descendents of the current group Item (as returned by 'getMembers()')
@@ -31,12 +31,12 @@ declare class GroupUtils {
     get members(): any[];
     /**
      * Names of members / children / direct descendents of the current group Item (as returned by 'getMembers()')
-     * @type {Array}
+     * @type {string[]}
      */
-    get membersNames(): any[];
+    get membersNames(): string[];
     /**
      * Labels of members / children / direct descendents of the current group Item (as returned by 'getMembers()') as a concatenated string
-     * @type {String}
+     * @type {string}
      */
     get membersLabelsString(): string;
     /**
@@ -70,12 +70,12 @@ declare class GroupUtils {
     get descendents(): any[];
     /**
      * Names of all descendents of the current group item (as returned by 'getAllMembers()'). Must be a group item.
-     * @type {Array}
+     * @type {string[]}
      */
-    get descendentsNames(): any[];
+    get descendentsNames(): string[];
     /**
      * Labels of all descendents of the current group item (as returned by 'getAllMembers()'). Must be a group item.
-     * @type {String}
+     * @type {string}
      */
     get descendentsLabelsString(): string;
     /**

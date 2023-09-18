@@ -1,5 +1,6 @@
 /**
  * Provides the {@link rulesx.SceneEngine}.
+ *
  * @memberof rulesx
  * @param {object} sceneDefinition scenes definition
  * @param {string} sceneDefinition.controller name of Item that calls the scenes
@@ -10,9 +11,8 @@
  * @param {string} sceneDefinition.scenes[].targets[].value target state of Item
  * @param {boolean} [sceneDefinition.scenes[].targets[].required=true] whether the Item's state must match the target state when the engine gets the current scene on change of a member
  * @param {function} [sceneDefinition.scenes[].targets[].conditionFn] the Item is only commanded and required for scene checks if the evaluation of this function returns true
- * @returns {HostRule} SceneEngine rule
  */
-export function getSceneEngine(sceneDefinition: {
+export function createSceneEngine(sceneDefinition: {
     controller: string;
     scenes: {
         value: number;
@@ -23,5 +23,5 @@ export function getSceneEngine(sceneDefinition: {
             conditionFn?: Function;
         };
     };
-}): HostRule;
+}): void;
 //# sourceMappingURL=sceneEngine.d.ts.map

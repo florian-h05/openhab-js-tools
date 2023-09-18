@@ -1,30 +1,30 @@
 /**
- * configuration for rainalarm
+ * configuration for rain alarm
  */
-export type rainalarmConfig = any;
+export type rainAlarmConfig = any;
 /**
  * configuration for rainalarm
  */
-export type heatfrostalarmConfig = any;
+export type heatOrFrostAlarmConfig = any;
 /**
- * Returns the rainalarm rule.
+ * Creates the rain alarm rule.
+ *
  * @memberof rulesx.alerting
- * @param {rainalarmConfig} config rainalarm configuration
- * @returns {HostRule}
+ * @param {rainAlarmConfig} config rainalarm configuration
  */
-export function getRainalarmRule(config: rainalarmConfig): HostRule;
+export function createRainAlarmRule(config: rainAlarmConfig): void;
 /**
- * Returns the heatalarm rule.
+ * Create the heat alarm rule.
+ *
  * @memberof rulesx.alerting
- * @param {heatfrostalarmConfig} config alarm configuration
- * @returns {HostRule}
+ * @param {heatOrFrostAlarmConfig} config alarm configuration
  */
-export function getHeatalarmRule(config: heatfrostalarmConfig): HostRule;
+export function createHeatAlarmRule(config: heatOrFrostAlarmConfig): void;
 /**
- * Returns the frostalarm rule.
+ * Create the frostalarm rule.
+ *
  * @memberof rulesx.alerting
- * @param {heatfrostalarmConfig} config alarm configuration
- * @returns {HostRule}
+ * @param {heatOrFrostAlarmConfig} config alarm configuration
  */
-export function getFrostalarmRule(config: heatfrostalarmConfig): HostRule;
+export function createFrostAlarmRule(config: heatOrFrostAlarmConfig): void;
 //# sourceMappingURL=alerting.d.ts.map
