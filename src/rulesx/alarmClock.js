@@ -72,7 +72,7 @@ function _createClockRule (switchItem, alarmFunc) {
 }
 
 /**
- * Provides the full alarm clock.
+ * Creates an alarm clock with time and days configurable over Items, therefore compatible with Sitemaps.
  *
  * The manager rule that creates and updates the alarm clock rule {@link _createClockRule} on change of settings Items.
  * Also creates and removes the alarm clock rule on command ON/OFF of switchItem.

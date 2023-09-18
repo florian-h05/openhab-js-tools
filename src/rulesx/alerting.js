@@ -141,7 +141,7 @@ class Rainalarm {
  */
 function createRainAlarmRule (config) {
   const RainalarmImpl = new Rainalarm(config);
-   rules.JSRule({
+  rules.JSRule({
     name: 'Rainalarm',
     description: 'Sends a broadcast notification when a window is open when it rains.',
     triggers: [
@@ -172,7 +172,7 @@ function createRainAlarmRule (config) {
     id: `rainalarm-for-${config.contactGroupName}`,
     tags: ['@hotzware/openhab-tools', 'getRainalarmRule', 'Alerting']
   });
-};
+}
 
 /**
  * @typedef {Object} heatOrFrostAlarmConfig configuration for rainalarm
@@ -339,7 +339,7 @@ class HeatFrostalarm {
 function createHeatAlarmRule (config) {
   const timerMgr = new TimerMgr();
   const HeatalarmImpl = new HeatFrostalarm(config, timerMgr);
-   rules.JSRule({
+  rules.JSRule({
     name: 'Heatalarm',
     description: 'Send a broadcast notficiation when a window/door is too long open when it is too warm.',
     triggers: [
@@ -369,7 +369,7 @@ function createHeatAlarmRule (config) {
     id: `heatalarm-for-${config.contactGroupName}`,
     tags: ['@hotzware/openhab-tools', 'getHeatalarmRule', 'Alerting']
   });
-};
+}
 
 /**
  * Create the frostalarm rule.
@@ -380,7 +380,7 @@ function createHeatAlarmRule (config) {
 function createFrostAlarmRule (config) {
   const timerMgr = new TimerMgr();
   const FrostalarmImpl = new HeatFrostalarm(config, timerMgr);
-   rules.JSRule({
+  rules.JSRule({
     name: 'Frostalarm',
     description: 'Send a broadcast notficiation when a window/door is too long open when it is too cold.',
     triggers: [
@@ -410,7 +410,7 @@ function createFrostAlarmRule (config) {
     id: `frostalarm-for-${config.contactGroupName}`,
     tags: ['@hotzware/openhab-tools', 'getFrostalarmRule', 'Alerting']
   });
-};
+}
 
 module.exports = {
   createRainAlarmRule,

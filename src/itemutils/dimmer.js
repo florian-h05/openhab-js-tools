@@ -12,7 +12,10 @@ const { cache, items, log } = require('openhab');
 const logger = log('org.openhab.automation.js.openhab-tools.itemutils.dimmer');
 
 /**
- * Dims an Item step-by-step to a target state. Only works for Items with support for float states.
+ * Dims an Item step-by-step to a target state.
+ *
+ * Only works for Items with support for float states.
+ * The dimmer uses the shared cache to ensure that there are not multiple timers for the same Item active at the same time.
  *
  * @example
  * // Dim the Bedroom_Light to 50% in 750 seconds (1% each 15 seconds).

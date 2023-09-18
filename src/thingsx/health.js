@@ -101,7 +101,7 @@ function createThingStatusRule (groupName, patterns, replacements) {
 }
 
 /**
- * Creates a rule that re-enabled a Thing on command ON to a given Item.
+ * Creates a rule that re-enables a Thing on command ON to a given Item.
  *
  * @memberof thingsx
  * @param {string} itemName
