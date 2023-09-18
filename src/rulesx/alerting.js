@@ -22,15 +22,15 @@ const { getRoofwindowOpenLevel } = require('../itemutils');
 /**
  * Get the temperature difference from the temperature in a room to the outside temperature.
  *
- * The temperature's Itemname must be: ${roomname}${temperatureItemSuffix}.
+ * The temperature's Item name must be: ${roomName}${temperatureItemSuffix}.
  * @private
- * @param {String} roomname name of room
- * @param {String} outsideTemperatureItem outside temperature Item name
- * @param {String} [temperatureItemSuffix=_Temperatur] string to append to the roomname to get the temperatur Item's name
- * @returns {Number|null} temperature difference (outside-inside) or null if no inside temperature is available
+ * @param {string} roomName name of room
+ * @param {string} outsideTemperatureItem outside temperature Item name
+ * @param {string} [temperatureItemSuffix=_Temperatur] string to append to the roomName to get the temperatur Item's name
+ * @returns {number|null} temperature difference (outside-inside) or null if no inside temperature is available
  */
-const getTemperatureDifferenceInToOut = (roomname, outsideTemperatureItem, temperatureItemSuffix = '_Temperatur') => {
-  const temperatureItem = items.getItem(roomname + temperatureItemSuffix, true);
+const getTemperatureDifferenceInToOut = (roomName, outsideTemperatureItem, temperatureItemSuffix = '_Temperatur') => {
+  const temperatureItem = items.getItem(roomName + temperatureItemSuffix, true);
   if (temperatureItem == null) return null;
   const insideTemperature = parseFloat(temperatureItem.state);
   const outsideItem = items.getItem(outsideTemperatureItem, true);
@@ -40,27 +40,27 @@ const getTemperatureDifferenceInToOut = (roomname, outsideTemperatureItem, tempe
 };
 
 /**
- * @typedef {Object} rainalarmConfig configuration for rainalarm
+ * @typedef {Object} rainAlarmConfig configuration for rain alarm
  * @memberof rulesx.alerting
- * @property {String} rainalarmItemName name of the rainalarm Item
- * @property {String} windspeedItemName bame of the windspeed Item-
- * @property {String} contactGroupName name of the contact group to monitor
- * @property {String[]} ignoreList list of contact Item names to ignore
- * @property {String} roofwindowTag tag that all roofwindow contacts have for identification
- * @property {Number} windspeedKlLueftung windspeed threshold for an alarm on "kleine Lüftung"
- * @property {Number} windspeedGrLueftung windspeed threshold for an alarm on "große Lüftung"
+ * @property {string} rainalarmItemName name of the rain alarm Item
+ * @property {string} windspeedItemName name of the wind speed Item-
+ * @property {string} contactGroupName name of the contact group to monitor
+ * @property {string[]} ignoreList list of contact Item names to ignore
+ * @property {string} roofwindowTag tag that all roofwindow contacts have for identification
+ * @property {number} windspeedKlLueftung wind speed threshold for an alarm on "kleine Lüftung"
+ * @property {number} windspeedGrLueftung wind speed threshold for an alarm on "große Lüftung"
  */
 
 /**
  * Rainalarm
  *
- * Issues a rainalarm notification if the given window/door is open (and windspeed is high enough).
+ * Issues a rain alarm notification if the given window/door is open (and wind speed is high enough).
  * @memberof rulesx.alerting
  */
 class Rainalarm {
   /**
    * Constructor to create an instance. Do not call directly, instead call {@link rulesx.getRainalarmRule}.
-   * @param {rainalarmConfig} config rainalarm configuration
+   * @param {rainAlarmConfig} config rainalarm configuration
    * @hideconstructor
    */
   constructor (config) {
@@ -79,8 +79,8 @@ class Rainalarm {
   /**
    * Sends a rainalarm notification for a roowindow.
    * @private
-   * @param {String} baseItemName base of the Items names, e.g. Florian_Dachfenster
-   * @param {Number} windspeed current windspeed
+   * @param {string} baseItemName base of the Items names, e.g. Florian_Dachfenster
+   * @param {number} windspeed current windspeed
    */
   alarmRoofwindow (baseItemName, windspeed) {
     console.info(`Checking rainalarm for roofwindow ${baseItemName} ...`);
@@ -104,7 +104,7 @@ class Rainalarm {
   /**
    * Send a rainalarm notification for a single contact.
    * @private
-   * @param {String} contactItemName name of the contact Item.
+   * @param {string} contactItemName name of the contact Item.
    */
   alarmSingleContact (contactItemName) {
     const contactItem = items.getItem(contactItemName);
@@ -114,9 +114,11 @@ class Rainalarm {
 
   /**
    * Calls the appropriate function depending on the type of window/door.
-   * Do NOT call directly, instead use {@link getRainalarmRule}.
-   * @param {String} itemname name of the Item
-   * @param {Number} windspeed current windspeed
+   * Do NOT call directly, instead use {@link rulesx.alerting.createRainAlarmRule}.
+   *
+   * @private
+   * @param {string} itemname name of the Item
+   * @param {number} windspeed current windspeed
    */
   checkAlarm (itemname, windspeed) {
     if (items.getItem(this.config.rainalarmItemName).state === 'CLOSED') return;
@@ -132,14 +134,14 @@ class Rainalarm {
 }
 
 /**
- * Returns the rainalarm rule.
+ * Creates the rain alarm rule.
+ *
  * @memberof rulesx.alerting
- * @param {rainalarmConfig} config rainalarm configuration
- * @returns {HostRule}
+ * @param {rainAlarmConfig} config rainalarm configuration
  */
-const getRainalarmRule = (config) => {
+function createRainAlarmRule (config) {
   const RainalarmImpl = new Rainalarm(config);
-  return rules.JSRule({
+   rules.JSRule({
     name: 'Rainalarm',
     description: 'Sends a broadcast notification when a window is open when it rains.',
     triggers: [
@@ -152,6 +154,7 @@ const getRainalarmRule = (config) => {
         console.info('Rainalarm rule is running on alarm.');
         const groupMembers = items.getItem(config.contactGroupName).members.map((item) => item.name);
         for (const i in groupMembers) {
+          // @ts-ignore
           RainalarmImpl.checkAlarm(groupMembers[i], windspeed);
         }
       } else if (event.itemName !== null) {
@@ -159,6 +162,7 @@ const getRainalarmRule = (config) => {
         console.info(`Rainalarm rule is running on change, Item ${event.itemName}.`);
         const timeoutFunc = function (itemname, windspeed) {
           return () => {
+            // @ts-ignore
             RainalarmImpl.checkAlarm(itemname, windspeed);
           };
         };
@@ -171,27 +175,28 @@ const getRainalarmRule = (config) => {
 };
 
 /**
- * @typedef {Object} heatfrostalarmConfig configuration for rainalarm
+ * @typedef {Object} heatOrFrostAlarmConfig configuration for rainalarm
  * @memberof rulesx.alerting
- * @property {String} type alarm type, either `heat` or `frost`
- * @property {String} alarmLevelItem name of Item that holds the alarm level
- * @property {String} outsideTemperatureItem name of outside temperature Item
- * @property {String} contactGroupName name of the contact group to monitor
- * @property {String[]} ignoreList list of contact Item names to ignore
- * @property {String} roofwindowTag tag that all roofwindow contacts have for identification
- * @property {Number} tempTreshold Temperature treshold, for difference between inside temp to outside. Example: -2 means at least 2 degrees lower temp on the outside.
+ * @property {string} type alarm type, either `heat` or `frost`
+ * @property {string} alarmLevelItem name of Item that holds the alarm level
+ * @property {string} outsideTemperatureItem name of outside temperature Item
+ * @property {string} roomTemperatureItemSuffix suffix to add to the room's name to get the temperature Item's name
+ * @property {string} contactGroupName name of the contact group to monitor
+ * @property {string[]} ignoreList list of contact Item names to ignore
+ * @property {string} roofwindowTag tag that all roofwindow contacts have for identification
+ * @property {number} tempTreshold Temperature treshold, for difference between inside temp to outside. Example: -2 means at least 2 degrees lower temp on the outside.
  * @property {Object} notification notification to send
  * @property {Object} notification.alarm alarm notification
- * @property {String} notification.alarm.title
- * @property {String} notification.alarm.message
+ * @property {string} notification.alarm.title
+ * @property {string} notification.alarm.message
  * @property {Object} notification.warning warning notification
- * @property {String} notification.warning.title
- * @property {String} notification.warning.message
+ * @property {string} notification.warning.title
+ * @property {string} notification.warning.message
  * @property {Object} time Times until an alarm is sent.
- * @property {Number} time.open
- * @property {Number} time.halfOpen window is tilted or roofwindow is on "große Lüftung"
- * @property {Number} time.klLueftung roofwindow is on "kleine Lüftung"
- * @property {Number} time.addForWarning Time to add when it's only a warning.
+ * @property {number} time.open
+ * @property {number} time.halfOpen window is tilted or roofwindow is on "große Lüftung"
+ * @property {number} time.klLueftung roofwindow is on "kleine Lüftung"
+ * @property {number} time.addForWarning Time to add when it's only a warning.
  */
 
 /**
@@ -219,8 +224,8 @@ const getRainalarmRule = (config) => {
  */
 class HeatFrostalarm {
   /**
-   * Constructor to create an instance. Do not call directly, instead call {@link rulesx.alerting.getHeatalarmRule} or {@link rulesx.alerting.getFrostalarmRule}.
-   * @param {heatfrostalarmConfig} config configuration
+   * Constructor to create an instance. Do not call directly, instead call {@link rulesx.alerting.createHeatAlarmRule} or {@link rulesx.alerting.createFrostAlarmRule}.
+   * @param {heatOrFrostAlarmConfig} config configuration
    * @param {TimerMgr} timerMgr instance of {@link TimerMgr}
    * @hideconstructor
    */
@@ -240,7 +245,7 @@ class HeatFrostalarm {
   /**
    * Function generator for the function to run when the timer expires.
    * @private
-   * @param {String} contactItem name of contact item
+   * @param {string} contactItem name of contact item
    * @returns {Function} function to run when the timer expires
    */
   timerFuncGenerator (contactItem) {
@@ -253,9 +258,9 @@ class HeatFrostalarm {
    * Schedules a timer for a given contact or sends the notification.
    * Checks whether all conditions are met.
    * @private
-   * @param {String} contactItem name of contact Item
-   * @param {Boolean} [calledOnExpire=false] if true, send notification
-   * @param {Number} [time] time in minutes until timer expires, not required if `calledOnExpire === true`
+   * @param {string} contactItem name of contact Item
+   * @param {boolean} [calledOnExpire=false] if true, send notification
+   * @param {number} [time] time in minutes until timer expires, not required if `calledOnExpire === true`
    */
   scheduleOrPerformAlarm (contactItem, calledOnExpire = false, time) {
     console.info(`checkContact: Checking ${contactItem} (called from expired timer: ${calledOnExpire}).`);
@@ -306,33 +311,35 @@ class HeatFrostalarm {
 
   /**
    * Calls the alarm logic with the appropriate parameters depending on the type of window/door.
-   * Do NOT call directly, instead use {@link getHeatalarmRule} or {@link getFrostalarmRule}.
-   * @param {String} itemname name of the Item
+   * Do NOT call directly, instead use {@link rulesx.alerting.createHeatAlarmRule} or {@link rulesx.alerting.createFrostAlarmRule}.
+   *
+   * @private
+   * @param {string} itemName name of the Item
    */
-  checkAlarm (itemname) {
+  checkAlarm (itemName) {
     // The alarm level must not be checked here, otherwise scheduleOrPerformAlarm can't cancel a timer.
-    if (!this.config.ignoreList.includes(itemname)) {
-      const tags = items.getItem(itemname).tags;
+    if (!this.config.ignoreList.includes(itemName)) {
+      const tags = items.getItem(itemName).tags;
       if (tags.includes(this.config.roofwindowTag)) {
-        const time = this.getTimeForRoofwindow(itemname.replace('_zu', '').replace('_klLueftung', '').replace('_grLueftung', ''));
-        this.scheduleOrPerformAlarm(itemname, false, time);
+        const time = this.getTimeForRoofwindow(itemName.replace('_zu', '').replace('_klLueftung', '').replace('_grLueftung', ''));
+        this.scheduleOrPerformAlarm(itemName, false, time);
       } else {
-        this.scheduleOrPerformAlarm(itemname, false, this.config.time.open);
+        this.scheduleOrPerformAlarm(itemName, false, this.config.time.open);
       }
     }
   }
 }
 
 /**
- * Returns the heatalarm rule.
+ * Create the heat alarm rule.
+ *
  * @memberof rulesx.alerting
- * @param {heatfrostalarmConfig} config alarm configuration
- * @returns {HostRule}
+ * @param {heatOrFrostAlarmConfig} config alarm configuration
  */
-const getHeatalarmRule = (config) => {
+function createHeatAlarmRule (config) {
   const timerMgr = new TimerMgr();
   const HeatalarmImpl = new HeatFrostalarm(config, timerMgr);
-  return rules.JSRule({
+   rules.JSRule({
     name: 'Heatalarm',
     description: 'Send a broadcast notficiation when a window/door is too long open when it is too warm.',
     triggers: [
@@ -345,12 +352,14 @@ const getHeatalarmRule = (config) => {
         console.info('Heatalarm rule is running on temperature change.');
         const groupMembers = items.getItem(config.contactGroupName).members.map((item) => item.name);
         for (const i in groupMembers) {
+          // @ts-ignore
           HeatalarmImpl.checkAlarm(groupMembers[i]);
         }
       } else if (event.itemName !== null) {
         console.info(`Heatalarm rule is running on change, Item ${event.itemName}.`);
         const timeoutFunc = function (itemname) {
           return () => {
+            // @ts-ignore
             HeatalarmImpl.checkAlarm(itemname);
           };
         };
@@ -363,15 +372,15 @@ const getHeatalarmRule = (config) => {
 };
 
 /**
- * Returns the frostalarm rule.
+ * Create the frostalarm rule.
+ *
  * @memberof rulesx.alerting
- * @param {heatfrostalarmConfig} config alarm configuration
- * @returns {HostRule}
+ * @param {heatOrFrostAlarmConfig} config alarm configuration
  */
-const getFrostalarmRule = (config) => {
+function createFrostAlarmRule (config) {
   const timerMgr = new TimerMgr();
   const FrostalarmImpl = new HeatFrostalarm(config, timerMgr);
-  return rules.JSRule({
+   rules.JSRule({
     name: 'Frostalarm',
     description: 'Send a broadcast notficiation when a window/door is too long open when it is too cold.',
     triggers: [
@@ -384,12 +393,14 @@ const getFrostalarmRule = (config) => {
         console.info('Frostalarm rule is running on temperature change.');
         const groupMembers = items.getItem(config.contactGroupName).members.map((item) => item.name);
         for (const i in groupMembers) {
+          // @ts-ignore
           FrostalarmImpl.checkAlarm(groupMembers[i]);
         }
       } else if (event.itemName !== null) {
         console.info(`Frostalarm rule is running on change, Item ${event.itemName}.`);
         const timeoutFunc = function (itemname) {
           return () => {
+            // @ts-ignore
             FrostalarmImpl.checkAlarm(itemname);
           };
         };
@@ -402,7 +413,7 @@ const getFrostalarmRule = (config) => {
 };
 
 module.exports = {
-  getRainalarmRule,
-  getHeatalarmRule,
-  getFrostalarmRule
+  createRainAlarmRule,
+  createHeatAlarmRule,
+  createFrostAlarmRule
 };

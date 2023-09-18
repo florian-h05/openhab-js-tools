@@ -12,18 +12,18 @@ const { items, rules, triggers } = require('openhab');
 
 /**
  * Provides the alarm clock rule with QUARTZ cron trigger.
- * Do not call directly, instead call {@link rulesx.getAlarmClock}.
+ * Do not call directly, instead call {@link rulesx.createAlarmClock}.
  *
  * Needs settings Items that must follow a given naming scheme.
  * The cron expression is build based on settings items.
  * When no day is selected, send command OFF to alarmSwitch and do not return rule.
  * When hour/minute are NaN, return no rule and set them to defaults.
- * @memberof rulesx
- * @param {String} switchItem name of Item to switch the alarm on/off
+ *
+ * @private
+ * @param {string} switchItem name of Item to switch the alarm on/off
  * @param {*} alarmFunc function to execute when the rule runs
- * @returns {(HostRule | null)} the alarm clock rule or null
  */
-function getClockRule (switchItem, alarmFunc) {
+function _createClockRule (switchItem, alarmFunc) {
   // Get Items' states for time configuration.
   const hour = parseInt(items.getItem(switchItem + '_H').state);
   const minute = parseInt(items.getItem(switchItem + '_M').state);
@@ -33,14 +33,14 @@ function getClockRule (switchItem, alarmFunc) {
     items.getItem(switchItem + '_M').postUpdate('0');
     items.getItem(switchItem + '_Time').postUpdate('07:00');
     console.info('Not adding clock rule for ' + switchItem + ' due to missing time configuration.');
-    return null;
+    return;
   }
   // Post time string.
   items.getItem(switchItem + '_Time').postUpdate(((hour < 10) ? '0' : '') + hour.toString() + ':' + ((minute < 10) ? '0' : '') + minute.toString());
   // If switchItem is OFF, return.
   if (items.getItem(switchItem).state !== 'ON') {
     console.info('Not adding clock rule for ' + switchItem + ' because alarm is switched off.');
-    return null;
+    return;
   }
   // Generate Array for days of week.
   const days = [];
@@ -55,14 +55,14 @@ function getClockRule (switchItem, alarmFunc) {
   if (days.length === 0) {
     items.getItem(switchItem).sendCommand('OFF');
     console.info('Not adding clock rule for ' + switchItem + ' because no day is enabled.');
-    return null;
+    return;
   }
   // Generate the QUARTZ cron expression.
   const quartz = '0 ' + minute + ' ' + hour + ' ? * ' + days.join(',') + ' *';
   // Return the JSRule.
-  return rules.JSRule({
+  rules.JSRule({
     name: 'Alarm Clock ' + switchItem,
-    description: 'The Alarm Clock itself.',
+    description: 'The Alarm Clock itself, created by the manager rule.',
     triggers: [triggers.GenericCronTrigger(quartz)],
     execute: alarmFunc,
     id: 'alarmClock-for-' + switchItem,
@@ -74,40 +74,39 @@ function getClockRule (switchItem, alarmFunc) {
 /**
  * Provides the full alarm clock.
  *
- * The manager rule that creates and updates the alarm clock rule {@link rulesx.getClockRule} on change of settings Items.
- * Also creates and removes the alarm clock rule on ON/OFF of switchItem.
- * @memberof rulesx
- * @param {String} switchItem name of Item to switch the alarm on/off
- * @param {*} alarmFunc function to execute when the alarm clock fires
- * @returns {HostRule} the alarm manager rule
+ * The manager rule that creates and updates the alarm clock rule {@link _createClockRule} on change of settings Items.
+ * Also creates and removes the alarm clock rule on command ON/OFF of switchItem.
+ *
  * @example
- * rulesx.getAlarmClock(switchItem, data => { console.log('Successfully tested alarm clock.'); });
+ * rulesx.createAlarmClock('Florian_alarm1', data => { console.log('Successfully tested alarm clock.'); });
+ *
+ * @memberof rulesx
+ * @param {string} switchItem name of Item to switch the alarm on/off
+ * @param {function} alarmFunc function to execute when the alarm clock fires
  */
-function getAlarmClock (switchItem, alarmFunc) {
-  return [
-    rules.JSRule({
-      name: 'Alarm Clock Manager ' + switchItem,
-      triggers: [
-        triggers.ItemStateChangeTrigger(switchItem),
-        triggers.ItemStateChangeTrigger(switchItem + '_H'),
-        triggers.ItemStateChangeTrigger(switchItem + '_M'),
-        triggers.ItemStateChangeTrigger(switchItem + '_MON'),
-        triggers.ItemStateChangeTrigger(switchItem + '_TUE'),
-        triggers.ItemStateChangeTrigger(switchItem + '_WED'),
-        triggers.ItemStateChangeTrigger(switchItem + '_THU'),
-        triggers.ItemStateChangeTrigger(switchItem + '_FRI'),
-        triggers.ItemStateChangeTrigger(switchItem + '_SAT'),
-        triggers.ItemStateChangeTrigger(switchItem + '_SUN')
-      ],
-      execute: (event) => {
-        rules.removeRule('alarmClock-for-' + switchItem);
-        getClockRule(switchItem, alarmFunc);
-      },
-      id: 'alarmClock-manager-for-' + switchItem,
-      tags: ['@hotzware/openhab-tools', 'alarmClock manager']
-    }),
-    getClockRule(switchItem, alarmFunc)
-  ];
+function createAlarmClock (switchItem, alarmFunc) {
+  rules.JSRule({
+    name: 'Alarm Clock Manager ' + switchItem,
+    triggers: [
+      triggers.ItemStateChangeTrigger(switchItem),
+      triggers.ItemStateChangeTrigger(switchItem + '_H'),
+      triggers.ItemStateChangeTrigger(switchItem + '_M'),
+      triggers.ItemStateChangeTrigger(switchItem + '_MON'),
+      triggers.ItemStateChangeTrigger(switchItem + '_TUE'),
+      triggers.ItemStateChangeTrigger(switchItem + '_WED'),
+      triggers.ItemStateChangeTrigger(switchItem + '_THU'),
+      triggers.ItemStateChangeTrigger(switchItem + '_FRI'),
+      triggers.ItemStateChangeTrigger(switchItem + '_SAT'),
+      triggers.ItemStateChangeTrigger(switchItem + '_SUN')
+    ],
+    execute: (event) => {
+      rules.removeRule('alarmClock-for-' + switchItem);
+      _createClockRule(switchItem, alarmFunc);
+    },
+    id: 'alarmClock-manager-for-' + switchItem,
+    tags: ['@hotzware/openhab-tools', 'alarmClock manager']
+  });
+  _createClockRule(switchItem, alarmFunc);
 }
 
 /**
@@ -214,6 +213,6 @@ function createAlarmClockItems (switchItemName, switchItemLabel, persistenceGrou
 }
 
 module.exports = {
-  getAlarmClock,
+  createAlarmClock,
   createAlarmClockItems
 };

@@ -13,11 +13,14 @@ const { items, rules, triggers } = require('openhab');
  * Scene Engine
  *
  * Call scenes using an Item as controller and update the Item's state to the matching scene number on scene members' change.
+ * To create a new scene engine, use {@link rulesx.createSceneEngine}.
  * @memberof rulesx
  */
 class SceneEngine {
   /**
    * Constructor to create an instance. Do not call directly, instead call {@link getSceneEngine}.
+   *
+   * @hideconstructor
    * @param {object} sceneDefinition scenes definition
    * @param {string} sceneDefinition.controller name of Item that calls the scenes
    * @param {object[]} sceneDefinition.scenes Array of scenes
@@ -27,7 +30,6 @@ class SceneEngine {
    * @param {string} sceneDefinition.scenes[].targets[].value target state of Item
    * @param {boolean} [sceneDefinition.scenes[].targets[].required=true] whether the Item's state must match the target state when the engine gets the current scene on change of a member
    * @param {function} [sceneDefinition.scenes[].targets[].conditionFn] the Item is only commanded and required for scene checks if the evaluation of this function returns true
-   * @hideconstructor
    */
   constructor (sceneDefinition) {
     if (typeof sceneDefinition.controller !== 'string') {
@@ -44,6 +46,7 @@ class SceneEngine {
    * Gets all required triggers for the scene rule.
    * For the controller a command trigger, for scene members change triggers.
    * Scene members that are not required are excluded from the triggers.
+   *
    * @private
    * @returns {Array} rule triggers
    */
@@ -72,6 +75,7 @@ class SceneEngine {
 
   /**
    * Calls the scene. Sets the scene members to the given target state.
+   *
    * @private
    * @param {string|number} sceneNumber value of controller / number of scene to call
    */
@@ -104,6 +108,7 @@ class SceneEngine {
 
   /**
    * When a scene member changes, check whether a scene and which scene matches all required targets.
+   *
    * @private
    */
   checkScene () {
@@ -155,10 +160,11 @@ class SceneEngine {
   /**
    * Returns the scene engine rule.
    * Do NOT call directly, instead use {@link getSceneEngine}.
-   * @returns {HostRule}
+   *
+   * @private
    */
   getRule () {
-    return rules.JSRule({
+    rules.JSRule({
       name: `SceneEngine for controller ${this.controller}`,
       description: 'Rule to run the SceneEngine.',
       triggers: this.getTriggers(),
@@ -179,6 +185,7 @@ class SceneEngine {
 
 /**
  * Provides the {@link rulesx.SceneEngine}.
+ *
  * @memberof rulesx
  * @param {object} sceneDefinition scenes definition
  * @param {string} sceneDefinition.controller name of Item that calls the scenes
@@ -189,12 +196,12 @@ class SceneEngine {
  * @param {string} sceneDefinition.scenes[].targets[].value target state of Item
  * @param {boolean} [sceneDefinition.scenes[].targets[].required=true] whether the Item's state must match the target state when the engine gets the current scene on change of a member
  * @param {function} [sceneDefinition.scenes[].targets[].conditionFn] the Item is only commanded and required for scene checks if the evaluation of this function returns true
- * @returns {HostRule} SceneEngine rule
  */
-const getSceneEngine = (sceneDefinition) => {
-  return new SceneEngine(sceneDefinition).getRule();
+const createSceneEngine = (sceneDefinition) => {
+  // @ts-ignore
+  new SceneEngine(sceneDefinition).getRule();
 };
 
 module.exports = {
-  getSceneEngine
+  createSceneEngine
 };
