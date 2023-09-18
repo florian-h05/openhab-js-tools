@@ -29,7 +29,7 @@
     "docdash": "^2.0.1",
     "jsdoc": "^4.0.2",
     "jsdoc-tsimport-plugin": "^1.0.5",
-    "openhab": "^4.1.0",
+    "openhab": "^4.6.0",
     "snazzy": "^9.0.0",
     "standardx": "^7.0.0",
     "typescript": "^4.9.5"
