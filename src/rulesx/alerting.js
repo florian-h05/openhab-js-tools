@@ -43,7 +43,8 @@ const getTemperatureDifferenceInToOut = (roomName, outsideTemperatureItem, tempe
  * @typedef {Object} rainAlarmConfig configuration for rain alarm
  * @memberof rulesx.alerting
  * @property {string} rainalarmItemName name of the rain alarm Item
- * @property {string} windspeedItemName name of the wind speed Item-
+ * @property {string} [rainalarmActiveState=OPEN] state of the Item for an active alarm, all other states (including `UNDEF`, `NULL`) are considered as alarm inactive
+ * @property {string} windspeedItemName name of the wind speed Item
  * @property {string} contactGroupName name of the contact group to monitor
  * @property {string[]} ignoreList list of contact Item names to ignore
  * @property {string} roofwindowTag tag that all roofwindow contacts have for identification
@@ -73,6 +74,7 @@ class Rainalarm {
     if (typeof config.roofwindowTag !== 'string') {
       throw Error('roofwindowTag is not supplied or is not string!');
     }
+    if (!config.rainalarmActiveState) config.rainalarmActiveState = 'OPEN';
     this.config = config;
   }
 
@@ -121,7 +123,7 @@ class Rainalarm {
    * @param {number} windspeed current windspeed
    */
   checkAlarm (itemname, windspeed) {
-    if (items.getItem(this.config.rainalarmItemName).state === 'CLOSED') return;
+    if (items.getItem(this.config.rainalarmItemName).state !== this.config.rainalarmActiveState) return;
     if (!this.config.ignoreList.includes(itemname)) {
       const tags = items.getItem(itemname).tags;
       if (tags.includes(this.config.roofwindowTag)) {
