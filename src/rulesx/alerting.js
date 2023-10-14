@@ -160,8 +160,7 @@ function createRainAlarmRule (config) {
           RainalarmImpl.checkAlarm(groupMembers[i], windspeed);
         }
       } else if (event.itemName !== null) {
-        if (items.getItem(config.rainalarmItemName).state === 'CLOSED') return;
-        console.info(`Rainalarm rule is running on change, Item ${event.itemName}.`);
+        console.info(`Rainalarm rule is running on change of contact Item "${event.itemName}".`);
         const timeoutFunc = function (itemname, windspeed) {
           return () => {
             // @ts-ignore
