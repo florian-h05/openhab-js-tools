@@ -85,7 +85,7 @@ class Rainalarm {
    * @param {number} windspeed current windspeed
    */
   alarmRoofwindow (baseItemName, windspeed) {
-    console.info(`Checking rainalarm for roofwindow ${baseItemName} ...`);
+    console.info(`Checking rainalarm for roofwindow "${baseItemName}" ...`);
     const state = getRoofwindowOpenLevel(baseItemName);
     const label = items.getItem(baseItemName + '_zu').label;
     switch (state.int) {
@@ -110,7 +110,7 @@ class Rainalarm {
    */
   alarmSingleContact (contactItemName) {
     const contactItem = items.getItem(contactItemName);
-    console.info(`Checking rainalarm for single contact ${contactItem} ...`);
+    console.info(`Checking rainalarm for single contact "${contactItem.name}" ...`);
     if (contactItem.state === 'OPEN') actions.NotificationAction.sendBroadcastNotification(`Achtung! Regenalarm: ${contactItem.label} geöffnet!`);
   }
 
@@ -160,7 +160,7 @@ function createRainAlarmRule (config) {
           RainalarmImpl.checkAlarm(groupMembers[i], windspeed);
         }
       } else if (event.itemName !== null) {
-        console.info(`Rainalarm rule is running on change of contact Item "${event.itemName}".`);
+        console.info(`Rainalarm rule is running on change of contact "${event.itemName}".`);
         const timeoutFunc = function (itemname, windspeed) {
           return () => {
             // @ts-ignore
