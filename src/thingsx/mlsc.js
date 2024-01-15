@@ -33,7 +33,13 @@ const HEADERS = new Map([['accept', 'application/json']]);
  * It is using a scheduled job to fetch states and a rule to handle commands.
  *
  * @example
- * var FlorianRGB = new MlscRestClient('FlorianRGB_effect', 'FlorianRGB_color', 'http://127.0.0.1:8080', 'device_0', 'FlorianRGB', 'effect_single');
+ * var FlorianRGB = new MlscRestClient({
+ *   effectItemName: 'FlorianRGB_effect',
+ *   url: 'http://127.0.0.1:8080',
+ *   deviceId: 'device_0',
+ *   colorItemName: 'FlorianRGB_color',
+ *   dimmerItemName: 'FlorianRGB_dimmer'
+ * });
  * FlorianRGB.scheduleStateFetching();
  * FlorianRGB.createCommandHandlingRule();
  *
@@ -66,7 +72,7 @@ class MlscRestClient {
   /**
    * Schedules the state fetching using `setInterval`
    *
-   * @returns {number} `intervalId`
+   * @returns {number} `intervalId` of the interval used for state fetching
    */
   scheduleStateFetching () {
     console.info(`Initializing state fetching for ${this.logMsg} ...`);
@@ -116,8 +122,6 @@ class MlscRestClient {
 
   /**
    * Creates the rule used for command handling.
-   *
-   * @returns {HostRule} command handling rule
    */
   createCommandHandlingRule () {
     const ruleConfig = {
@@ -184,7 +188,7 @@ class MlscRestClient {
     // Add dimmerItem as trigger (if defined)
     if (this.config.dimmerItemName) ruleConfig.triggers.push(triggers.ItemCommandTrigger(this.config.dimmerItemName));
     console.info(`Creating command handling rule for ${this.logMsg} ...`);
-    return rules.JSRule(ruleConfig);
+    rules.JSRule(ruleConfig);
   }
 }
 

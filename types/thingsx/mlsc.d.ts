@@ -20,7 +20,13 @@ export type mlscRestClientConfig = any;
  * It is using a scheduled job to fetch states and a rule to handle commands.
  *
  * @example
- * var FlorianRGB = new MlscRestClient('FlorianRGB_effect', 'FlorianRGB_color', 'http://127.0.0.1:8080', 'device_0', 'FlorianRGB', 'effect_single');
+ * var FlorianRGB = new MlscRestClient({
+ *   effectItemName: 'FlorianRGB_effect',
+ *   url: 'http://127.0.0.1:8080',
+ *   deviceId: 'device_0',
+ *   colorItemName: 'FlorianRGB_color',
+ *   dimmerItemName: 'FlorianRGB_dimmer'
+ * });
  * FlorianRGB.scheduleStateFetching();
  * FlorianRGB.createCommandHandlingRule();
  *
@@ -39,14 +45,12 @@ export class MlscRestClient {
     /**
      * Schedules the state fetching using `setInterval`
      *
-     * @returns {number} `intervalId`
+     * @returns {number} `intervalId` of the interval used for state fetching
      */
     scheduleStateFetching(): number;
     /**
      * Creates the rule used for command handling.
-     *
-     * @returns {HostRule} command handling rule
      */
-    createCommandHandlingRule(): HostRule;
+    createCommandHandlingRule(): void;
 }
 //# sourceMappingURL=mlsc.d.ts.map
