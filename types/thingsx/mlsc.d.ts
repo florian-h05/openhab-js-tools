@@ -6,9 +6,9 @@ export type mlscRestClientConfig = any;
  * @typedef {Object} mlscRestClientConfig configuration for {@link MlscRestClient}
  * @memberof thingsx
  * @property {string} effectItemName name of the effect Item
- * @property {string} colorItemName name of the color Item
  * @property {string} url full URL for mlsc, e.g. `http://127.0.0.1:8080`
  * @property {string} deviceId ID of device inside mlsc, use HTTP GET `/api/system/devices` to get a list of available devices
+ * @property {string} [colorItemName] name of the color Item
  * @property {string} [dimmerItemName] name of the dimmer Item
  * @property {string} [defaultEffect='effect_gradient'] default effect for the `Dimmer` Item
  * @property {number} [refreshInterval=15000] refresh interval in milliseconds

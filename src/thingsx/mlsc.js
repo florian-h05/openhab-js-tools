@@ -18,9 +18,9 @@ const HEADERS = new Map([['accept', 'application/json']]);
  * @typedef {Object} mlscRestClientConfig configuration for {@link MlscRestClient}
  * @memberof thingsx
  * @property {string} effectItemName name of the effect Item
- * @property {string} colorItemName name of the color Item
  * @property {string} url full URL for mlsc, e.g. `http://127.0.0.1:8080`
  * @property {string} deviceId ID of device inside mlsc, use HTTP GET `/api/system/devices` to get a list of available devices
+ * @property {string} [colorItemName] name of the color Item
  * @property {string} [dimmerItemName] name of the dimmer Item
  * @property {string} [defaultEffect='effect_gradient'] default effect for the `Dimmer` Item
  * @property {number} [refreshInterval=15000] refresh interval in milliseconds
@@ -47,9 +47,9 @@ class MlscRestClient {
    */
   constructor (config) {
     if (typeof config.effectItemName !== 'string') throw new Error('effectItemName must be a string!');
-    if (typeof config.colorItemName !== 'string') throw new Error('colorItemName must be a string!');
     if (typeof config.url !== 'string') throw new Error('url must be a string!');
     if (typeof config.deviceId !== 'string') throw new Error('deviceId must be a string!');
+    if (config.colorItemName && typeof config.colorItemName !== 'string') throw new Error('colorItemName must be a string!');
     if (config.dimmerItemName && typeof config.dimmerItemName !== 'string') throw new Error('dimmerItemName must be a string!');
     if (config.defaultEffect && typeof config.defaultEffect !== 'string') throw new Error('defaultEffect must be a string!');
     if (config.refreshInterval && typeof config.refreshInterval !== 'number') throw new Error('refreshInterval must be a number!');
@@ -90,14 +90,16 @@ class MlscRestClient {
         console.warn(`Failed to fetch effect from ${this.logMsg}:`, e);
       }
       // Fetch color
-      try {
-        const response = actions.HTTP.sendHttpGetRequest(this.config.url + '/api/settings/effect?effect=effect_single&device=' + this.config.deviceId, HEADERS, 1000);
-        const json = JSON.parse(response);
-        const rgb = json.settings.custom_color;
-        const hsb = HSBType.fromRGB(rgb[0], rgb[1], rgb[2]);
-        items.getItem(this.config.colorItemName).postUpdate(hsb.toString());
-      } catch (e) {
-        console.warn(`Failed to fetch color from ${this.logMsg}:`, e);
+      if (this.config.colorItemName) {
+        try {
+          const response = actions.HTTP.sendHttpGetRequest(this.config.url + '/api/settings/effect?effect=effect_single&device=' + this.config.deviceId, HEADERS, 1000);
+          const json = JSON.parse(response);
+          const rgb = json.settings.custom_color;
+          const hsb = HSBType.fromRGB(rgb[0], rgb[1], rgb[2]);
+          items.getItem(this.config.colorItemName).postUpdate(hsb.toString());
+        } catch (e) {
+          console.warn(`Failed to fetch color from ${this.logMsg}:`, e);
+        }
       }
       // Fetch brightness
       if (this.config.dimmerItemName) {
@@ -122,8 +124,7 @@ class MlscRestClient {
       name: `mlsc REST client for "${this.config.deviceId}" of "${this.config.url}"`,
       description: 'Provides command handling, state fetching is done by a scheduled job',
       triggers: [
-        triggers.ItemCommandTrigger(this.config.effectItemName),
-        triggers.ItemCommandTrigger(this.config.colorItemName)
+        triggers.ItemCommandTrigger(this.config.effectItemName)
       ],
       execute: (event) => {
         // Handle effect control
@@ -178,6 +179,8 @@ class MlscRestClient {
       id: this.id,
       tags: ['@hotzware/openhab-tools', 'MlscRestClient', 'music_led_strip_control']
     };
+    // Add colorItem as trigger (if defined)
+    if (this.config.colorItemName) ruleConfig.triggers.push(triggers.ItemCommandTrigger(this.config.colorItemName));
     // Add dimmerItem as trigger (if defined)
     if (this.config.dimmerItemName) ruleConfig.triggers.push(triggers.ItemCommandTrigger(this.config.dimmerItemName));
     console.info(`Creating command handling rule for ${this.logMsg} ...`);
