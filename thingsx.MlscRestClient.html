@@ -74,7 +74,7 @@ It is using a scheduled job to fetch states and a rule to handle commands.</p></
     <h2>Constructor</h2>
     
 
-    <h4 class="name" id="MlscRestClient"><span class="type-signature"></span>new MlscRestClient<span class="signature">(effectItemName, colorItemName, url, deviceId, switchItemName<span class="signature-attributes">opt</span>, effectDefault<span class="signature-attributes">opt</span>, refreshInterval<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="MlscRestClient"><span class="type-signature"></span>new MlscRestClient<span class="signature">(config)</span><span class="type-signature"></span></h4>
 
     
 
@@ -90,7 +90,7 @@ It is using a scheduled job to fetch states and a rule to handle commands.</p></
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="thingsx_mlsc.js.html">thingsx/mlsc.js</a>, <a href="thingsx_mlsc.js.html#line30">line 30</a>
+        <a href="thingsx_mlsc.js.html">thingsx/mlsc.js</a>, <a href="thingsx_mlsc.js.html#line42">line 42</a>
     </li></ul></dd>
     
 
@@ -157,11 +157,7 @@ FlorianRGB.createCommandHandlingRule();</code></pre>
         <th>Type</th>
 
         
-        <th>Attributes</th>
-        
 
-        
-        <th>Default</th>
         
 
         <th class="last">Description</th>
@@ -173,13 +169,13 @@ FlorianRGB.createCommandHandlingRule();</code></pre>
 
         <tr>
             
-                <td class="name"><code>effectItemName</code></td>
+                <td class="name"><code>config</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">string</span>
+<span class="param-type">mlscRestClientConfig</span>
 
 
 
@@ -187,248 +183,10 @@ FlorianRGB.createCommandHandlingRule();</code></pre>
             </td>
 
             
-                <td class="attributes">
-                
-
-                
-
-                
-                </td>
-            
 
             
-                <td class="default">
-                
-                </td>
-            
 
-            <td class="description last"><p>Name of <code>String</code> Item for mslc effect</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>colorItemName</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                </td>
-            
-
-            <td class="description last"><p>Name of <code>Color</code> Item for <code>effect_single</code> color</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>url</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                </td>
-            
-
-            <td class="description last"><p>Full URL of mlsc host, e.g. <code>http://127.0.0.1:8080</code></p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>deviceId</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                </td>
-            
-
-            <td class="description last"><p>ID of device inside mlsc, use HTTP GET <code>/api/system/devices</code> to get a list of available devices</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>switchItemName</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                </td>
-            
-
-            <td class="description last"><p>Name of <code>Switch</code> Item to switch mlsc on/off</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>effectDefault</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                    <code>'effect_gradient'</code>
-                
-                </td>
-            
-
-            <td class="description last"><p>Default effect for the <code>Switch</code> Item</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>refreshInterval</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                    <code>15000</code>
-                
-                </td>
-            
-
-            <td class="description last"><p>Refresh interval in milliseconds</p></td>
+            <td class="description last"><p>MLSC REST client config</p></td>
         </tr>
 
     
@@ -495,7 +253,7 @@ FlorianRGB.createCommandHandlingRule();</code></pre>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="thingsx_mlsc.js.html">thingsx/mlsc.js</a>, <a href="thingsx_mlsc.js.html#line91">line 91</a>
+        <a href="thingsx_mlsc.js.html">thingsx/mlsc.js</a>, <a href="thingsx_mlsc.js.html#line120">line 120</a>
     </li></ul></dd>
     
 
@@ -603,7 +361,7 @@ FlorianRGB.createCommandHandlingRule();</code></pre>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="thingsx_mlsc.js.html">thingsx/mlsc.js</a>, <a href="thingsx_mlsc.js.html#line62">line 62</a>
+        <a href="thingsx_mlsc.js.html">thingsx/mlsc.js</a>, <a href="thingsx_mlsc.js.html#line71">line 71</a>
     </li></ul></dd>
     
 
@@ -710,7 +468,7 @@ FlorianRGB.createCommandHandlingRule();</code></pre>
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.2</a> on Sat Oct 14 2023 21:19:07 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.2</a> on Mon Jan 15 2024 00:02:27 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>
