@@ -1,4 +1,19 @@
 /**
+ * configuration for {@link MlscRestClient }
+ */
+export type mlscRestClientConfig = any;
+/**
+ * @typedef {Object} mlscRestClientConfig configuration for {@link MlscRestClient}
+ * @memberof thingsx
+ * @property {string} effectItemName name of the effect Item
+ * @property {string} colorItemName name of the color Item
+ * @property {string} url full URL for mlsc, e.g. `http://127.0.0.1:8080`
+ * @property {string} deviceId ID of device inside mlsc, use HTTP GET `/api/system/devices` to get a list of available devices
+ * @property {string} [dimmerItemName] name of the dimmer Item
+ * @property {string} [defaultEffect='effect_gradient'] default effect for the `Dimmer` Item
+ * @property {number} [refreshInterval=15000] refresh interval in milliseconds
+ */
+/**
  * music_led_strip_control REST client
  *
  * Class providing state fetching from and command sending to the REST API of {@link https://github.com/TobKra96/music_led_strip_control music_led_strip_control}.
@@ -15,22 +30,12 @@ export class MlscRestClient {
     /**
      * Be aware that you need to call {@link scheduleStateFetching} and {@link createCommandHandlingRule} to fully initialize the REST client.
      *
-     * @param {string} effectItemName Name of `String` Item for mslc effect
-     * @param {string} colorItemName Name of `Color` Item for `effect_single` color
-     * @param {string} url Full URL of mlsc host, e.g. `http://127.0.0.1:8080`
-     * @param {string} deviceId ID of device inside mlsc, use HTTP GET `/api/system/devices` to get a list of available devices
-     * @param {string} [switchItemName] Name of `Switch` Item to switch mlsc on/off
-     * @param {string} [effectDefault='effect_gradient'] Default effect for the `Switch` Item
-     * @param {number} [refreshInterval=15000] Refresh interval in milliseconds
+     * @param {mlscRestClientConfig} config MLSC REST client config
      */
-    constructor(effectItemName: string, colorItemName: string, url: string, deviceId: string, switchItemName?: string, effectDefault?: string, refreshInterval?: number);
-    effectItemName: string;
-    colorItemName: string;
-    url: string;
-    deviceId: string;
-    switchItemName: string;
-    effectDefault: string;
-    refreshInterval: number;
+    constructor(config: mlscRestClientConfig);
+    config: any;
+    id: string;
+    logMsg: string;
     /**
      * Schedules the state fetching using `setInterval`
      *

@@ -8,11 +8,23 @@
  * SPDX-License-Identifier: EPL-2.0
  */
 
-const { actions, items, rules, triggers } = require('openhab');
+const { actions, cache, items, rules, triggers } = require('openhab');
 // @ts-ignore
 const HSBType = Java.type('org.openhab.core.library.types.HSBType'); // eslint-disable-line no-unused-vars
 
 const HEADERS = new Map([['accept', 'application/json']]);
+
+/**
+ * @typedef {Object} mlscRestClientConfig configuration for {@link MlscRestClient}
+ * @memberof thingsx
+ * @property {string} effectItemName name of the effect Item
+ * @property {string} colorItemName name of the color Item
+ * @property {string} url full URL for mlsc, e.g. `http://127.0.0.1:8080`
+ * @property {string} deviceId ID of device inside mlsc, use HTTP GET `/api/system/devices` to get a list of available devices
+ * @property {string} [dimmerItemName] name of the dimmer Item
+ * @property {string} [defaultEffect='effect_gradient'] default effect for the `Dimmer` Item
+ * @property {number} [refreshInterval=15000] refresh interval in milliseconds
+ */
 
 /**
  * music_led_strip_control REST client
@@ -31,27 +43,24 @@ class MlscRestClient {
   /**
    * Be aware that you need to call {@link scheduleStateFetching} and {@link createCommandHandlingRule} to fully initialize the REST client.
    *
-   * @param {string} effectItemName Name of `String` Item for mslc effect
-   * @param {string} colorItemName Name of `Color` Item for `effect_single` color
-   * @param {string} url Full URL of mlsc host, e.g. `http://127.0.0.1:8080`
-   * @param {string} deviceId ID of device inside mlsc, use HTTP GET `/api/system/devices` to get a list of available devices
-   * @param {string} [switchItemName] Name of `Switch` Item to switch mlsc on/off
-   * @param {string} [effectDefault='effect_gradient'] Default effect for the `Switch` Item
-   * @param {number} [refreshInterval=15000] Refresh interval in milliseconds
+   * @param {mlscRestClientConfig} config MLSC REST client config
    */
-  constructor (effectItemName, colorItemName, url, deviceId, switchItemName, effectDefault = 'effect_gradient', refreshInterval = 15000) {
-    if (typeof effectItemName !== 'string') throw new Error('effectItemName must be a string!');
-    if (typeof colorItemName !== 'string') throw new Error('colorItemName must be a string!');
-    if (typeof url !== 'string') throw new Error('url must be a string!');
-    if (typeof deviceId !== 'string') throw new Error('deviceId must be a string!');
+  constructor (config) {
+    if (typeof config.effectItemName !== 'string') throw new Error('effectItemName must be a string!');
+    if (typeof config.colorItemName !== 'string') throw new Error('colorItemName must be a string!');
+    if (typeof config.url !== 'string') throw new Error('url must be a string!');
+    if (typeof config.deviceId !== 'string') throw new Error('deviceId must be a string!');
+    if (config.dimmerItemName && typeof config.dimmerItemName !== 'string') throw new Error('dimmerItemName must be a string!');
+    if (config.defaultEffect && typeof config.defaultEffect !== 'string') throw new Error('defaultEffect must be a string!');
+    if (config.refreshInterval && typeof config.refreshInterval !== 'number') throw new Error('refreshInterval must be a number!');
 
-    this.effectItemName = effectItemName;
-    this.colorItemName = colorItemName;
-    this.url = url;
-    this.deviceId = deviceId;
-    this.switchItemName = switchItemName;
-    this.effectDefault = effectDefault;
-    this.refreshInterval = refreshInterval;
+    this.config = config;
+
+    if (!this.config.defaultEffect) this.config.defaultEffect = 'effect_gradient';
+    if (!this.config.refreshInterval) this.config.refreshInterval = 15000;
+
+    this.id = `mlsc-rest-client-for-${this.config.dimmerItemName || this.config.effectItemName}`;
+    this.logMsg = `"${this.config.deviceId}" of "${this.config.url}"`;
   }
 
   /**
@@ -60,27 +69,47 @@ class MlscRestClient {
    * @returns {number} `intervalId`
    */
   scheduleStateFetching () {
-    const logMsg = `"${this.deviceId}"" of "${this.url}"`;
-    console.info(`Initializing state fetching for ${logMsg} ...`);
+    console.info(`Initializing state fetching for ${this.logMsg} ...`);
     return setInterval(() => {
-      console.debug(`Refreshing Items from ${logMsg} ...`);
+      console.debug(`Refreshing Items from ${this.logMsg} ...`);
+      let currentEffect;
+      // Fetch effect
       try {
-        const response = actions.HTTP.sendHttpGetRequest(this.url + '/api/effect/active?device=' + this.deviceId, HEADERS, 1000);
+        const response = actions.HTTP.sendHttpGetRequest(this.config.url + '/api/effect/active?device=' + this.config.deviceId, HEADERS, 1000);
         const json = JSON.parse(response);
-        items.getItem(this.effectItemName).postUpdate(json.effect);
+        currentEffect = json.effect;
+        items.getItem(this.config.effectItemName).postUpdate(currentEffect);
+        // Store current effect (if not effect_off)
+        if (currentEffect !== 'effect_off') {
+          cache.private.put(this.id + '-last-effect', currentEffect);
+        } else if (this.config.dimmerItemName) {
+          items.getItem(this.config.dimmerItemName).postUpdate('OFF');
+          return;
+        }
       } catch (e) {
-        console.warn(`Failed to fetch effect from ${logMsg}:`, e);
+        console.warn(`Failed to fetch effect from ${this.logMsg}:`, e);
       }
+      // Fetch color
       try {
-        const response = actions.HTTP.sendHttpGetRequest(this.url + '/api/settings/effect?effect=effect_single&device=' + this.deviceId, HEADERS, 1000);
+        const response = actions.HTTP.sendHttpGetRequest(this.config.url + '/api/settings/effect?effect=effect_single&device=' + this.config.deviceId, HEADERS, 1000);
         const json = JSON.parse(response);
         const rgb = json.settings.custom_color;
         const hsb = HSBType.fromRGB(rgb[0], rgb[1], rgb[2]);
-        items.getItem(this.colorItemName).postUpdate(hsb.toString());
+        items.getItem(this.config.colorItemName).postUpdate(hsb.toString());
       } catch (e) {
-        console.warn(`Failed to fetch color from ${logMsg}:`, e);
+        console.warn(`Failed to fetch color from ${this.logMsg}:`, e);
       }
-    }, this.refreshInterval);
+      // Fetch brightness
+      if (this.config.dimmerItemName) {
+        try {
+          const response = actions.HTTP.sendHttpGetRequest(`${this.config.url}/api/settings/device?device=${this.config.deviceId}&setting_key=led_brightness`, HEADERS, 1000);
+          const json = JSON.parse(response);
+          items.getItem(this.config.dimmerItemName).postUpdate(json.setting_value.toString());
+        } catch (e) {
+          console.warn(`Failed to fetch brightness from ${this.logMsg}:`, e);
+        }
+      }
+    }, this.config.refreshInterval);
   }
 
   /**
@@ -89,27 +118,30 @@ class MlscRestClient {
    * @returns {HostRule} command handling rule
    */
   createCommandHandlingRule () {
-    const logMsg = `"${this.deviceId}"" of "${this.url}"`;
     const ruleConfig = {
-      name: `mlsc REST client for "${this.deviceId}" of "${this.url}"`,
+      name: `mlsc REST client for "${this.config.deviceId}" of "${this.config.url}"`,
       description: 'Provides command handling, state fetching is done by a scheduled job',
       triggers: [
-        triggers.ItemCommandTrigger(this.effectItemName),
-        triggers.ItemCommandTrigger(this.colorItemName)
+        triggers.ItemCommandTrigger(this.config.effectItemName),
+        triggers.ItemCommandTrigger(this.config.colorItemName)
       ],
       execute: (event) => {
-        // Switching ON or OFF
-        if (event.itemName === this.switchItemName) {
-          console.debug(`Commanding ${logMsg} to ON (default effect) or OFF ...`);
-          items.getItem(this.effectItemName).sendCommand((event.receivedCommand === 'ON') ? this.effectDefault : 'effect_off');
-        } else if (event.itemName === this.effectItemName) {
-          console.debug(`Commanding effect of ${logMsg} to ${event.receivedCommand} ...`);
-          actions.HTTP.sendHttpPostRequest(this.url + '/api/effect/active', 'application/json', JSON.stringify({
-            device: this.deviceId,
+        // Handle effect control
+        if (event.itemName === this.config.effectItemName) {
+          console.debug(`Commanding effect of ${this.logMsg} to ${event.receivedCommand} ...`);
+          actions.HTTP.sendHttpPostRequest(this.config.url + '/api/effect/active', 'application/json', JSON.stringify({
+            device: this.config.deviceId,
             effect: event.receivedCommand
           }));
-          if (this.switchItemName) items.getItem(this.switchItemName).postUpdate(event.receivedCommand === 'effect_off' ? 'OFF' : 'ON');
-        } else if (event.itemName === this.colorItemName) {
+          // Store current effect (if not effect_off)
+          if (event.receivedCommand !== 'effect_off') {
+            cache.private.put(this.id + '-last-effect', event.receivedCommand);
+            // Update dimmer Item to OFF (if defined)
+          } else if (this.config.dimmerItemName) {
+            items.getItem(this.config.dimmerItemName).postUpdate('OFF');
+          }
+          // Handle color control
+        } else if (event.itemName === this.config.colorItemName) {
           const hsb = HSBType.valueOf(event.receivedCommand);
           // @ts-ignore
           const r = parseInt(hsb.getRed() * 2.55);
@@ -117,24 +149,38 @@ class MlscRestClient {
           const g = parseInt(hsb.getGreen() * 2.55);
           // @ts-ignore
           const b = parseInt(hsb.getBlue() * 2.55);
-          console.debug(`Commanding color of ${logMsg} to ${[r, g, b]}...`);
-          actions.HTTP.sendHttpPostRequest(this.url + '/api/settings/effect', 'application/json', JSON.stringify({
-            device: this.deviceId,
+          console.debug(`Commanding color of ${this.logMsg} to ${[r, g, b]}...`);
+          actions.HTTP.sendHttpPostRequest(this.config.url + '/api/settings/effect', 'application/json', JSON.stringify({
+            device: this.config.deviceId,
             effect: 'effect_single',
             settings: {
               custom_color: [r, g, b],
               use_custom_color: true
             }
           }));
-          items.getItem(this.effectItemName).sendCommand('effect_single');
+          items.getItem(this.config.effectItemName).sendCommandIfDifferent('effect_single');
+          // Handle dimmer control
+        } else if (this.config.dimmerItemName && event.itemName === this.config.dimmerItemName) {
+          if (event.receivedCommand === 'OFF' || event.receivedCommand === '0') {
+            items.getItem(this.config.effectItemName).sendCommandIfDifferent('effect_off');
+          } else {
+            console.debug(`Commanding brightness of ${this.logMsg} to ${event.receivedCommand} ...`);
+            actions.HTTP.sendHttpPostRequest(this.config.url + '/api/settings/device', 'application/json', JSON.stringify({
+              device: this.config.deviceId,
+              settings: {
+                led_brightness: event.receivedCommand
+              }
+            }));
+            items.getItem(this.config.effectItemName).sendCommandIfDifferent(cache.private.get(this.id + '-last-effect', () => this.config.defaultEffect));
+          }
         }
       },
-      id: `mlsc-rest-client-${this.effectItemName}-${this.colorItemName}`,
+      id: this.id,
       tags: ['@hotzware/openhab-tools', 'MlscRestClient', 'music_led_strip_control']
     };
-    // Add switchItem as trigger if defined
-    if (this.switchItemName) ruleConfig.triggers.push(triggers.ItemCommandTrigger(this.switchItemName));
-    console.info(`Creating command handling rule for ${logMsg} ...`);
+    // Add dimmerItem as trigger (if defined)
+    if (this.config.dimmerItemName) ruleConfig.triggers.push(triggers.ItemCommandTrigger(this.config.dimmerItemName));
+    console.info(`Creating command handling rule for ${this.logMsg} ...`);
     return rules.JSRule(ruleConfig);
   }
 }
