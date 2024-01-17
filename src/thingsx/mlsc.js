@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  */
 
-const { actions, cache, items, rules, triggers } = require('openhab');
+const { actions, items, rules, triggers } = require('openhab');
 // @ts-ignore
 const HSBType = Java.type('org.openhab.core.library.types.HSBType'); // eslint-disable-line no-unused-vars
 
@@ -67,56 +67,78 @@ class MlscRestClient {
 
     this.id = `mlsc-rest-client-for-${this.config.dimmerItemName || this.config.effectItemName}`;
     this.logMsg = `"${this.config.deviceId}" of "${this.config.url}"`;
+
+    // Globally share the current state
+    this.effect = null;
+    this.hsb = null;
+    this.brightness = null;
+    this.lastEffect = 'effect_gradient';
   }
 
   /**
-   * Schedules the state fetching using `setInterval`
+   * @private
+   */
+  fetchState () {
+    console.debug(`Refreshing Items from ${this.logMsg} ...`);
+    this.effect = null;
+    this.hsb = null;
+    this.brightness = null;
+
+    // Fetch effect
+    try {
+      const response = actions.HTTP.sendHttpGetRequest(this.config.url + '/api/effect/active?device=' + this.config.deviceId, HEADERS, 1000);
+      const json = JSON.parse(response);
+      this.effect = json.effect;
+    } catch (e) {
+      console.warn(`Failed to fetch effect from ${this.logMsg}:`, e);
+    }
+
+    // Fetch color
+    if (this.config.colorItemName && this.effect !== 'effect_off') {
+      try {
+        const response = actions.HTTP.sendHttpGetRequest(this.config.url + '/api/settings/effect?effect=effect_single&device=' + this.config.deviceId, HEADERS, 1000);
+        const json = JSON.parse(response);
+        const rgb = json.settings.custom_color;
+        this.hsb = HSBType.fromRGB(rgb[0], rgb[1], rgb[2]);
+      } catch (e) {
+        console.warn(`Failed to fetch color from ${this.logMsg}:`, e);
+      }
+    }
+
+    // Fetch brightness
+    if (this.config.dimmerItemName && this.effect !== 'effect_off') {
+      try {
+        const response = actions.HTTP.sendHttpGetRequest(`${this.config.url}/api/settings/device?device=${this.config.deviceId}&setting_key=led_brightness`, HEADERS, 1000);
+        const json = JSON.parse(response);
+        this.brightness = parseInt(json.setting_value);
+      } catch (e) {
+        console.warn(`Failed to fetch brightness from ${this.logMsg}:`, e);
+      }
+    }
+
+    // Handle new values
+    if (this.config.dimmerItemName) {
+      const dimmerItem = items.getItem(this.config.dimmerItemName);
+      if (this.effect === 'effect_off') {
+        dimmerItem.postUpdate('OFF');
+      } else if (this.brightness) {
+        dimmerItem.postUpdate(this.brightness);
+      }
+    }
+    if (this.effect !== 'effect_off') this.lastEffect = this.effect;
+    items.getItem(this.config.effectItemName).postUpdate(this.effect);
+    if (this.config.colorItemName && this.hsb) items.getItem(this.config.colorItemName).postUpdate(this.hsb.toString());
+  }
+
+  /**
+   * Schedules the state fetching using `setInterval`.
    *
    * @returns {number} `intervalId` of the interval used for state fetching
    */
   scheduleStateFetching () {
     console.info(`Initializing state fetching for ${this.logMsg} ...`);
     return setInterval(() => {
-      console.debug(`Refreshing Items from ${this.logMsg} ...`);
-      let currentEffect;
-      // Fetch effect
-      try {
-        const response = actions.HTTP.sendHttpGetRequest(this.config.url + '/api/effect/active?device=' + this.config.deviceId, HEADERS, 1000);
-        const json = JSON.parse(response);
-        currentEffect = json.effect;
-        items.getItem(this.config.effectItemName).postUpdate(currentEffect);
-        // Store current effect (if not effect_off)
-        if (currentEffect !== 'effect_off') {
-          cache.private.put(this.id + '-last-effect', currentEffect);
-        } else if (this.config.dimmerItemName) {
-          items.getItem(this.config.dimmerItemName).postUpdate('OFF');
-          return;
-        }
-      } catch (e) {
-        console.warn(`Failed to fetch effect from ${this.logMsg}:`, e);
-      }
-      // Fetch color
-      if (this.config.colorItemName) {
-        try {
-          const response = actions.HTTP.sendHttpGetRequest(this.config.url + '/api/settings/effect?effect=effect_single&device=' + this.config.deviceId, HEADERS, 1000);
-          const json = JSON.parse(response);
-          const rgb = json.settings.custom_color;
-          const hsb = HSBType.fromRGB(rgb[0], rgb[1], rgb[2]);
-          items.getItem(this.config.colorItemName).postUpdate(hsb.toString());
-        } catch (e) {
-          console.warn(`Failed to fetch color from ${this.logMsg}:`, e);
-        }
-      }
-      // Fetch brightness
-      if (this.config.dimmerItemName) {
-        try {
-          const response = actions.HTTP.sendHttpGetRequest(`${this.config.url}/api/settings/device?device=${this.config.deviceId}&setting_key=led_brightness`, HEADERS, 1000);
-          const json = JSON.parse(response);
-          items.getItem(this.config.dimmerItemName).postUpdate(json.setting_value.toString());
-        } catch (e) {
-          console.warn(`Failed to fetch brightness from ${this.logMsg}:`, e);
-        }
-      }
+      this.fetchState();
     }, this.config.refreshInterval);
   }
 
@@ -138,13 +160,8 @@ class MlscRestClient {
             device: this.config.deviceId,
             effect: event.receivedCommand
           }));
-          // Store current effect (if not effect_off)
-          if (event.receivedCommand !== 'effect_off') {
-            cache.private.put(this.id + '-last-effect', event.receivedCommand);
-            // Update dimmer Item to OFF (if defined)
-          } else if (this.config.dimmerItemName) {
-            items.getItem(this.config.dimmerItemName).postUpdate('OFF');
-          }
+          this.fetchState();
+
           // Handle color control
         } else if (event.itemName === this.config.colorItemName) {
           const hsb = HSBType.valueOf(event.receivedCommand);
@@ -164,6 +181,8 @@ class MlscRestClient {
             }
           }));
           items.getItem(this.config.effectItemName).sendCommandIfDifferent('effect_single');
+          this.fetchState();
+
           // Handle dimmer control
         } else if (this.config.dimmerItemName && event.itemName === this.config.dimmerItemName) {
           if (event.receivedCommand === 'OFF' || event.receivedCommand === '0') {
@@ -173,11 +192,16 @@ class MlscRestClient {
             actions.HTTP.sendHttpPostRequest(this.config.url + '/api/settings/device', 'application/json', JSON.stringify({
               device: this.config.deviceId,
               settings: {
-                led_brightness: event.receivedCommand
+                led_brightness: (event.receivedCommand === 'ON' ? 100 : parseInt(event.receivedCommand))
               }
             }));
-            items.getItem(this.config.effectItemName).sendCommandIfDifferent(cache.private.get(this.id + '-last-effect', () => this.config.defaultEffect));
+
+            // Turn on the stripes if needed
+            if (this.effect === 'effect_off') {
+              items.getItem(this.config.effectItemName).sendCommandIfDifferent(this.lastEffect);
+            }
           }
+          this.fetchState();
         }
       },
       id: this.id,

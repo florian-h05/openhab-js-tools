@@ -42,8 +42,16 @@ export class MlscRestClient {
     config: any;
     id: string;
     logMsg: string;
+    effect: any;
+    hsb: any;
+    brightness: number;
+    lastEffect: string;
     /**
-     * Schedules the state fetching using `setInterval`
+     * @private
+     */
+    private fetchState;
+    /**
+     * Schedules the state fetching using `setInterval`.
      *
      * @returns {number} `intervalId` of the interval used for state fetching
      */
