@@ -1,7 +1,5 @@
-const standard = require('eslint-config-standard')
-
 module.exports = {
-  ...standard,
+  extends: 'eslint-config-standard',
   rules: {
     semi: ["error", "always"],
     "no-extra-semi": "error",
@@ -9,5 +7,8 @@ module.exports = {
   },
   globals: {
     Java: "readonly"
+  },
+  parserOptions: {
+    ecmaVersion: 2022
   }
 }
