@@ -8,11 +8,9 @@
  * SPDX-License-Identifier: EPL-2.0
  */
 
-const { actions, items, rules, triggers } = require('openhab');
+const { actions, items, rules, triggers, utils } = require('openhab');
 // @ts-ignore
 const HSBType = Java.type('org.openhab.core.library.types.HSBType'); // eslint-disable-line no-unused-vars
-
-const HEADERS = new Map([['accept', 'application/json']]);
 
 /**
  * @typedef {Object} mlscRestClientConfig configuration for {@link MlscRestClient}
@@ -27,13 +25,195 @@ const HEADERS = new Map([['accept', 'application/json']]);
  */
 
 /**
+ * A `MlscApiError` is thrown when a {@link MlscApi} operation fails.
+ *
+ * @private
+ */
+class MlscApiError extends Error {
+  /**
+   * @param {string} message
+   */
+  constructor (message) {
+    super(message);
+    super.name = 'MlscApiError';
+  }
+}
+
+/**
+ * The `MlscApi` class provides access to the REST API of music led strip control.
+ *
+ * @private
+ */
+class MlscApi {
+  static #HEADERS = new Map([['accept', 'application/json']]);
+
+  #baseUrl;
+  #deviceId;
+  #prettyName;
+
+  /**
+   * @param {string} url full URL of the music led strip control server, e.g. `http://127.0.0.1:8080`
+   * @param {string} deviceId id of device inside mlsc, use HTTP GET `/api/system/devices` to get a list of available devices
+   */
+  constructor (url, deviceId) {
+    if (typeof url !== 'string') throw new Error('url must be a string!');
+    if (typeof deviceId !== 'string') throw new Error('deviceId must be a string!');
+
+    this.#baseUrl = url + '/api/';
+    this.#deviceId = deviceId;
+    this.#prettyName = `${deviceId} on ${url}`;
+  }
+
+  #getEffect () {
+    console.debug(`Getting effect from ${this.#prettyName} ...`);
+    try {
+      const response = actions.HTTP.sendHttpGetRequest(this.#baseUrl + 'effect/active?device=' + this.#deviceId, MlscApi.#HEADERS, 1000);
+      const json = JSON.parse(response);
+      return json.effect;
+    } catch (e) {
+      throw new MlscApiError('Failed to get effect: ' + e);
+    }
+  }
+
+  #getBrightness () {
+    console.debug(`Getting brightness from ${this.#prettyName} ...`);
+    try {
+      const response = actions.HTTP.sendHttpGetRequest(`${this.#baseUrl}/settings/device?device=${this.#deviceId}&setting_key=led_brightness`, MlscApi.#HEADERS, 1000);
+      const json = JSON.parse(response);
+      return parseInt(json.setting_value);
+    } catch (e) {
+      throw new MlscApiError('Failed to get brightness: ' + e);
+    }
+  }
+
+  #getColor () {
+    console.debug(`Getting color from ${this.#prettyName} ...`);
+    try {
+      const response = actions.HTTP.sendHttpGetRequest(this.#baseUrl + 'settings/effect?effect=effect_single&device=' + this.#deviceId, MlscApi.#HEADERS, 1000);
+      const json = JSON.parse(response);
+      const rgb = json.settings.custom_color;
+      return HSBType.fromRGB(rgb[0], rgb[1], rgb[2]);
+    } catch (e) {
+      throw new MlscApiError('Failed to get color: ' + e);
+    }
+  }
+
+  /**
+   * Set the effect.
+   * If the passed in effect is invalid, an error is thrown.
+   *
+   * @param {string} effect new effect
+   * @throws MlscApiError if effect is invalid or the API request failed
+   */
+  setEffect (effect) {
+    console.debug(`Setting effect of ${this.#prettyName} to ${effect} ...`);
+    // TODO: Ensure effect is valid
+    try {
+      actions.HTTP.sendHttpPostRequest(this.#baseUrl + 'effect/active', 'application/json', JSON.stringify({
+        device: this.#deviceId,
+        effect
+      }));
+    } catch (e) {
+      throw new MlscApiError('Failed to set effect: ' + e);
+    }
+  }
+
+  /**
+   * Set the brightness.
+   * If the passed in value is not `ON`, `OFF` or an integer between 0 and 100, an error is thrown.
+   *
+   * @param {number|string} brightness brightness value as integer between 0 and 100 or `ON` or `OFF`
+   * @throws MlscApiError if brightness is invalid or the API request failed
+   */
+  setBrightness (brightness) {
+    console.debug(`Setting brightness of ${this.#prettyName} to ${brightness} ...`);
+    if (brightness === 'OFF') brightness = 0;
+    if (brightness === 'ON') brightness = 100;
+
+    // @ts-ignore
+    const intValue = parseInt(brightness);
+    if (isNaN(intValue) || intValue < 0 || intValue > 100) {
+      throw new MlscApiError('Failed to set brightness: Invalid value ' + brightness);
+    }
+
+    try {
+      actions.HTTP.sendHttpPostRequest(this.#baseUrl + 'settings/device', 'application/json', JSON.stringify({
+        device: this.#deviceId,
+        settings: {
+          led_brightness: intValue
+        }
+      }));
+    } catch (e) {
+      throw new MlscApiError('Failed to set brightness: ' + e);
+    }
+  }
+
+  /**
+   * Set the color.
+   * If the passed in value is not a HSBType, an error is thrown.
+   *
+   * @param {*} hsb instance of {@link https://www.openhab.org/javadoc/latest/org/openhab/core/library/types/hsbtype org.openhab.core.library.types.HSBType}
+   * @throws MlscApiError if hsb is no HSBType or the API request failed
+   */
+  setColor (hsb) {
+    console.debug(`Setting color of ${this.#prettyName} to ${hsb} ...`);
+    if (!utils.isJsInstanceOfJavaType(hsb, HSBType)) {
+      throw new MlscApiError('Failed to set color: hsb must be a "org.openhab.core.library.types.HSBType"');
+    }
+
+    // @ts-ignore
+    const r = parseInt(hsb.getRed() * 2.55);
+    // @ts-ignore
+    const g = parseInt(hsb.getGreen() * 2.55);
+    // @ts-ignore
+    const b = parseInt(hsb.getBlue() * 2.55);
+
+    try {
+      actions.HTTP.sendHttpPostRequest(this.#baseUrl + 'settings/effect', 'application/json', JSON.stringify({
+        device: this.#deviceId,
+        effect: 'effect_single',
+        settings: {
+          custom_color: [r, g, b],
+          use_custom_color: true
+        }
+      }));
+    } catch (e) {
+      throw new MlscApiError('Failed to set color: ' + e);
+    }
+  }
+
+  /**
+   * Get the current, processed state.
+   *
+   * @returns {{brightness: number, color: null, effect: (string|any)}|{brightness: number, color: *, effect: (string|any|AnimationEffect)}}
+   */
+  getProcessedState () {
+    console.debug(`Getting state from ${this.#prettyName} ...`);
+    const effect = this.#getEffect();
+    if (effect === 'effect_off') {
+      return {
+        effect,
+        brightness: 0,
+        color: null
+      };
+    }
+    return {
+      effect,
+      brightness: this.#getBrightness(),
+      color: this.#getColor()
+    };
+  }
+}
+
+/**
  * music_led_strip_control REST client
  *
  * Class providing state fetching from and command sending to the REST API of {@link https://github.com/TobKra96/music_led_strip_control music_led_strip_control}.
  * It is using a scheduled job to fetch states and a rule to handle commands.
  *
  * @example
- * var FlorianRGB = new MlscRestClient({
+ * var { thingsx } = require('@hotzware/openhab-tools');
+ * var FlorianRGB = new thingsx.MlscRestClient({
  *   effectItemName: 'FlorianRGB_effect',
  *   url: 'http://127.0.0.1:8080',
  *   deviceId: 'device_0',
@@ -46,6 +226,12 @@ const HEADERS = new Map([['accept', 'application/json']]);
  * @memberof thingsx
  */
 class MlscRestClient {
+  #config;
+  #prettyName;
+  #api;
+  #effect = null;
+  #lastEffect = 'effect_gradient';
+
   /**
    * Be aware that you need to call {@link scheduleStateFetching} and {@link createCommandHandlingRule} to fully initialize the REST client.
    *
@@ -53,93 +239,41 @@ class MlscRestClient {
    */
   constructor (config) {
     if (typeof config.effectItemName !== 'string') throw new Error('effectItemName must be a string!');
-    if (typeof config.url !== 'string') throw new Error('url must be a string!');
-    if (typeof config.deviceId !== 'string') throw new Error('deviceId must be a string!');
     if (config.colorItemName && typeof config.colorItemName !== 'string') throw new Error('colorItemName must be a string!');
     if (config.dimmerItemName && typeof config.dimmerItemName !== 'string') throw new Error('dimmerItemName must be a string!');
     if (config.defaultEffect && typeof config.defaultEffect !== 'string') throw new Error('defaultEffect must be a string!');
     if (config.refreshInterval && typeof config.refreshInterval !== 'number') throw new Error('refreshInterval must be a number!');
 
-    this.config = config;
+    this.#config = config;
 
-    if (!this.config.defaultEffect) this.config.defaultEffect = 'effect_gradient';
-    if (!this.config.refreshInterval) this.config.refreshInterval = 15000;
+    if (!this.#config.defaultEffect) this.#config.defaultEffect = 'effect_gradient';
+    if (!this.#config.refreshInterval) this.#config.refreshInterval = 15000;
+    this.#prettyName = `${this.#config.deviceId} of ${this.#config.url}`;
 
-    this.id = `mlsc-rest-client-for-${this.config.dimmerItemName || this.config.effectItemName}`;
-    this.logMsg = `"${this.config.deviceId}" of "${this.config.url}"`;
-
-    // Globally share the current state
-    this.effect = null;
-    this.hsb = null;
-    this.brightness = null;
-    this.lastEffect = 'effect_gradient';
+    this.#api = new MlscApi(config.url, config.deviceId);
   }
 
-  /**
-   * @private
-   */
-  fetchState () {
-    console.debug(`Refreshing Items from ${this.logMsg} ...`);
-    this.effect = null;
-    this.hsb = null;
-    this.brightness = null;
+  #updateState () {
+    const state = this.#api.getProcessedState();
 
-    // Fetch effect
-    try {
-      const response = actions.HTTP.sendHttpGetRequest(this.config.url + '/api/effect/active?device=' + this.config.deviceId, HEADERS, 1000);
-      const json = JSON.parse(response);
-      this.effect = json.effect;
-    } catch (e) {
-      console.warn(`Failed to fetch effect from ${this.logMsg}:`, e);
-    }
+    this.#effect = state.effect;
+    if (state.effect !== 'effect_off') this.#lastEffect = state.effect;
+    items.getItem(this.#config.effectItemName).postUpdate(state.effect);
 
-    // Fetch color
-    if (this.config.colorItemName && this.effect !== 'effect_off') {
-      try {
-        const response = actions.HTTP.sendHttpGetRequest(this.config.url + '/api/settings/effect?effect=effect_single&device=' + this.config.deviceId, HEADERS, 1000);
-        const json = JSON.parse(response);
-        const rgb = json.settings.custom_color;
-        this.hsb = HSBType.fromRGB(rgb[0], rgb[1], rgb[2]);
-      } catch (e) {
-        console.warn(`Failed to fetch color from ${this.logMsg}:`, e);
-      }
-    }
-
-    // Fetch brightness
-    if (this.config.dimmerItemName && this.effect !== 'effect_off') {
-      try {
-        const response = actions.HTTP.sendHttpGetRequest(`${this.config.url}/api/settings/device?device=${this.config.deviceId}&setting_key=led_brightness`, HEADERS, 1000);
-        const json = JSON.parse(response);
-        this.brightness = parseInt(json.setting_value);
-      } catch (e) {
-        console.warn(`Failed to fetch brightness from ${this.logMsg}:`, e);
-      }
-    }
-
-    // Handle new values
-    if (this.config.dimmerItemName) {
-      const dimmerItem = items.getItem(this.config.dimmerItemName);
-      if (this.effect === 'effect_off') {
-        dimmerItem.postUpdate('OFF');
-      } else if (this.brightness) {
-        dimmerItem.postUpdate(this.brightness);
-      }
-    }
-    if (this.effect !== 'effect_off') this.lastEffect = this.effect;
-    items.getItem(this.config.effectItemName).postUpdate(this.effect);
-    if (this.config.colorItemName && this.hsb) items.getItem(this.config.colorItemName).postUpdate(this.hsb.toString());
+    if (this.#config.colorItemName && state.color) items.getItem(this.#config.colorItemName).postUpdate(state.color.toString());
+    if (this.#config.dimmerItemName) items.getItem(this.#config.dimmerItemName).postUpdate(state.brightness);
   }
 
   /**
    * Schedules the state fetching using `setInterval`.
    *
-   * @returns {number} `intervalId` of the interval used for state fetching
+   * @returns {NodeJS.Timeout} `intervalId` of the interval used for state fetching
    */
   scheduleStateFetching () {
-    console.info(`Initializing state fetching for ${this.logMsg} ...`);
+    console.info(`Initializing state fetching for ${this.#prettyName} ...`);
     return setInterval(() => {
-      this.fetchState();
-    }, this.config.refreshInterval);
+      this.#updateState();
+    }, this.#config.refreshInterval);
   }
 
   /**
@@ -147,71 +281,46 @@ class MlscRestClient {
    */
   createCommandHandlingRule () {
     const ruleConfig = {
-      name: `mlsc REST client for "${this.config.deviceId}" of "${this.config.url}"`,
+      name: `mlsc REST client for "${this.#config.deviceId}" of "${this.#config.url}"`,
       description: 'Provides command handling, state fetching is done by a scheduled job',
       triggers: [
-        triggers.ItemCommandTrigger(this.config.effectItemName)
+        triggers.ItemCommandTrigger(this.#config.effectItemName)
       ],
       execute: (event) => {
         // Handle effect control
-        if (event.itemName === this.config.effectItemName) {
-          console.debug(`Commanding effect of ${this.logMsg} to ${event.receivedCommand} ...`);
-          actions.HTTP.sendHttpPostRequest(this.config.url + '/api/effect/active', 'application/json', JSON.stringify({
-            device: this.config.deviceId,
-            effect: event.receivedCommand
-          }));
-          this.fetchState();
+        if (event.itemName === this.#config.effectItemName) {
+          this.#api.setEffect(event.receivedCommand);
+          this.#updateState();
 
           // Handle color control
-        } else if (event.itemName === this.config.colorItemName) {
+        } else if (event.itemName === this.#config.colorItemName) {
           const hsb = HSBType.valueOf(event.receivedCommand);
-          // @ts-ignore
-          const r = parseInt(hsb.getRed() * 2.55);
-          // @ts-ignore
-          const g = parseInt(hsb.getGreen() * 2.55);
-          // @ts-ignore
-          const b = parseInt(hsb.getBlue() * 2.55);
-          console.debug(`Commanding color of ${this.logMsg} to ${[r, g, b]}...`);
-          actions.HTTP.sendHttpPostRequest(this.config.url + '/api/settings/effect', 'application/json', JSON.stringify({
-            device: this.config.deviceId,
-            effect: 'effect_single',
-            settings: {
-              custom_color: [r, g, b],
-              use_custom_color: true
-            }
-          }));
-          items.getItem(this.config.effectItemName).sendCommandIfDifferent('effect_single');
-          this.fetchState();
+          this.#api.setColor(hsb);
+          items.getItem(this.#config.effectItemName).sendCommandIfDifferent('effect_single');
+          this.#updateState();
 
           // Handle dimmer control
-        } else if (this.config.dimmerItemName && event.itemName === this.config.dimmerItemName) {
+        } else if (this.#config.dimmerItemName && event.itemName === this.#config.dimmerItemName) {
           if (event.receivedCommand === 'OFF' || event.receivedCommand === '0') {
-            items.getItem(this.config.effectItemName).sendCommandIfDifferent('effect_off');
+            items.getItem(this.#config.effectItemName).sendCommandIfDifferent('effect_off');
           } else {
-            console.debug(`Commanding brightness of ${this.logMsg} to ${event.receivedCommand} ...`);
-            actions.HTTP.sendHttpPostRequest(this.config.url + '/api/settings/device', 'application/json', JSON.stringify({
-              device: this.config.deviceId,
-              settings: {
-                led_brightness: (event.receivedCommand === 'ON' ? 100 : parseInt(event.receivedCommand))
-              }
-            }));
-
+            this.#api.setBrightness(event.receivedCommand);
             // Turn on the stripes if needed
-            if (this.effect === 'effect_off') {
-              items.getItem(this.config.effectItemName).sendCommandIfDifferent(this.lastEffect);
+            if (this.#effect === 'effect_off') {
+              items.getItem(this.#config.effectItemName).sendCommandIfDifferent(this.#lastEffect);
             }
           }
-          this.fetchState();
+          this.#updateState();
         }
       },
-      id: this.id,
+      id: `mlsc-rest-client-for-${this.#config.dimmerItemName || this.#config.effectItemName}`,
       tags: ['@hotzware/openhab-tools', 'MlscRestClient', 'music_led_strip_control']
     };
     // Add colorItem as trigger (if defined)
-    if (this.config.colorItemName) ruleConfig.triggers.push(triggers.ItemCommandTrigger(this.config.colorItemName));
+    if (this.#config.colorItemName) ruleConfig.triggers.push(triggers.ItemCommandTrigger(this.#config.colorItemName));
     // Add dimmerItem as trigger (if defined)
-    if (this.config.dimmerItemName) ruleConfig.triggers.push(triggers.ItemCommandTrigger(this.config.dimmerItemName));
-    console.info(`Creating command handling rule for ${this.logMsg} ...`);
+    if (this.#config.dimmerItemName) ruleConfig.triggers.push(triggers.ItemCommandTrigger(this.#config.dimmerItemName));
+    console.info(`Creating command handling rule for ${this.#prettyName} ...`);
     rules.JSRule(ruleConfig);
   }
 }
