@@ -161,12 +161,12 @@ function createRainAlarmRule (config) {
         }
       } else if (event.itemName !== null) {
         console.info(`Rainalarm rule is running on change of contact "${event.itemName}".`);
-        const timeoutFunc = function (itemname, windspeed) {
+        function timeoutFunc (itemname, windspeed) {
           return () => {
             // @ts-ignore
             RainalarmImpl.checkAlarm(itemname, windspeed);
           };
-        };
+        }
         setTimeout(timeoutFunc(event.itemName, windspeed), 2000);
       }
     },
@@ -358,12 +358,12 @@ function createHeatAlarmRule (config) {
         }
       } else if (event.itemName !== null) {
         console.info(`Heatalarm rule is running on change, Item ${event.itemName}.`);
-        const timeoutFunc = function (itemname) {
+        function timeoutFunc (itemname) {
           return () => {
             // @ts-ignore
             HeatalarmImpl.checkAlarm(itemname);
           };
-        };
+        }
         setTimeout(timeoutFunc(event.itemName), 2000);
       }
     },
@@ -399,12 +399,12 @@ function createFrostAlarmRule (config) {
         }
       } else if (event.itemName !== null) {
         console.info(`Frostalarm rule is running on change, Item ${event.itemName}.`);
-        const timeoutFunc = function (itemname) {
+        function timeoutFunc (itemname) {
           return () => {
             // @ts-ignore
             FrostalarmImpl.checkAlarm(itemname);
           };
-        };
+        }
         setTimeout(timeoutFunc(event.itemName), 2000);
       }
     },

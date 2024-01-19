@@ -17,8 +17,8 @@
   "scripts": {
     "docs": "rm -Rf ./docs/* && jsdoc --configure jsdoc.conf.json",
     "deploy": "npm run lint:fix && npm run types && npm run types:test && npm run docs",
-    "lint": "npx standardx | snazzy",
-    "lint:fix": "npx standardx --fix",
+    "lint": "npx eslint src",
+    "lint:fix": "npx eslint --fix src",
     "types": "tsc --project tsconfig.json",
     "types:test": "tsc --project tsconfig.test.json"
   },
@@ -27,11 +27,11 @@
   },
   "devDependencies": {
     "docdash": "^2.0.1",
+    "eslint": "^8.56.0",
+    "eslint-config-standard": "^17.1.0",
     "jsdoc": "^4.0.2",
     "jsdoc-tsimport-plugin": "^1.0.5",
     "openhab": "^4.6.0",
-    "snazzy": "^9.0.0",
-    "standardx": "^7.0.0",
     "typescript": "^4.9.5"
   },
   "private": false
