@@ -26,7 +26,7 @@ export class MlscRestClient {
     /**
      * Be aware that you need to call {@link scheduleStateFetching} and {@link createCommandHandlingRule} to fully initialize the REST client.
      *
-     * @param {mlscRestClientConfig} config MLSC REST client config
+     * @param {mlscRestClientConfig} config mlsc REST client config
      */
     constructor(config: mlscRestClientConfig);
     /**

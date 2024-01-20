@@ -15,7 +15,7 @@ const HSBType = Java.type('org.openhab.core.library.types.HSBType'); // eslint-d
 /**
  * @typedef {Object} mlscRestClientConfig configuration for {@link MlscRestClient}
  * @memberof thingsx
- * @property {string} effectItemName name of the effect Item
+ * @property {string} effectItemName name of the effect Item: Do NOT set state description metadata on that Item, this will be done for you.
  * @property {string} url full URL for mlsc, e.g. `http://127.0.0.1:8080`
  * @property {string} deviceId ID of device inside mlsc, use HTTP GET `/api/system/devices` to get a list of available devices
  * @property {string} [colorItemName] name of the color Item
@@ -260,7 +260,7 @@ class MlscRestClient {
   /**
    * Be aware that you need to call {@link scheduleStateFetching} and {@link createCommandHandlingRule} to fully initialize the REST client.
    *
-   * @param {mlscRestClientConfig} config MLSC REST client config
+   * @param {mlscRestClientConfig} config mlsc REST client config
    */
   constructor (config) {
     // Validate parameters
@@ -286,7 +286,7 @@ class MlscRestClient {
 
   #setCommandAndStateDescription () {
     console.info(`Setting state description of ${this.#config.effectItemName} to available effects ...`);
-    let options = '';
+    let options = '"effect_off"="Off"';
     for (const [key, value] of Object.entries(MlscApi.effects.non_music)) {
       options += `"${key}"="${value}", `;
     }
