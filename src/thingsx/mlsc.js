@@ -300,8 +300,16 @@ class MlscRestClient {
   }
 
   #updateState () {
-    const state = this.#api.getProcessedState();
-
+    let state;
+    try {
+      state = this.#api.getProcessedState();
+    } catch (e) {
+      if (e instanceof MlscApiError) {
+        console.warn(e);
+        return;
+      }
+      throw e;
+    }
     this.#effect = state.effect;
     if (state.effect !== 'effect_off') this.#lastEffect = state.effect;
     items.getItem(this.#config.effectItemName).postUpdate(state.effect);
@@ -333,15 +341,32 @@ class MlscRestClient {
         triggers.ItemCommandTrigger(this.#config.effectItemName)
       ],
       execute: (event) => {
+        console.debug(`Handling command ${event.receivedCommand} of ${event.itemName} for ${this.#prettyName} ...`);
         // Handle effect control
         if (event.itemName === this.#config.effectItemName) {
-          this.#api.setEffect(event.receivedCommand);
+          try {
+            this.#api.setEffect(event.receivedCommand);
+          } catch (e) {
+            if (e instanceof MlscApiError) {
+              console.warn(e);
+              return;
+            }
+            throw e;
+          }
           this.#updateState();
 
           // Handle color control
         } else if (event.itemName === this.#config.colorItemName) {
           const hsb = HSBType.valueOf(event.receivedCommand);
-          this.#api.setColor(hsb);
+          try {
+            this.#api.setColor(hsb);
+          } catch (e) {
+            if (e instanceof MlscApiError) {
+              console.warn(e);
+              return;
+            }
+            throw e;
+          }
           items.getItem(this.#config.effectItemName).sendCommandIfDifferent('effect_single');
           this.#updateState();
 
@@ -350,7 +375,15 @@ class MlscRestClient {
           if (event.receivedCommand === 'OFF' || event.receivedCommand === '0') {
             items.getItem(this.#config.effectItemName).sendCommandIfDifferent('effect_off');
           } else {
-            this.#api.setBrightness(event.receivedCommand);
+            try {
+              this.#api.setBrightness(event.receivedCommand);
+            } catch (e) {
+              if (e instanceof MlscApiError) {
+                console.warn(e);
+                return;
+              }
+              throw e;
+            }
             // Turn on the stripes if needed
             if (this.#effect === 'effect_off') {
               items.getItem(this.#config.effectItemName).sendCommandIfDifferent(this.#lastEffect);
