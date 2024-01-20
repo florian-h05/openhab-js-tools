@@ -129,7 +129,7 @@ class MlscApi {
   setEffect (effect) {
     console.debug(`Setting effect of ${this.#prettyName} to ${effect} ...`);
 
-    if (!MlscApi.effects.music.keys().concat(MlscApi.effects.non_music.keys()).includes(effect)) {
+    if (!Object.keys(MlscApi.effects.music).concat(Object.keys(MlscApi.effects.non_music)).includes(effect)) {
       throw new MlscApiError('Failed to set effect: Invalid value ' + effect);
     }
 
