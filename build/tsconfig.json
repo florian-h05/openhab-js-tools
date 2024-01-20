@@ -4,12 +4,12 @@
     "checkJs": true,
     "declaration": true,
     "emitDeclarationOnly": true,
-    "outDir": "types",
+    "outDir": "../types",
     "declarationMap": true,
     "target": "ES2022",
     "moduleResolution": "Node",
     "resolveJsonModule": true
   },
-  "include": ["src/**/*.js"],
-  "exclude": ["node_modules", "**/*.spec.js"]
+  "include": ["../src/**/*.js"],
+  "exclude": ["../node_modules", "**/*.spec.js"]
 }
