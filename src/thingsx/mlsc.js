@@ -46,6 +46,12 @@ class MlscApiError extends Error {
  */
 class MlscApi {
   static #HEADERS = new Map([['accept', 'application/json']]);
+  /**
+   * All available non music and music effects.
+   *
+   * @type {{music: object, non_music: object}}
+   */
+  static effects;
 
   #baseUrl;
   #deviceId;
@@ -56,12 +62,27 @@ class MlscApi {
    * @param {string} deviceId id of device inside mlsc, use HTTP GET `/api/system/devices` to get a list of available devices
    */
   constructor (url, deviceId) {
+    // Validate parameters
     if (typeof url !== 'string') throw new Error('url must be a string!');
     if (typeof deviceId !== 'string') throw new Error('deviceId must be a string!');
 
+    // Initialize private fields
     this.#baseUrl = url + '/api/';
     this.#deviceId = deviceId;
     this.#prettyName = `${deviceId} on ${url}`;
+
+    // Initialize static field effects
+    if (!MlscApi.effects) MlscApi.effects = this.#getAvailableEffects();
+  }
+
+  #getAvailableEffects () {
+    console.debug(`Getting available effects from ${this.#prettyName} ...`);
+    try {
+      const response = actions.HTTP.sendHttpGetRequest(this.#baseUrl + 'resources/effects', MlscApi.#HEADERS, 1000);
+      return JSON.parse(response);
+    } catch (e) {
+      throw new MlscApiError('Failed to get available effects: ' + e);
+    }
   }
 
   #getEffect () {
@@ -107,7 +128,11 @@ class MlscApi {
    */
   setEffect (effect) {
     console.debug(`Setting effect of ${this.#prettyName} to ${effect} ...`);
-    // TODO: Ensure effect is valid
+
+    if (!MlscApi.effects.music.keys().concat(MlscApi.effects.non_music.keys()).includes(effect)) {
+      throw new MlscApiError('Failed to set effect: Invalid value ' + effect);
+    }
+
     try {
       actions.HTTP.sendHttpPostRequest(this.#baseUrl + 'effect/active', 'application/json', JSON.stringify({
         device: this.#deviceId,
@@ -238,19 +263,40 @@ class MlscRestClient {
    * @param {mlscRestClientConfig} config MLSC REST client config
    */
   constructor (config) {
+    // Validate parameters
     if (typeof config.effectItemName !== 'string') throw new Error('effectItemName must be a string!');
     if (config.colorItemName && typeof config.colorItemName !== 'string') throw new Error('colorItemName must be a string!');
     if (config.dimmerItemName && typeof config.dimmerItemName !== 'string') throw new Error('dimmerItemName must be a string!');
     if (config.defaultEffect && typeof config.defaultEffect !== 'string') throw new Error('defaultEffect must be a string!');
     if (config.refreshInterval && typeof config.refreshInterval !== 'number') throw new Error('refreshInterval must be a number!');
 
+    // Initialize private fields
     this.#config = config;
-
+    // Fallback to defaults
     if (!this.#config.defaultEffect) this.#config.defaultEffect = 'effect_gradient';
     if (!this.#config.refreshInterval) this.#config.refreshInterval = 15000;
     this.#prettyName = `${this.#config.deviceId} of ${this.#config.url}`;
 
+    // Initialize API
     this.#api = new MlscApi(config.url, config.deviceId);
+
+    // Set command/state description metadata on effect Item
+    this.#setCommandAndStateDescription();
+  }
+
+  #setCommandAndStateDescription () {
+    console.info(`Setting state description of ${this.#config.effectItemName} to available effects ...`);
+    let options = '';
+    for (const [key, value] of Object.entries(MlscApi.effects.non_music)) {
+      options += `"${key}"="${value}", `;
+    }
+    for (const [key, value] of Object.entries(MlscApi.effects.music)) {
+      options += `"${key}"="Music - ${value}", `;
+    }
+    options = options.substring(0, options.length - 2); // Remove last " ,"
+    items.metadata.replaceMetadata(this.#config.effectItemName, 'stateDescription', '', {
+      options
+    });
   }
 
   #updateState () {
@@ -322,6 +368,15 @@ class MlscRestClient {
     if (this.#config.dimmerItemName) ruleConfig.triggers.push(triggers.ItemCommandTrigger(this.#config.dimmerItemName));
     console.info(`Creating command handling rule for ${this.#prettyName} ...`);
     rules.JSRule(ruleConfig);
+  }
+
+  /**
+   * Get all available music and non-music effects.
+   *
+   * @returns {{music: Object, non_music: Object}}
+   */
+  getAvailableEffects () {
+    return MlscApi.effects;
   }
 }
 

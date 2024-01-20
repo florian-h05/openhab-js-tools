@@ -39,6 +39,15 @@ export class MlscRestClient {
      * Creates the rule used for command handling.
      */
     createCommandHandlingRule(): void;
+    /**
+     * Get all available music and non-music effects.
+     *
+     * @returns {{music: Object, non_music: Object}}
+     */
+    getAvailableEffects(): {
+        music: any;
+        non_music: any;
+    };
     #private;
 }
 //# sourceMappingURL=mlsc.d.ts.map
