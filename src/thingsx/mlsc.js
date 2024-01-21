@@ -129,7 +129,7 @@ class MlscApi {
   setEffect (effect) {
     console.debug(`Setting effect of ${this.#prettyName} to ${effect} ...`);
 
-    if (!Object.keys(MlscApi.effects.music).concat(Object.keys(MlscApi.effects.non_music)).includes(effect)) {
+    if (!(Object.keys(MlscApi.effects.music).concat(Object.keys(MlscApi.effects.non_music)).includes(effect) || effect === 'effect_off')) {
       throw new MlscApiError('Failed to set effect: Invalid value ' + effect);
     }
 
@@ -286,7 +286,7 @@ class MlscRestClient {
 
   #setCommandAndStateDescription () {
     console.info(`Setting state description of ${this.#config.effectItemName} to available effects ...`);
-    let options = '"effect_off"="Off"';
+    let options = '"effect_off"="Off", ';
     for (const [key, value] of Object.entries(MlscApi.effects.non_music)) {
       options += `"${key}"="${value}", `;
     }
