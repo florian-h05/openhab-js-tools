@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>thingsx - Documentation</title>
+    <title>Global - Documentation</title>
     
     
     <script src="scripts/prettify/prettify.js"></script>
@@ -37,7 +37,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">thingsx</h1>
+    <h1 class="page-title">Global</h1>
     
 
     
@@ -51,7 +51,7 @@
     
         <h2>
         
-            Namespace
+            
         
         </h2>
         
@@ -64,28 +64,9 @@
         
             
 
-
-    
-
-    <h4 class="name" id="thingsx">thingsx</h4>
-
-    
-
-
-
-
 <dl class="details">
     
-    <dt class="tag-description">Description:</dt>
-    <dd class="tag-description"><ul class="dummy"><li><p>Things namespace</p>
-<p>This namespace provides access to external devices and services, which is usually functionality provided by bindings.</p></li></ul></dd>
-    
 
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="thingsx_index.js.html">thingsx/index.js</a>, <a href="thingsx_index.js.html#line1">line 1</a>
-    </li></ul></dd>
     
 
     
@@ -122,32 +103,9 @@
 
 
 
+            
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+            
         
         </div>
     
@@ -156,13 +114,6 @@
 
     
 
-    
-        <h3 class="subsection-title">Classes</h3>
-
-        <dl>
-            <dt><a href="thingsx.MlscRestClient.html">MlscRestClient</a></dt>
-            <dd></dd>
-        </dl>
     
     
     
@@ -174,16 +125,14 @@
     
 
     
-        <h3 class="subsection-title">Methods</h3>
+
+    
+        <h3 class="subsection-title">Type Definitions</h3>
 
         
-            
+                
+<h4 class="name" id="MlscRestClientConfig">MlscRestClientConfig</h4>
 
-    
-
-    <h4 class="name" id=".createReEnableThingWithItemRule"><span class="type-signature type-signature-static">(static) </span>createReEnableThingWithItemRule<span class="signature">(itemName, thingUID)</span><span class="type-signature"></span></h4>
-
-    
 
 
 
@@ -191,13 +140,13 @@
 <dl class="details">
     
     <dt class="tag-description">Description:</dt>
-    <dd class="tag-description"><ul class="dummy"><li><p>Creates a rule that re-enables a Thing on command ON to a given Item.</p></li></ul></dd>
+    <dd class="tag-description"><ul class="dummy"><li><p>configuration for <code>MlscRestClient</code></p></li></ul></dd>
     
 
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="thingsx_health.js.html">thingsx/health.js</a>, <a href="thingsx_health.js.html#line110">line 110</a>
+        <a href="thingsx_mlsc.js.html">thingsx/mlsc.js</a>, <a href="thingsx_mlsc.js.html#line16">line 16</a>
     </li></ul></dd>
     
 
@@ -234,20 +183,11 @@
 
 
 
+    <h5 class="subsection-title">Properties:</h5>
 
-
-
-
-
-
-
-
-
-
-    <h5 class="h5-parameters">Parameters:</h5>
     
 
-<table class="params">
+<table class="props">
     <thead>
     <tr>
         
@@ -257,7 +197,11 @@
         <th>Type</th>
 
         
+        <th>Attributes</th>
+        
 
+        
+        <th>Default</th>
         
 
         <th class="last">Description</th>
@@ -269,7 +213,7 @@
 
         <tr>
             
-                <td class="name"><code>itemName</code></td>
+                <td class="name"><code>effectItemName</code></td>
             
 
             <td class="type">
@@ -283,17 +227,27 @@
             </td>
 
             
+                <td class="attributes">
+                
 
+                
+                </td>
             
 
-            <td class="description last"></td>
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last"><p>name of the effect Item: Do NOT set state description metadata on that Item, this will be done for you.</p></td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>thingUID</code></td>
+                <td class="name"><code>url</code></td>
             
 
             <td class="type">
@@ -307,10 +261,238 @@
             </td>
 
             
+                <td class="attributes">
+                
 
+                
+                </td>
             
 
-            <td class="description last"></td>
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last"><p>full URL for mlsc, e.g. <code>http://127.0.0.1:8080</code></p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>deviceId</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last"><p>ID of device inside mlsc, use HTTP GET <code>/api/system/devices</code> to get a list of available devices</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>colorItemName</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last"><p>name of the color Item</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>dimmerItemName</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last"><p>name of the dimmer Item</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>defaultEffect</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>'effect_gradient'</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>default effect for the <code>Dimmer</code> Item</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>refreshInterval</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>15000</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>refresh interval in milliseconds</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>switchOnDelay</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last"><p>switch-on delay in milliseconds, e.g. useful if power multiple power supplies with different power-on times are used</p></td>
         </tr>
 
     
@@ -322,354 +504,29 @@
 
 
 
+<div class="description usertext">
+    <p>configuration for <code>MlscRestClient</code></p>
+</div>
 
 
 
-
-
-
-
-
-
-
-
-
-
-        
+    <h5 class="h5-types">Type:</h5>
+    <ul>
+        <li>
             
-
-    
-
-    <h4 class="name" id=".createThingStatusRule"><span class="type-signature type-signature-static">(static) </span>createThingStatusRule<span class="signature">(groupName, patterns, replacements)</span><span class="type-signature"></span></h4>
-
-    
+<span class="param-type">Object</span>
 
 
 
-
-<dl class="details">
-    
-    <dt class="tag-description">Description:</dt>
-    <dd class="tag-description"><ul class="dummy"><li><p>Creates a rule that posts Thing statuses to String Items.
-The rule takes the name of a group of String Items, generates a Thing UID for each member Item using string replace operations, and then posts the Thing status on every Thing status change to the Items.
-The rule also runs when start level 100 is reached and regularly (every 5 minutes, starting with minute 0).</p></li></ul></dd>
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="thingsx_health.js.html">thingsx/health.js</a>, <a href="thingsx_health.js.html#line67">line 67</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
+        </li>
+    </ul>
 
 
 
-
-
-
-
-
-
-
-
-    <h5 class="h5-examples">Example</h5>
-    
-    <pre class="prettyprint"><code>thingsx.createThingStatusRule('gYamahaState', ['_state', '_'], ['', ':']);
-// This removes "_state" fromt the Item name and replaces all "_" with ":" to get the Thing UID from the members of the "gYamahaState" group members.</code></pre>
-
-
-
-
-    <h5 class="h5-parameters">Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>groupName</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
 
 
 
             
-            </td>
-
-            
-
-            
-
-            <td class="description last"></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>patterns</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-|
-
-<span class="param-type">Array.&lt;string></span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>Pattern(s) to replace.</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>replacements</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-|
-
-<span class="param-type">Array.&lt;string></span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>String(s) that is/are used for replacing.</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id=".reEnableThing"><span class="type-signature type-signature-static">(static) </span>reEnableThing<span class="signature">(thingUID)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-
-<dl class="details">
-    
-    <dt class="tag-description">Description:</dt>
-    <dd class="tag-description"><ul class="dummy"><li><p>Re-enables a Thing by disabling, and then enabling it again.</p></li></ul></dd>
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="thingsx_health.js.html">thingsx/health.js</a>, <a href="thingsx_health.js.html#line45">line 45</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-    <h5 class="h5-parameters">Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>thingUID</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-    
-
     
 
     
