@@ -12,9 +12,10 @@ const { actions, items, rules, triggers, utils } = require('openhab');
 // @ts-ignore
 const HSBType = Java.type('org.openhab.core.library.types.HSBType'); // eslint-disable-line no-unused-vars
 
+// typedefs need to be global for TypeScript to fully work
 /**
- * @typedef {Object} mlscRestClientConfig configuration for {@link MlscRestClient}
- * @memberof thingsx
+ * @typedef {Object} MlscRestClientConfig configuration for {@link MlscRestClient}
+ *
  * @property {string} effectItemName name of the effect Item: Do NOT set state description metadata on that Item, this will be done for you.
  * @property {string} url full URL for mlsc, e.g. `http://127.0.0.1:8080`
  * @property {string} deviceId ID of device inside mlsc, use HTTP GET `/api/system/devices` to get a list of available devices
@@ -22,6 +23,7 @@ const HSBType = Java.type('org.openhab.core.library.types.HSBType'); // eslint-d
  * @property {string} [dimmerItemName] name of the dimmer Item
  * @property {string} [defaultEffect='effect_gradient'] default effect for the `Dimmer` Item
  * @property {number} [refreshInterval=15000] refresh interval in milliseconds
+ * @property {number} [switchOnDelay] switch-on delay in milliseconds, e.g. useful if power multiple power supplies with different power-on times are used
  */
 
 /**
@@ -238,15 +240,15 @@ class MlscApi {
  *
  * @example
  * var { thingsx } = require('@hotzware/openhab-tools');
- * var FlorianRGB = new thingsx.MlscRestClient({
+ * var mlsc = new thingsx.MlscRestClient({
  *   effectItemName: 'FlorianRGB_effect',
  *   url: 'http://127.0.0.1:8080',
  *   deviceId: 'device_0',
  *   colorItemName: 'FlorianRGB_color',
  *   dimmerItemName: 'FlorianRGB_dimmer'
  * });
- * FlorianRGB.scheduleStateFetching();
- * FlorianRGB.createCommandHandlingRule();
+ * mlsc.scheduleStateFetching();
+ * mlsc.createCommandHandlingRule();
  *
  * @memberof thingsx
  */
@@ -255,12 +257,12 @@ class MlscRestClient {
   #prettyName;
   #api;
   #effect = null;
-  #lastEffect = 'effect_gradient';
+  #lastEffect;
 
   /**
    * Be aware that you need to call {@link scheduleStateFetching} and {@link createCommandHandlingRule} to fully initialize the REST client.
    *
-   * @param {mlscRestClientConfig} config mlsc REST client config
+   * @param {MlscRestClientConfig} config mlsc REST client config
    */
   constructor (config) {
     // Validate parameters
@@ -269,22 +271,25 @@ class MlscRestClient {
     if (config.dimmerItemName && typeof config.dimmerItemName !== 'string') throw new Error('dimmerItemName must be a string!');
     if (config.defaultEffect && typeof config.defaultEffect !== 'string') throw new Error('defaultEffect must be a string!');
     if (config.refreshInterval && typeof config.refreshInterval !== 'number') throw new Error('refreshInterval must be a number!');
+    if (config.switchOnDelay && typeof config.switchOnDelay !== 'number') throw new Error('switchOnDelay must be a number!');
+
+    // Fallback to defaults
+    if (!config.defaultEffect) config.defaultEffect = 'effect_gradient';
+    if (!config.refreshInterval) config.refreshInterval = 15000;
 
     // Initialize private fields
     this.#config = config;
-    // Fallback to defaults
-    if (!this.#config.defaultEffect) this.#config.defaultEffect = 'effect_gradient';
-    if (!this.#config.refreshInterval) this.#config.refreshInterval = 15000;
+    this.#lastEffect = config.defaultEffect;
     this.#prettyName = `${this.#config.deviceId} of ${this.#config.url}`;
 
     // Initialize API
     this.#api = new MlscApi(config.url, config.deviceId);
 
     // Set command/state description metadata on effect Item
-    this.#setCommandAndStateDescription();
+    this.#setStateDescription();
   }
 
-  #setCommandAndStateDescription () {
+  #setStateDescription () {
     console.info(`Setting state description of ${this.#config.effectItemName} to available effects ...`);
     let options = '"effect_off"="Off", ';
     for (const [key, value] of Object.entries(MlscApi.effects.non_music)) {
@@ -330,6 +335,19 @@ class MlscRestClient {
     }, this.#config.refreshInterval);
   }
 
+  #handleEffectCommand (effect) {
+    try {
+      this.#api.setEffect(effect);
+    } catch (e) {
+      if (e instanceof MlscApiError) {
+        console.warn(e);
+        return;
+      }
+      throw e;
+    }
+    this.#updateState();
+  }
+
   /**
    * Creates the rule used for command handling.
    */
@@ -344,16 +362,13 @@ class MlscRestClient {
         console.debug(`Handling command ${event.receivedCommand} of ${event.itemName} for ${this.#prettyName} ...`);
         // Handle effect control
         if (event.itemName === this.#config.effectItemName) {
-          try {
-            this.#api.setEffect(event.receivedCommand);
-          } catch (e) {
-            if (e instanceof MlscApiError) {
-              console.warn(e);
-              return;
-            }
-            throw e;
+          if (this.#effect === 'effect_off' && event.receivedCommand !== 'effect_off' && this.#config.switchOnDelay) {
+            setTimeout(() => {
+              this.#handleEffectCommand(event.receivedCommand);
+            }, this.#config.switchOnDelay);
+          } else {
+            this.#handleEffectCommand(event.receivedCommand);
           }
-          this.#updateState();
 
           // Handle color control
         } else if (event.itemName === this.#config.colorItemName) {

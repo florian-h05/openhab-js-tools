@@ -1,7 +1,40 @@
 /**
  * configuration for {@link MlscRestClient }
  */
-export type mlscRestClientConfig = any;
+export type MlscRestClientConfig = {
+    /**
+     * name of the effect Item: Do NOT set state description metadata on that Item, this will be done for you.
+     */
+    effectItemName: string;
+    /**
+     * full URL for mlsc, e.g. `http://127.0.0.1:8080`
+     */
+    url: string;
+    /**
+     * ID of device inside mlsc, use HTTP GET `/api/system/devices` to get a list of available devices
+     */
+    deviceId: string;
+    /**
+     * name of the color Item
+     */
+    colorItemName?: string;
+    /**
+     * name of the dimmer Item
+     */
+    dimmerItemName?: string;
+    /**
+     * default effect for the `Dimmer` Item
+     */
+    defaultEffect?: string;
+    /**
+     * refresh interval in milliseconds
+     */
+    refreshInterval?: number;
+    /**
+     * switch-on delay in milliseconds, e.g. useful if power multiple power supplies with different power-on times are used
+     */
+    switchOnDelay?: number;
+};
 /**
  * music_led_strip_control REST client
  *
@@ -10,15 +43,15 @@ export type mlscRestClientConfig = any;
  *
  * @example
  * var { thingsx } = require('@hotzware/openhab-tools');
- * var FlorianRGB = new thingsx.MlscRestClient({
+ * var mlsc = new thingsx.MlscRestClient({
  *   effectItemName: 'FlorianRGB_effect',
  *   url: 'http://127.0.0.1:8080',
  *   deviceId: 'device_0',
  *   colorItemName: 'FlorianRGB_color',
  *   dimmerItemName: 'FlorianRGB_dimmer'
  * });
- * FlorianRGB.scheduleStateFetching();
- * FlorianRGB.createCommandHandlingRule();
+ * mlsc.scheduleStateFetching();
+ * mlsc.createCommandHandlingRule();
  *
  * @memberof thingsx
  */
@@ -26,9 +59,9 @@ export class MlscRestClient {
     /**
      * Be aware that you need to call {@link scheduleStateFetching} and {@link createCommandHandlingRule} to fully initialize the REST client.
      *
-     * @param {mlscRestClientConfig} config mlsc REST client config
+     * @param {MlscRestClientConfig} config mlsc REST client config
      */
-    constructor(config: mlscRestClientConfig);
+    constructor(config: MlscRestClientConfig);
     /**
      * Schedules the state fetching using `setInterval`.
      *
