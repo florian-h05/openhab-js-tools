@@ -22,9 +22,32 @@ This library depends on `openhab` >= 4.6.0 (which is included since openHAB 4.1.
 `openhab_rules_tools` will automatically get installed by npm, `openhab` is already included with the add-on.
 Just make sure you have a compatible version installed (use `console.log(utils.OPENHAB_JS_VERSION)` to check the currently used version).
 
+## Conventions
+
+### Window States
+
+Whilst contacts normally only have a binary state, `0` for `CLOSED` and `1` for `OPEN`, this is sometimes not enough.
+
+Especially speaking about windows, most windows have more than a simple open or closed state.
+Normal German windows have three states: Closed, tilted, opened.
+I even have windows in the rooftop with four states: Closed, small ventilation (a bit opened), large ventilation (more opened), (fully) opened.
+
+To work with these more complex states, the following convention is made:
+
+- `0` still represents `CLOSED`
+- `0.3` represents small ventilation
+- `0.5` represents tilted and large ventilation
+- `1` still represents `OPEN`
+
+In general, any decimal in the range (0, 1] represents some form of open.
+By still using 0 and 1 for closed and open, this format is compatibal with the binary format, just round up the float.
+
+If the closed state is required, this library will check for equality to 0.
+If any opened state is required, it will check for greater than 0.
+
 ## API
 
-To have a look at all capabilities of this library, have a look at the [JSDoc()](https://florian-h05.github.io/openhab-js-tools/index.html).
+To have a look at all capabilities of this library, have a look at the [JSDoc](https://florian-h05.github.io/openhab-js-tools/index.html).
 
 The README will only take care of the most important stuff, and explain the more complicated ones.
 
@@ -54,7 +77,7 @@ See [JSDoc: GroupUtils](https://florian-h05.github.io/openhab-js-tools/itemutils
 ### `rulesx`
 
 - `createAlarmClock`: See [Alarm Clock](#alarm-clock).
-- `createAlarmClockItems`: Creates the required Items for an alarm clock and optionally also generates Sitemap code.
+- `createAlarmClockItems`: Creates the required Items for an alarm clock and optionally also generates Sitemap code, which is printed to the log.
 - `createSceneEngine`: See [Scene Engine](#scene-engine).
 
 #### Alarm Clock
