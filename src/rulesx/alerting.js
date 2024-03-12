@@ -152,14 +152,14 @@ function createRainAlarmRule (config) {
     ],
     execute: (event) => {
       const windspeed = parseFloat(items.getItem(config.windspeedItemName).state);
-      if (event.itemName === config.rainalarmItemName) {
-        console.info('Rainalarm rule is running on alarm.');
+      if (event.itemName === config.rainalarmItemName || event.eventType === 'manual') {
+        console.info('Rainalarm rule is running on alarm or manual execution.');
         const groupMembers = items.getItem(config.contactGroupName).members.map((item) => item.name);
         for (const i in groupMembers) {
           // @ts-ignore
           RainalarmImpl.checkAlarm(groupMembers[i], windspeed);
         }
-      } else if (event.itemName !== null) {
+      } else if (event.itemName !== undefined) {
         console.info(`Rainalarm rule is running on change of contact "${event.itemName}".`);
         function timeoutFunc (itemname, windspeed) {
           return () => {
@@ -349,14 +349,14 @@ function createHeatAlarmRule (config) {
     ],
     execute: (event) => {
       // The alarm level must not be checked here, otherwise scheduleOrPerformAlarm can't cancel a timer.
-      if (event.itemName === config.outsideTemperatureItem) {
-        console.info('Heatalarm rule is running on temperature change.');
+      if (event.itemName === config.outsideTemperatureItem || event.eventType === 'manual') {
+        console.info('Heatalarm rule is running on temperature change or manual excution.');
         const groupMembers = items.getItem(config.contactGroupName).members.map((item) => item.name);
         for (const i in groupMembers) {
           // @ts-ignore
           HeatalarmImpl.checkAlarm(groupMembers[i]);
         }
-      } else if (event.itemName !== null) {
+      } else if (event.itemName !== undefined) {
         console.info(`Heatalarm rule is running on change, Item ${event.itemName}.`);
         function timeoutFunc (itemname) {
           return () => {
@@ -390,8 +390,8 @@ function createFrostAlarmRule (config) {
     ],
     execute: (event) => {
       // The alarm level must not be checked here, otherwise scheduleOrPerformAlarm can't cancel a timer.
-      if (event.itemName === config.outsideTemperatureItem) {
-        console.info('Frostalarm rule is running on temperature change.');
+      if (event.itemName === config.outsideTemperatureItem || event.eventType === 'manual') {
+        console.info('Frostalarm rule is running on temperature change or manual execution.');
         const groupMembers = items.getItem(config.contactGroupName).members.map((item) => item.name);
         for (const i in groupMembers) {
           // @ts-ignore
