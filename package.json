@@ -15,12 +15,14 @@
     "url": "git+https://github.com/florian-h05/openhab-js-tools.git"
   },
   "scripts": {
-    "docs": "rm -Rf ./docs/* && jsdoc --configure build/jsdoc.conf.json",
-    "deploy": "npm run lint && npm run types && npm run types:test && npm run docs",
     "lint": "npx eslint src",
     "lint:fix": "npx eslint --fix src",
     "types": "tsc --project build/tsconfig.json",
-    "types:test": "tsc --project build/tsconfig.test.json"
+    "types:test": "tsc --project build/tsconfig.test.json",
+    "docs": "rm -Rf ./docs/* && jsdoc --configure build/jsdoc.conf.json",
+    "prebuild": "npm run lint",
+    "build": "npm run types && npm run types:test",
+    "postbuild": "npm run docs"
   },
   "dependencies": {
     "openhab_rules_tools": "^2.0.1"
