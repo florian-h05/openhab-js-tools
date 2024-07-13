@@ -96,7 +96,7 @@ function createThingStatusToItemRule (groupName, patterns, replacements) {
       }
     },
     id: 'thing-status-to-items-of-group-' + groupName,
-    tags: ['@hotzware/openhab-tools', 'createThingStatusToItemRule', 'Things']
+    tags: ['@hotzware/openhab-tools', 'createThingStatusToItemRule']
   });
 }
 
@@ -171,7 +171,7 @@ function createThingStatusNotificationRule (thingUID, recipients = [], offlineDu
       }
     },
     id: 'thing-status-notification-' + thingUID,
-    tags: ['@hotzware/openhab-tools', 'createThingStatusNotificationRule', 'Things']
+    tags: ['@hotzware/openhab-tools', 'createThingStatusNotificationRule']
   });
 }
 
@@ -193,7 +193,7 @@ function createReEnableThingWithItemRule (itemName, thingUID) {
       items.getItem(itemName).postUpdate('OFF');
     },
     id: 're-enable-' + thingUID + '-with-' + itemName,
-    tags: ['@hotzware/openhab-tools', 'createReEnableThingWithItemRule', 'Things']
+    tags: ['@hotzware/openhab-tools', 'createReEnableThingWithItemRule']
   });
 }
 

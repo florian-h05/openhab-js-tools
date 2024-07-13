@@ -178,7 +178,7 @@ class SceneEngine {
         }
       },
       id: `sceneEngine-for-${this.controller}`,
-      tags: ['@hotzware/openhab-tools', 'sceneEngine']
+      tags: ['@hotzware/openhab-tools', 'createSceneEngine']
     });
   }
 }

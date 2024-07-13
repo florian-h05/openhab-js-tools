@@ -66,7 +66,7 @@ function _createClockRule (switchItem, alarmFunc) {
     triggers: [triggers.GenericCronTrigger(quartz)],
     execute: alarmFunc,
     id: 'alarmClock-for-' + switchItem,
-    tags: ['@hotzware/openhab-tools', 'alarmClock', 'Schedule'],
+    tags: ['@hotzware/openhab-tools', 'createAlarmClock', 'Schedule'],
     overwrite: true
   });
 }
@@ -104,7 +104,7 @@ function createAlarmClock (switchItem, alarmFunc) {
       _createClockRule(switchItem, alarmFunc);
     },
     id: 'alarmClock-manager-for-' + switchItem,
-    tags: ['@hotzware/openhab-tools', 'alarmClock manager']
+    tags: ['@hotzware/openhab-tools', 'createAlarmClock']
   });
   _createClockRule(switchItem, alarmFunc);
 }
