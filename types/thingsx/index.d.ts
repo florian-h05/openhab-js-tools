@@ -1,7 +1,8 @@
 declare const _exports: {
     MlscRestClient: typeof import("./mlsc").MlscRestClient;
     reEnableThing: typeof import("./health").reEnableThing;
-    createThingStatusRule: typeof import("./health").createThingStatusRule;
+    createThingStatusToItemRule: typeof import("./health").createThingStatusToItemRule;
+    createThingStatusNotificationRule: typeof import("./health").createThingStatusNotificationRule;
     createReEnableThingWithItemRule: typeof import("./health").createReEnableThingWithItemRule;
 };
 export = _exports;

@@ -142,8 +142,9 @@ See [JSDoc: createSceneEngine()](https://florian-h05.github.io/openhab-js-tools/
 
 ### `thingsx`
 
+- `createThingStatusToItemRule`: Creates a rule that posts Thing statuses to String Items.
+- `createThingStatusNotificationRule`: Creates a rule that sends a notification when a Things goes offline and back online.
 - `createReEnableThingWithItemRule`: Creates a rule that re-enabled a Thing on command ON to a given Item.
-- `createThingStatusRule`: Creates a rule that posts Thing statuses to String Items.
 - `reEnableThing`: Re-enables a Thing by first disabling and then enabling it again.
 - `MlscRestClient`: Class providing state fetching from and command sending to [music_led_strip_control](https://github.com/TobKra96/music_led_strip_control).
 
