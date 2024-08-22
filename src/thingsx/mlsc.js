@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  */
 
-const { actions, items, rules, triggers, utils } = require('openhab');
+const { actions, items, rules, triggers } = require('openhab');
 // @ts-ignore
 const HSBType = Java.type('org.openhab.core.library.types.HSBType'); // eslint-disable-line no-unused-vars
 
@@ -184,8 +184,8 @@ class MlscApi {
    */
   setColor (hsb) {
     console.debug(`Setting color of ${this.#prettyName} to ${hsb} ...`);
-    if (!utils.isJsInstanceOfJavaType(hsb, HSBType)) {
-      throw new MlscApiError('Failed to set color: hsb must be a "org.openhab.core.library.types.HSBType"');
+    if (!(hsb instanceof HSBType)) {
+      throw new MlscApiError('Failed to set color: hsb must an instance of "org.openhab.core.library.types.HSBType"');
     }
 
     // @ts-ignore
