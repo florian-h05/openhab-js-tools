@@ -1,6 +1,6 @@
 # openHAB JS Automation Tools
 
-This library provides some utilites for the openHAB JS Scripting Add-On.
+This library provides some utilities for the openHAB JS Scripting Add-On.
 
 Please note that it depends on the [openHAB JavaScript Library](https://github.com/openhab/openhab-js), which is included in the JS Scripting Add-On by default.
 Therefore, it is only listed in the devDependencies of this package.
@@ -17,7 +17,7 @@ library](https://www.npmjs.com/package/openhab).
 
 ## Compatibility
 
-This library depends on `openhab` >= 5.3.2 (which is included since openHAB 4.2.1) and `openhab_rules_tools` >= 2.0.1.
+This library depends on `openhab` >= 5.7.0 (which is included since openHAB 4.3.0) and `openhab_rules_tools` >= 2.0.3.
 
 `openhab_rules_tools` will automatically get installed by npm, `openhab` is already included with the add-on.
 Just make sure you have a compatible version installed (use `console.log(utils.OPENHAB_JS_VERSION)` to check the currently used version).

@@ -16,7 +16,7 @@
  */
 
 const { actions, rules, items, triggers } = require('openhab');
-const { TimerMgr } = require('openhab_rules_tools/timerMgr');
+const { TimerMgr } = require('openhab_rules_tools');
 const { getRoofwindowOpenLevel } = require('../itemutils');
 
 /**
@@ -338,7 +338,7 @@ class HeatFrostalarm {
  * @param {heatOrFrostAlarmConfig} config alarm configuration
  */
 function createHeatAlarmRule (config) {
-  const timerMgr = new TimerMgr();
+  const timerMgr = TimerMgr();
   const HeatalarmImpl = new HeatFrostalarm(config, timerMgr);
   rules.JSRule({
     name: 'Heatalarm',
@@ -379,7 +379,7 @@ function createHeatAlarmRule (config) {
  * @param {heatOrFrostAlarmConfig} config alarm configuration
  */
 function createFrostAlarmRule (config) {
-  const timerMgr = new TimerMgr();
+  const timerMgr = TimerMgr();
   const FrostalarmImpl = new HeatFrostalarm(config, timerMgr);
   rules.JSRule({
     name: 'Frostalarm',
