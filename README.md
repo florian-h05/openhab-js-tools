@@ -34,13 +34,13 @@ I even have windows in the rooftop with four states: Closed, small ventilation (
 
 To work with these more complex states, the following convention is made:
 
-- `0` still represents `CLOSED`
+- `0` represents `CLOSED`
 - `0.3` represents small ventilation
 - `0.5` represents tilted and large ventilation
-- `1` still represents `OPEN`
+- `1` represents `OPEN`
 
-In general, any decimal in the range (0, 1] represents some form of open.
-By still using 0 and 1 for closed and open, this format is compatibal with the binary format, just round up the float.
+In general, any decimal in the range `(0, 1]` represents some form of open.
+By still using 0 and 1 for closed and open, this format is compatible with the binary format, just round up the float using `Math.ceil()`.
 
 If the closed state is required, this library will check for equality to 0.
 If any opened state is required, it will check for greater than 0.
