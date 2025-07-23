@@ -57,7 +57,7 @@ function reEnableThing (thingUID) {
  *
  * @example
  * thingsx.createThingStatusRule('gYamahaState', ['_state', '_'], ['', ':']);
- * // This removes "_state" fromt the Item name and replaces all "_" with ":" to get the Thing UID from the members of the "gYamahaState" group members.
+ * // This removes "_state" from the Item name and replaces all "_" with ":" to get the Thing UID from the members of the "gYamahaState" group members.
  *
  * @memberof thingsx
  * @param {string} groupName
