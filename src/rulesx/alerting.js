@@ -174,6 +174,7 @@ function createRainAlarmRule (config) {
           alertManager.revokeAllAlerts();
         }
       } else if (event.itemName) {
+        if (config.ignoreItems?.includes(event.itemName)) return;
         const rainAlarmState = items.getItem(config.rainalarmItemName).state;
         if (rainAlarmState !== config.rainalarmActiveState) {
           logger.debug(`Rain alarm for ${config.contactGroupName} is not active, ignoring state change of item ${event.itemName}.`);
@@ -291,6 +292,7 @@ function createTemperatureAlarmRule (config) {
           alertManager.revokeAllAlerts();
         }
       } else if (event.itemName) {
+        if (config.ignoreItems?.includes(event.itemName)) return;
         const temperature = items.getItem(config.temperatureItemName).quantityState;
         if (!config.alarmConditionCallback(temperature)) {
           logger.debug(`${config.name} for ${config.contactGroupName} is not active, ignoring state change of item ${event.itemName}.`);
