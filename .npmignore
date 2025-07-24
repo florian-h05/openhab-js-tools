@@ -4,6 +4,7 @@
 
 build
 docs
+test
 
 types/index.d.ts*
 

@@ -17,10 +17,12 @@
   "scripts": {
     "lint": "npx eslint src",
     "lint:fix": "npx eslint --fix src",
+    "pretest": "npm run lint",
+    "test": "jest --config jest.config.js",
     "types": "tsc --project build/tsconfig.json",
     "types:test": "tsc --project build/tsconfig.test.json",
     "docs": "rm -Rf ./docs/* && jsdoc --configure build/jsdoc.conf.json",
-    "prebuild": "npm run lint",
+    "prebuild": "npm run test",
     "build": "npm run types && npm run types:test",
     "postbuild": "npm run docs"
   },
@@ -28,10 +30,11 @@
     "openhab_rules_tools": "^2.0.3"
   },
   "devDependencies": {
-    "@types/node": "^20.11.5",
+    "@types/node": "^22.16.5",
     "docdash": "^2.0.1",
     "eslint": "^8.56.0",
     "eslint-config-standard": "^17.1.0",
+    "jest": "^30.0.5",
     "jsdoc": "^4.0.2",
     "jsdoc-tsimport-plugin": "^1.0.5",
     "openhab": "^5.7.0",
