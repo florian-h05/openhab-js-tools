@@ -1,14 +1,14 @@
 module.exports = {
   extends: 'eslint-config-standard',
   rules: {
-    semi: ["error", "always"],
-    "no-extra-semi": "error",
-    "func-style": ["error", "declaration", { "allowArrowFunctions": true }]
+    semi: ['error', 'always'],
+    'no-extra-semi': 'error',
+    'func-style': ['error', 'declaration', { allowArrowFunctions: true }]
   },
   globals: {
-    Java: "readonly"
+    Java: 'readonly'
   },
   parserOptions: {
-    ecmaVersion: 2022
+    ecmaVersion: 2024
   }
-}
+};
