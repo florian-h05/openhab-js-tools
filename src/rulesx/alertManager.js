@@ -142,13 +142,13 @@ class AlertManager {
     if (this.#scheduledAlerts.has(id)) {
       clearTimeout(this.#scheduledAlerts.get(id));
       this.#scheduledAlerts.delete(id);
-      logger.debug(`${this.#id}: Schedules alert ${id} has been cancelled.`);
+      logger.debug(`${this.#id}: Scheduled alert ${id} has been cancelled.`);
     } else if (this.#activeAlerts.has(id)) {
       this.#revokeAlert(id);
       this.#activeAlerts.delete(id);
       logger.debug(`${this.#id}: Alert ${id} has been revoked from active alerts.`);
     } else {
-      logger.warn(`${this.#id}: Attempted to revoke alert ${id}, but it was not found in scheduled or active alerts.`);
+      logger.debug(`${this.#id}: Attempted to revoke alert ${id}, but it was not found in scheduled or active alerts.`);
     }
   }
 

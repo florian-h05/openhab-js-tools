@@ -177,6 +177,12 @@ describe('AlertManager', () => {
 
       expect(mockRevokeAlert).toHaveBeenCalledWith(alertId);
     });
+
+    it('does nothing if no alert with the given ID is scheduled or active', () => {
+      alertManager.revokeAlert('nonExistentAlert');
+
+      expect(mockRevokeAlert).not.toHaveBeenCalled();
+    });
   });
 
   describe('revokeAllAlerts', () => {
