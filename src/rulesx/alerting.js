@@ -15,9 +15,49 @@
  * @namespace rulesx.alerting
  */
 
-const { actions, rules, items, triggers } = require('openhab');
+const { actions, cache, items, rules, triggers, log } = require('openhab');
 const { TimerMgr } = require('openhab_rules_tools');
-const { getRoofwindowOpenLevel } = require('../itemutils');
+
+const AlertManager = require('./alertManager');
+
+const logger = log('org.openhab.automation.js.openhab-tools.rulesx.alerting');
+
+/**
+ * Get the level a roofwindow is opened.
+ * The roofwindow can either be completely opened or a bit opened (große Lüftung) or a little bit opened (kleine Lüftung) or closed.
+ * Item naming scheme is required:
+ *  - baseitemname + `_zu`
+ *  - baseitemname + `_klLueftung`
+ *  - baseitemname + `_grLueftung`
+ *
+ * @private
+ * @param {String} baseItem base of the Items names, e.g. `Florian_Dachfenster`
+ * @returns {*}
+ */
+function getRoofwindowOpenLevel (baseItem) {
+  const output = {};
+  const stateClosed = items.getItem(baseItem + '_zu').state;
+  const stateKlLueftung = items.getItem(baseItem + '_klLueftung').state;
+  const stateGrLueftung = items.getItem(baseItem + '_grLueftung').state;
+  // checks for the different states.
+  if (stateClosed === 'CLOSED' && stateKlLueftung === 'CLOSED' && stateGrLueftung === 'CLOSED') { // geschlossen
+    output.text = 'geschlossen';
+    output.int = 100;
+  } else if (stateClosed === 'OPEN' && stateKlLueftung === 'CLOSED' && stateGrLueftung === 'CLOSED') { // kleine Lüftung
+    output.text = 'kleine Lüftung';
+    output.int = 1;
+  } else if (stateClosed === 'OPEN' && stateKlLueftung === 'OPEN' && stateGrLueftung === 'CLOSED') { // große Lüftung
+    output.text = 'große Lüftung';
+    output.int = 2;
+  } else if (stateClosed === 'OPEN' && stateKlLueftung === 'OPEN' && stateGrLueftung === 'OPEN') { // ganz geöffnet
+    output.text = 'ganz geöffnet';
+    output.int = 4;
+  } else {
+    output.text = 'Fehler!';
+    output.int = 5;
+  }
+  return output;
+}
 
 /**
  * Get the temperature difference from the temperature in a room to the outside temperature.
@@ -40,138 +80,117 @@ const getTemperatureDifferenceInToOut = (roomName, outsideTemperatureItem, tempe
 };
 
 /**
- * @typedef {Object} rainAlarmConfig configuration for rain alarm
- * @memberof rulesx.alerting
- * @property {string} rainalarmItemName name of the rain alarm Item
- * @property {string} [rainalarmActiveState=OPEN] state of the Item for an active alarm, all other states (including `UNDEF`, `NULL`) are considered as alarm inactive
- * @property {string} windspeedItemName name of the wind speed Item
+ * Callback for sending an alert.
+ *
+ * @callback SendAlertCallback
+ * @param {string} id the unique identifier for the alert
+ * @param {string} message the message to be displayed in the alert
+ */
+
+/**
+ * Callback for revoking an alert.
+ *
+ * @callback RevokeAlertCallback
+ * @param {string} id the unique identifier of the alert to be revoked
+ */
+
+/**
+ * @typedef {Object} RainAlarmConfig configuration for rain alarm
+ * @property {SendAlertCallback} sendAlertCallback callback to send an alert
+ * @property {RevokeAlertCallback} revokeAlertCallback callback to revoke an alert
+ * @property {string} rainalarmItemName name of the Item to monitor for rain
+ * @property {string} [rainalarmActiveState=OPEN] state of the Item that indicates rain
  * @property {string} contactGroupName name of the contact group to monitor
- * @property {string[]} ignoreList list of contact Item names to ignore
- * @property {string} roofwindowTag tag that all roofwindow contacts have for identification
- * @property {number} windspeedKlLueftung wind speed threshold for an alarm on "kleine Lüftung"
- * @property {number} windspeedGrLueftung wind speed threshold for an alarm on "große Lüftung"
+ * @property {string[]} [ignoreItems] list of Item names to ignore
+ * @property {string} messagePattern message pattern to use for alerts, use placeholder `%LABEL` for Item label
+ * @property {string} [windspeedItemName] name of the wind speed Item
+ * @property {Array<{ contactLevel: number, treshold: * }>} [contactLevelToWindspeed] wind speed threshold as Quantity for individual contact levels
+ * @property {Array<{ contactLevel: number, messagePattern: string }>} [contactLevelToMessagePattern] message pattern overrides for individual contact levels, use placeholder `%LABEL` for Item label
  */
 
 /**
- * Rainalarm
+ * Create a rain alarm rule that monitors rain and wind conditions to raise alerts for open windows and doors when it rains.
  *
- * Issues a rain alarm notification if the given window/door is open (and wind speed is high enough).
- * @memberof rulesx.alerting
- */
-class Rainalarm {
-  /**
-   * Constructor to create an instance. Do not call directly, instead call {@link rulesx.getRainalarmRule}.
-   * @param {rainAlarmConfig} config rainalarm configuration
-   * @hideconstructor
-   */
-  constructor (config) {
-    if (typeof config.rainalarmItemName !== 'string') {
-      throw Error('rainalarmItemName is not supplied ot not string!');
-    }
-    if (typeof config.ignoreList !== 'object' || config.ignoreList === null) {
-      throw Error('contactGroupName is not supplied or is not Array!');
-    }
-    if (typeof config.roofwindowTag !== 'string') {
-      throw Error('roofwindowTag is not supplied or is not string!');
-    }
-    if (!config.rainalarmActiveState) config.rainalarmActiveState = 'OPEN';
-    this.config = config;
-  }
-
-  /**
-   * Sends a rainalarm notification for a roowindow.
-   * @private
-   * @param {string} baseItemName base of the Items names, e.g. Florian_Dachfenster
-   * @param {number} windspeed current windspeed
-   */
-  alarmRoofwindow (baseItemName, windspeed) {
-    console.info(`Checking rainalarm for roofwindow "${baseItemName}" ...`);
-    const state = getRoofwindowOpenLevel(baseItemName);
-    const label = items.getItem(baseItemName + '_zu').label;
-    switch (state.int) {
-      case 1: // kleine Lüftung
-        if (windspeed >= this.config.windspeedKlLueftung) actions.NotificationAction.sendBroadcastNotification(`Achtung! Regenalarm: ${label} kleine Lüftung!`);
-        break;
-      case 2: // große Lüftung
-        if (windspeed >= this.config.windspeedGrLueftung) actions.NotificationAction.sendBroadcastNotification(`Achtung! Regenalarm: ${label} große Lüftung!`);
-        break;
-      case 4:
-        actions.NotificationAction.sendBroadcastNotification(`Achtung! Regenalarm: ${label} geöffnet!`);
-        break;
-      default:
-        break;
-    }
-  }
-
-  /**
-   * Send a rainalarm notification for a single contact.
-   * @private
-   * @param {string} contactItemName name of the contact Item.
-   */
-  alarmSingleContact (contactItemName) {
-    const contactItem = items.getItem(contactItemName);
-    console.info(`Checking rainalarm for single contact "${contactItem.name}" ...`);
-    if (contactItem.state === 'OPEN') actions.NotificationAction.sendBroadcastNotification(`Achtung! Regenalarm: ${contactItem.label} geöffnet!`);
-  }
-
-  /**
-   * Calls the appropriate function depending on the type of window/door.
-   * Do NOT call directly, instead use {@link rulesx.alerting.createRainAlarmRule}.
-   *
-   * @private
-   * @param {string} itemname name of the Item
-   * @param {number} windspeed current windspeed
-   */
-  checkAlarm (itemname, windspeed) {
-    if (items.getItem(this.config.rainalarmItemName).state !== this.config.rainalarmActiveState) return;
-    if (!this.config.ignoreList.includes(itemname)) {
-      const tags = items.getItem(itemname).tags;
-      if (tags.includes(this.config.roofwindowTag)) {
-        this.alarmRoofwindow(itemname.replace('_zu', '').replace('_klLueftung', '').replace('_grLueftung', ''), windspeed);
-      } else {
-        this.alarmSingleContact(itemname);
-      }
-    }
-  }
-}
-
-/**
- * Creates the rain alarm rule.
+ * Please note that, if enabled, the wind speed condition is only evaluated when the rain alarm becomes active or when the contact opens.
+ * It is not continuously monitored, so if the wind speed changes while the rain alarm is active, it will not trigger a alert.
  *
  * @memberof rulesx.alerting
- * @param {rainAlarmConfig} config rainalarm configuration
+ * @param {RainAlarmConfig} config
  */
 function createRainAlarmRule (config) {
-  const RainalarmImpl = new Rainalarm(config);
+  if (!config.rainalarmActiveState) config.rainalarmActiveState = 'OPEN';
+  if (!config.ignoreItems) config.ignoreItems = [];
+
+  const ALERT_MANAGER_CACHE_KEY = `AlertManager-rainAlarm-${config.rainalarmItemName}-${config.contactGroupName}`;
+  const alertManager = new AlertManager(`rainAlarm-${config.rainalarmItemName}-${config.contactGroupName}`, config.sendAlertCallback, config.revokeAlertCallback);
+  cache.private.put(ALERT_MANAGER_CACHE_KEY, alertManager);
+
   rules.JSRule({
-    name: 'Rainalarm',
-    description: 'Sends a broadcast notification when a window is open when it rains.',
+    name: `Rain Alarm for ${config.contactGroupName}`,
+    description: 'Monitors rain and wind conditions to raise alerts for open windows & doors when it rains.',
     triggers: [
-      triggers.ItemStateChangeTrigger(config.rainalarmItemName, 'CLOSED', 'OPEN'),
-      triggers.GroupStateChangeTrigger(config.contactGroupName, 'CLOSED', 'OPEN')
+      triggers.ItemStateChangeTrigger(config.rainalarmItemName),
+      triggers.GroupStateChangeTrigger(config.contactGroupName)
     ],
     execute: (event) => {
-      const windspeed = parseFloat(items.getItem(config.windspeedItemName).state);
-      if (event.itemName === config.rainalarmItemName || event.eventType === 'manual') {
-        console.info('Rainalarm rule is running on alarm or manual execution.');
-        const groupMembers = items.getItem(config.contactGroupName).members.map((item) => item.name);
-        for (const i in groupMembers) {
-          // @ts-ignore
-          RainalarmImpl.checkAlarm(groupMembers[i], windspeed);
+      const alertManager = cache.private.get(ALERT_MANAGER_CACHE_KEY);
+
+      function evaluateWindspeedAndSendAlert (windspeed, item) {
+        const messagePattern = config.contactLevelToMessagePattern?.find(pair => pair.contactLevel === (item.numericState))?.messagePattern ?? config.messagePattern;
+        const message = messagePattern.replace('%LABEL', item.label || item.name);
+
+        const contactLevel = item.numericState ?? 1; // default to 1 if numericState is not available as 1 represents OPEN
+        const windspeedThreshold = config.contactLevelToWindspeed.find(pair => pair.contactLevel === contactLevel)?.treshold ?? null;
+        if (windspeed && windspeedThreshold) {
+          // if wind speed thresholds are configured, check against them
+          if (windspeed.greaterThanOrEqual(windspeedThreshold)) {
+            logger.info(`Rain alarm: Wind speed ${windspeed} m/s is above threshold ${windspeedThreshold} for contact level ${contactLevel} of item ${item.name} of ${config.contactGroupName}. Sending alert.`);
+            alertManager.issueAlert(item.name, message);
+          }
+        } else {
+          // if no wind speed thresholds are configured, send an alert
+          logger.info(`Rain alarm: No wind speed configuration found for item ${item.name} of ${config.contactGroupName}. Sending alert.`);
+          alertManager.issueAlert(item.name, message);
         }
-      } else if (event.itemName !== undefined) {
-        console.info(`Rainalarm rule is running on change of contact "${event.itemName}".`);
-        function timeoutFunc (itemname, windspeed) {
-          return () => {
-            // @ts-ignore
-            RainalarmImpl.checkAlarm(itemname, windspeed);
-          };
+      }
+
+      // Handle state change of the rain alarm item or manual trigger
+      if (event.itemName === config.rainalarmItemName) {
+        if (event.newState === config.rainalarmActiveState) {
+          // if rain alarm is active: check for open windows and doors
+          logger.info(`Rain alarm for ${config.contactGroupName} is now active, checking for open windows & doors.`);
+          const openItems = items.getItem(config.contactGroupName).members
+            .filter(item => !config.ignoreItems.includes(item.name))
+            .filter(item => item.state === 'OPEN' || (item.numericState != null && item.numericState > 0));
+          if (openItems.length > 0) {
+            const windspeed = config.windspeedItemName ? items.getItem(config.windspeedItemName).quantityState : null;
+            openItems.forEach(item => evaluateWindspeedAndSendAlert(windspeed, item));
+          } else {
+            logger.info(`Rain alarm. No open windows or doors found in ${config.contactGroupName}.`);
+          }
+        } else {
+          // if rain alarm is not active: revoke all alerts
+          logger.debug(`Rain alarm for ${config.contactGroupName} has become inactive, revoking all alerts.`);
+          alertManager.revokeAllAlerts();
         }
-        setTimeout(timeoutFunc(event.itemName, windspeed), 2000);
+      } else if (event.itemName) {
+        const rainAlarmState = items.getItem(config.rainalarmItemName).state;
+        if (rainAlarmState !== config.rainalarmActiveState) {
+          logger.debug(`Rain alarm for ${config.contactGroupName} is not active, ignoring state change of item ${event.itemName}.`);
+          return; // if rain alarm is not active, ignore state changes of contact items
+        }
+        if (event.newState === 'CLOSED' || parseFloat(event.newState) === 0) {
+          logger.info(`Rain alarm: Item ${event.itemName} in ${config.contactGroupName} is now closed, revoking alert.`);
+          alertManager.revokeAlert(event.itemName);
+        } else {
+          const windspeed = config.windspeedItemName ? items.getItem(config.windspeedItemName).quantityState : null;
+          const item = items.getItem(event.itemName);
+          evaluateWindspeedAndSendAlert(windspeed, item);
+        }
       }
     },
     id: `rainalarm-for-${config.contactGroupName}`,
-    tags: ['@hotzware/openhab-tools', 'getRainalarmRule', 'Alerting']
+    tags: ['@hotzware/openhab-tools', 'createRainAlarmRule', 'Alerting']
   });
 }
 
