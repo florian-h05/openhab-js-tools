@@ -1,30 +1,45 @@
-name: build
+name: CI Build
+
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+  # Dry run for main pushes:
   workflow_dispatch:
+  push:
+    branches: ["main"]
+    paths-ignore: ["**/*.md"]
+    # Publish to npm:
+    tags:
+      - "v*.*.*"
+  # Dry run for PRs:
+  pull_request:
+    branches: ["main"]
+    paths-ignore: ["**/*.md"]
+
+env:
+  NODE_VERSION: "22.13.0"
+
+permissions:
+  contents: write
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    name: Build
+    runs-on: "ubuntu-24.04"
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4
-      - name: Setup Node.js
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up NodeJS
         uses: actions/setup-node@v4
         with:
-          node-version: '22.13.1'
+          node-version: ${{ env.NODE_VERSION }}
 
       - name: Cache node modules
         id: cache
         uses: actions/cache@v4
         with:
           path: node_modules # npm cache files are stored in `~/.npm` on Linux/macOS
-          key: ${{ runner.os }}-node_modules-${{ hashFiles('**/package-lock.json') }}
+          key: ${{ runner.os }}-node_modules-${{ hashFiles('**/package.json', '**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-build-${{ env.cache-name }}-
             ${{ runner.os }}-build-
@@ -34,11 +49,69 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         run: npm ci
 
-      - run: npm run build
+      - name: Build
+        run: npm run build
 
+      # this will identify modifications to files under source control during the workflow run;
+      # untracked files will be included as well!
+      - name: Verify Changed Files
+        id: verify-changed-files
+        run: |
+          set -o pipefail
+          changed_files=$(echo -n "$(git diff --name-only HEAD && git ls-files --others --exclude-standard)"|tr '\n' ' ')
+          echo "changed_files=$changed_files" >> $GITHUB_OUTPUT
+
+      - name: Fail on Changed Files
+        if: steps.verify-changed-files.outputs.changed_files != ''
+        env:
+          CHANGED_FILES: ${{ steps.verify-changed-files.outputs.changed_files }}
+        run: |
+          echo "::error::Files have changed: $CHANGED_FILES"
+          exit 1
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-without-license
+          path: |
+            dist
+            !dist/*.txt
+
+      - name: Upload test coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-coverage
+          path: |
+            test/coverage/lcov-report
+
+      # pinning to SHA to mitigate possible supply chain attack
       - name: Publish Docs
         if: github.ref == 'refs/heads/main'
-        uses: peaceiris/actions-gh-pages@v4
+        uses: peaceiris/actions-gh-pages@4f9cc6602d3f66b9c108549d475ec49e8ef4d45e # v4.0.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./docs
+
+  publish:
+    name: Publish to npm
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    runs-on: "ubuntu-24.04"
+    needs: build
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Publish npm package
+        run: npm publish --access=public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
