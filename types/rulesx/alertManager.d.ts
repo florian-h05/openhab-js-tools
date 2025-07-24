@@ -13,6 +13,12 @@ export = AlertManager;
  * @param {string} id the unique identifier of the alert to be revoked
  */
 /**
+ * Callback for revalidating an alert.
+ *
+ * @callback RevalidateAlertCallback
+ * @returns {boolean} true if the alert should be sent, false otherwise
+ */
+/**
  * The AlertManager class is responsible for managing alerts.
  * It allows sending alerts immediately, scheduling them for later, and revoking them.
  *
@@ -42,15 +48,24 @@ declare class AlertManager {
      * Schedules an alert to be issued after the specified delay.
      *
      * If an alert with the same ID is already scheduled, do nothing by default.
-     * If `reschedule` is `true`, reschedule the alert.
+     * If `reschedule` is `true`, reschedule the alert, i.e. schedule it again.
      *
      * @param {string} id the unique identifier for the alert
      * @param {string} message the message to be displayed in the alert
      * @param {number} delay the delay in minutes before the alert should become active
      * @param {boolean} [reschedule=false] whether to reschedule an already scheduled alert
-     * @param {*} [revalidate] function to revalidate if the alert should be sent once the delay is over
+     * @param {RevalidateAlertCallback} [revalidate] function to revalidate if the alert should be sent once the delay is over
      */
-    scheduleAlert(id: string, message: string, delay: number, reschedule?: boolean, revalidate?: any): void;
+    scheduleAlert(id: string, message: string, delay: number, reschedule?: boolean, revalidate?: RevalidateAlertCallback): void;
+    /**
+     * Changes the delay of a scheduled alert.
+     *
+     * If no alert with the given ID is scheduled, do nothing.
+     *
+     * @param {string} id the unique identifier for the alert
+     * @param {number} newDelay the new delay in minutes before the alert should become active
+     */
+    changeDelayForScheduledAlert(id: string, newDelay: number): void;
     /**
      * Revokes an alert, no matter it has only been scheduled or already become active.
      *
@@ -64,8 +79,12 @@ declare class AlertManager {
     #private;
 }
 declare namespace AlertManager {
-    export { SendAlertCallback, RevokeAlertCallback };
+    export { SendAlertCallback, RevokeAlertCallback, RevalidateAlertCallback };
 }
+/**
+ * Callback for revalidating an alert.
+ */
+type RevalidateAlertCallback = () => boolean;
 /**
  * Callback for sending an alert.
  */

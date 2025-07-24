@@ -152,6 +152,52 @@ describe('AlertManager', () => {
     });
   });
 
+  describe('changeDelay', () => {
+    it('reschedules an alert with a new delay', () => {
+      jest.useFakeTimers();
+      const alertId = 'alert3';
+      const message = 'Scheduled alert message';
+      const initialDelay = 5; // minutes
+      const newDelay = 10; // minutes
+
+      alertManager.scheduleAlert(alertId, message, initialDelay);
+      alertManager.changeDelayForScheduledAlert(alertId, newDelay);
+
+      jest.advanceTimersByTime(initialDelay * 60 * 1000);
+      expect(mockSendAlert).not.toHaveBeenCalled();
+
+      jest.advanceTimersByTime((newDelay - initialDelay) * 60 * 1000);
+      expect(mockSendAlert).toHaveBeenCalledWith(alertId, message);
+    });
+
+    it('returns fast if the new delay is the same as the current one', () => {
+      jest.useFakeTimers();
+      const alertId = 'alert3';
+      const message = 'Scheduled alert message';
+      const delay = 5; // minutes
+
+      const scheduleAlertSpy = jest.spyOn(alertManager, 'scheduleAlert');
+
+      alertManager.scheduleAlert(alertId, message, delay);
+      scheduleAlertSpy.mockClear();
+
+      alertManager.changeDelayForScheduledAlert(alertId, delay);
+      expect(scheduleAlertSpy).not.toHaveBeenCalled();
+    });
+
+    it('does nothing if no alert with the given ID is scheduled', () => {
+      jest.useFakeTimers();
+      const alertId = 'nonExistentAlert';
+      const newDelay = 5; // minutes
+
+      alertManager.changeDelayForScheduledAlert(alertId, newDelay);
+      jest.advanceTimersByTime(newDelay * 60 * 1000);
+
+      expect(mockSendAlert).not.toHaveBeenCalled();
+      expect(mockRevokeAlert).not.toHaveBeenCalled();
+    });
+  });
+
   describe('revokeAlert', () => {
     it('revokes a scheduled alert', () => {
       jest.useFakeTimers();
