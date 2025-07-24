@@ -26,6 +26,15 @@ export = AlertManager;
  */
 declare class AlertManager {
     /**
+     * The modes for rescheduling alerts.
+     * @type {{NO_RESCHEDULE: string, RESCHEDULE_IF_DELAY_CHANGED: string, RESCHEDULE: string}}
+     */
+    static RESCHEDULE_MODE: {
+        NO_RESCHEDULE: string;
+        RESCHEDULE_IF_DELAY_CHANGED: string;
+        RESCHEDULE: string;
+    };
+    /**
      * Creates a new AlertManager instance.
      *
      * @param {string} id the identifier for this AlertManager instance, used for logging
@@ -48,15 +57,16 @@ declare class AlertManager {
      * Schedules an alert to be issued after the specified delay.
      *
      * If an alert with the same ID is already scheduled, do nothing by default.
-     * If `reschedule` is `true`, reschedule the alert, i.e. schedule it again.
+     * Rescheduling behaviour can be controlled with the `reschedule` parameter.
+     * For values of `reschedule`, see {@link #RESCHEDULE_MODE}.
      *
      * @param {string} id the unique identifier for the alert
      * @param {string} message the message to be displayed in the alert
      * @param {number} delay the delay in minutes before the alert should become active
-     * @param {boolean} [reschedule=false] whether to reschedule an already scheduled alert
+     * @param {string} [reschedule] whether to reschedule an already scheduled alert, defaults to NO_RESCHEDULE
      * @param {RevalidateAlertCallback} [revalidate] function to revalidate if the alert should be sent once the delay is over
      */
-    scheduleAlert(id: string, message: string, delay: number, reschedule?: boolean, revalidate?: RevalidateAlertCallback): void;
+    scheduleAlert(id: string, message: string, delay: number, reschedule?: string, revalidate?: RevalidateAlertCallback): void;
     /**
      * Changes the delay of a scheduled alert.
      *

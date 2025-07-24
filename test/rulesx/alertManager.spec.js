@@ -119,24 +119,6 @@ describe('AlertManager', () => {
       expect(mockSendAlert).not.toHaveBeenCalled();
     });
 
-    it('reschedules an alert if it is already scheduled and reschedule is set to true', () => {
-      jest.useFakeTimers();
-      const alertId = 'alert2';
-      const message = 'Scheduled alert message';
-      const delay = 5; // minutes
-
-      alertManager.scheduleAlert(alertId, message, delay);
-
-      jest.advanceTimersByTime((delay / 2) * 60 * 1000);
-
-      alertManager.scheduleAlert(alertId, message, delay, true);
-
-      jest.advanceTimersByTime((delay / 2) * 60 * 1000);
-      expect(mockSendAlert).not.toHaveBeenCalled();
-      jest.advanceTimersByTime((delay / 2) * 60 * 1000);
-      expect(mockSendAlert).toHaveBeenCalledWith(alertId, message);
-    });
-
     it('does not send a scheduled alert if revalidation fails', () => {
       jest.useFakeTimers();
       const alertId = 'alert3';
@@ -148,6 +130,62 @@ describe('AlertManager', () => {
 
       jest.advanceTimersByTime(delay * 60 * 1000);
 
+      expect(mockSendAlert).not.toHaveBeenCalled();
+    });
+
+    it('reschedules an alert if reschedule = RESCHEDULE', () => {
+      jest.useFakeTimers();
+      const alertId = 'alert2';
+      const message = 'Scheduled alert message';
+      const delay = 5; // minutes
+
+      alertManager.scheduleAlert(alertId, message, delay);
+
+      jest.advanceTimersByTime((delay / 2) * 60 * 1000);
+
+      alertManager.scheduleAlert(alertId, message, delay, AlertManager.RESCHEDULE_MODE.RESCHEDULE);
+
+      jest.advanceTimersByTime((delay / 2) * 60 * 1000);
+      expect(mockSendAlert).not.toHaveBeenCalled();
+      jest.advanceTimersByTime((delay / 2) * 60 * 1000);
+      expect(mockSendAlert).toHaveBeenCalledWith(alertId, message);
+    });
+
+    it('reschedules an alert if the delay has changed if reschedule = RESCHEDULE_IF_DELAY_CHANGED', () => {
+      jest.useFakeTimers();
+      const alertId = 'alert2';
+      const message = 'Scheduled alert message';
+      const delay = 5; // minutes
+      const newDelay = 10; // minutes
+
+      alertManager.scheduleAlert(alertId, message, delay);
+
+      jest.advanceTimersByTime((delay / 2) * 60 * 1000);
+
+      alertManager.scheduleAlert(alertId, message, newDelay, AlertManager.RESCHEDULE_MODE.RESCHEDULE_IF_DELAY_CHANGED);
+
+      jest.advanceTimersByTime((delay / 2) * 60 * 1000);
+      expect(mockSendAlert).not.toHaveBeenCalled();
+      jest.advanceTimersByTime((newDelay - delay / 2) * 60 * 1000);
+      expect(mockSendAlert).toHaveBeenCalledWith(alertId, message);
+    });
+
+    it('does not reschedule an alert if the delay has not changed if reschedule = RESCHEDULE_IF_DELAY_CHANGED', () => {
+      jest.useFakeTimers();
+      const alertId = 'alert2';
+      const message = 'Scheduled alert message';
+      const delay = 5; // minutes
+
+      alertManager.scheduleAlert(alertId, message, delay);
+
+      jest.advanceTimersByTime((delay / 2) * 60 * 1000);
+
+      alertManager.scheduleAlert(alertId, message, delay, AlertManager.RESCHEDULE_MODE.RESCHEDULE_IF_DELAY_CHANGED);
+
+      jest.advanceTimersByTime((delay / 2) * 60 * 1000);
+      expect(mockSendAlert).toHaveBeenCalledWith(alertId, message);
+      mockSendAlert.mockClear();
+      jest.advanceTimersByTime((delay / 2) * 60 * 1000);
       expect(mockSendAlert).not.toHaveBeenCalled();
     });
   });

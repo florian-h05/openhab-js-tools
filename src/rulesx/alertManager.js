@@ -41,6 +41,25 @@ const logger = log('org.openhab.automation.js.openhab-tools.rulesx.alerting.Aler
  */
 class AlertManager {
   /**
+   * The modes for rescheduling alerts.
+   * @type {{NO_RESCHEDULE: string, RESCHEDULE_IF_DELAY_CHANGED: string, RESCHEDULE: string}}
+   */
+  static RESCHEDULE_MODE = {
+    /**
+     * Do not reschedule the alert if it is already scheduled or active.
+     */
+    NO_RESCHEDULE: 'NO_RESCHEDULE',
+    /**
+     * Reschedule the alert only if the delay has changed.
+     */
+    RESCHEDULE_IF_DELAY_CHANGED: 'RESCHEDULE_IF_DELAY_CHANGED',
+    /**
+     * Reschedule the alert.
+     */
+    RESCHEDULE: 'RESCHEDULE'
+  };
+
+  /**
    * @type {string}
    */
   #id;
@@ -108,31 +127,48 @@ class AlertManager {
     this.#sendAlert(id, message);
   }
 
+  #cancelScheduledAlert (id) {
+    if (this.#scheduledAlerts.has(id)) {
+      clearTimeout(this.#scheduledAlerts.get(id).timeoutId);
+      this.#scheduledAlerts.delete(id);
+    }
+  }
+
   /**
    * Schedules an alert to be issued after the specified delay.
    *
    * If an alert with the same ID is already scheduled, do nothing by default.
-   * If `reschedule` is `true`, reschedule the alert, i.e. schedule it again.
+   * Rescheduling behaviour can be controlled with the `reschedule` parameter.
+   * For values of `reschedule`, see {@link #RESCHEDULE_MODE}.
    *
    * @param {string} id the unique identifier for the alert
    * @param {string} message the message to be displayed in the alert
    * @param {number} delay the delay in minutes before the alert should become active
-   * @param {boolean} [reschedule=false] whether to reschedule an already scheduled alert
+   * @param {string} [reschedule] whether to reschedule an already scheduled alert, defaults to NO_RESCHEDULE
    * @param {RevalidateAlertCallback} [revalidate] function to revalidate if the alert should be sent once the delay is over
    */
-  scheduleAlert (id, message, delay, reschedule = false, revalidate = () => true) {
+  scheduleAlert (id, message, delay, reschedule = AlertManager.RESCHEDULE_MODE.NO_RESCHEDULE, revalidate = () => true) {
     if (this.#scheduledAlerts.has(id) || this.#activeAlerts.has(id)) {
-      if (!reschedule) {
-        logger.debug(`${this.#id}: Skipping scheduling alert ${id}, already scheduled or active.`);
-        return;
+      switch (reschedule) {
+        case AlertManager.RESCHEDULE_MODE.RESCHEDULE_IF_DELAY_CHANGED:
+          logger.debug(`${this.#id}: Rescheduling alert ${id} with new delay of ${delay} minutes ...`);
+          if (this.#scheduledAlerts.get(id)?.delay === delay) {
+            logger.debug(`${this.#id}: Alert ${id} already scheduled with the same delay, not rescheduling.`);
+            return;
+          }
+          this.#cancelScheduledAlert(id);
+          break;
+        case AlertManager.RESCHEDULE_MODE.RESCHEDULE:
+          logger.debug(`${this.#id}: Rescheduling alert ${id} ...`);
+          this.#cancelScheduledAlert(id);
+          break;
+        default:
+          logger.debug(`${this.#id}: Skipping scheduling alert ${id}, already scheduled or active.`);
+          return;
       }
-      if (this.#scheduledAlerts.has(id)) {
-        clearTimeout(this.#scheduledAlerts.get(id).timeoutId);
-        this.#scheduledAlerts.delete(id);
-      }
-      logger.debug(`${this.#id}: Rescheduling alert ${id} ...`);
     }
 
+    logger.debug(`${this.#id}: Scheduling alert ${id} with a delay of ${delay} minutes ...`);
     const delayMs = delay * 60 * 1000;
     const timeoutId = setTimeout(() => {
       this.#scheduledAlerts.delete(id);
@@ -163,7 +199,7 @@ class AlertManager {
     const alertData = this.#scheduledAlerts.get(id);
     if (newDelay === alertData.delay) return;
     const delay = ((alertData.expiresAt - Date.now()) / 60 / 1000) - alertData.delay + newDelay;
-    this.scheduleAlert(id, alertData.message, delay, true, alertData.revalidate);
+    this.scheduleAlert(id, alertData.message, delay, AlertManager.RESCHEDULE_MODE.RESCHEDULE, alertData.revalidate);
   }
 
   /**
@@ -173,8 +209,7 @@ class AlertManager {
    */
   revokeAlert (id) {
     if (this.#scheduledAlerts.has(id)) {
-      clearTimeout(this.#scheduledAlerts.get(id).timeoutId);
-      this.#scheduledAlerts.delete(id);
+      this.#cancelScheduledAlert(id);
       logger.debug(`${this.#id}: Scheduled alert ${id} has been cancelled.`);
     } else if (this.#activeAlerts.has(id)) {
       this.#revokeAlert(id);
