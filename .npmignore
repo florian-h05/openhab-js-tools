@@ -11,5 +11,6 @@ types/index.d.ts*
 .eslintrc.js
 .gitattributes
 .gitignore
+.nvmrc
 DEPLOY.md
 hotzware-openhab-tools-*.tgz
