@@ -144,12 +144,12 @@ function createRainAlarmRule (config) {
         if (windspeed && windspeedThreshold) {
           // if wind speed thresholds are configured, check against them
           if (windspeed.greaterThanOrEqual(windspeedThreshold)) {
-            logger.info(`Rain alarm: Wind speed ${windspeed} m/s is above threshold ${windspeedThreshold} for contact level ${contactLevel} of item ${item.name} of ${config.contactGroupName}. Sending alert.`);
+            logger.info(`Rain alarm: Wind speed ${windspeed} m/s is above threshold ${windspeedThreshold} for contact level ${contactLevel} of item ${item.name} of ${config.contactGroupName}, sending alert.`);
             alertManager.issueAlert(item.name, message);
           }
         } else {
           // if no wind speed thresholds are configured, send an alert
-          logger.info(`Rain alarm: No wind speed configuration found for item ${item.name} of ${config.contactGroupName}. Sending alert.`);
+          logger.info(`Rain alarm: No wind speed configuration found for item ${item.name} of ${config.contactGroupName}, sending alert.`);
           alertManager.issueAlert(item.name, message);
         }
       }
@@ -166,11 +166,11 @@ function createRainAlarmRule (config) {
             const windspeed = config.windspeedItemName ? items.getItem(config.windspeedItemName).quantityState : null;
             openItems.forEach(item => evaluateWindspeedAndSendAlert(windspeed, item));
           } else {
-            logger.info(`Rain alarm. No open windows or doors found in ${config.contactGroupName}.`);
+            logger.debug(`Rain alarm: No open windows or doors found in ${config.contactGroupName}.`);
           }
         } else {
           // if rain alarm is not active: revoke all alerts
-          logger.debug(`Rain alarm for ${config.contactGroupName} has become inactive, revoking all alerts.`);
+          logger.info(`Rain alarm for ${config.contactGroupName} has become inactive, revoking all alerts.`);
           alertManager.revokeAllAlerts();
         }
       } else if (event.itemName) {
