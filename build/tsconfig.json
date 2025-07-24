@@ -11,5 +11,8 @@
     "resolveJsonModule": true
   },
   "include": ["../src/**/*.js"],
-  "exclude": ["../node_modules", "**/*.spec.js"]
+  "exclude": [
+    "../src/helpers.js",
+    "../src/index.js",
+  ]
 }
