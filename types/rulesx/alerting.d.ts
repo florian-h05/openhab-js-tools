@@ -115,7 +115,7 @@ export type TemperatureAlarmConfig = {
      */
     messagePatternCallback: TemperatureMessagePatternCallback;
     /**
-     * optional callback to evaluate conditions per Item,
+     * optional callback to evaluate conditions per Item
      */
     perItemConditionCallback?: TemperaturePerItemConditionCallback;
 };
@@ -202,7 +202,7 @@ export function createRainAlarmRule(config: RainAlarmConfig): void;
  * @property {TemperatureConditionCallback} alarmConditionCallback callback to decide whether the alarm is active depending on the temperature
  * @property {TemperatureDelayCallback} delayCallback callback to get the delay in minutes for alerting depending on the temperature
  * @property {TemperatureMessagePatternCallback} messagePatternCallback callback to get the message pattern depending on the temperature
- * @property {TemperaturePerItemConditionCallback} [perItemConditionCallback] optional callback to evaluate conditions per Item,
+ * @property {TemperaturePerItemConditionCallback} [perItemConditionCallback] optional callback to evaluate conditions per Item
  */
 /**
  * Create a rule for a temperature-based alarm that monitors the temperature and raises alerts for open windows and doors when the temperatur condition callback returns true.
@@ -211,18 +211,4 @@ export function createRainAlarmRule(config: RainAlarmConfig): void;
  * @memberof rulesx.alerting
  */
 export function createTemperatureAlarmRule(config: TemperatureAlarmConfig): void;
-/**
- * Create the heat alarm rule.
- *
- * @memberof rulesx.alerting
- * @param {heatOrFrostAlarmConfig} config alarm configuration
- */
-export function createHeatAlarmRule(config: heatOrFrostAlarmConfig): void;
-/**
- * Create the frostalarm rule.
- *
- * @memberof rulesx.alerting
- * @param {heatOrFrostAlarmConfig} config alarm configuration
- */
-export function createFrostAlarmRule(config: heatOrFrostAlarmConfig): void;
 //# sourceMappingURL=alerting.d.ts.map
