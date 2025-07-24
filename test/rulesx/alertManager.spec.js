@@ -38,7 +38,7 @@ describe('AlertManager', () => {
       expect(mockSendAlert).toHaveBeenCalledWith(alertId, message);
     });
 
-    it('does not send an alert immediately if already active', () => {
+    it('does not send an alert if already active', () => {
       const alertId = 'alert1';
       const message = 'Test alert message';
       alertManager.issueAlert(alertId, message);
@@ -47,13 +47,27 @@ describe('AlertManager', () => {
       expect(mockSendAlert).toHaveBeenCalledTimes(1);
     });
 
-    it('does send an alert again if reissue is set to true', () => {
+    it('sends an alert immediately and cancels scheduling if alert was scheduled before', () => {
       const alertId = 'alert1';
       const message = 'Test alert message';
+      alertManager.scheduleAlert(alertId, message, 5);
       alertManager.issueAlert(alertId, message);
+
+      expect(mockSendAlert).toHaveBeenCalledWith(alertId, message);
+    });
+
+    it('sends an active alert again if reissue is set to true', () => {
+      jest.useFakeTimers();
+      const alertId = 'alert1';
+      const message = 'Test alert message';
+      const delay = 5; // minutes
+
+      alertManager.scheduleAlert(alertId, message);
       alertManager.issueAlert(alertId, message, true);
 
-      expect(mockSendAlert).toHaveBeenCalledTimes(2);
+      jest.advanceTimersByTime(delay * 60 * 1000);
+
+      expect(mockSendAlert).toHaveBeenCalledTimes(1);
     });
   });
 

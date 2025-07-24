@@ -91,6 +91,11 @@ class AlertManager {
       logger.debug(`${this.#id}: Alert ${id} already active, not sending again.`);
       return;
     }
+    if (this.#scheduledAlerts.has(id)) {
+      clearTimeout(this.#scheduledAlerts.get(id));
+      this.#scheduledAlerts.delete(id);
+      logger.debug(`${this.#id}: Alert ${id} was scheduled, but now being issued immediately.`);
+    }
     logger.debug(`${this.#id}: (Re-)Issuing alert ${id} ...`);
     this.#activeAlerts.add(id);
     this.#sendAlert(id, message);
