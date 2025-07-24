@@ -8,13 +8,6 @@
  * SPDX-License-Identifier: EPL-2.0
  */
 
-/**
- * Alerting namespace
- *
- * This namespace provides alerting rules, e.g. for open windows on rain.
- * @namespace rulesx.alerting
- */
-
 const { cache, items, rules, triggers, log, Quantity } = require('openhab');
 
 const AlertManager = require('./alertManager');
@@ -56,7 +49,7 @@ const logger = log('org.openhab.automation.js.openhab-tools.rulesx.alerting');
  * Please note that, if enabled, the wind speed condition is only evaluated when the rain alarm becomes active or when the contact opens.
  * It is not continuously monitored, so if the wind speed changes while the rain alarm is active, it will not trigger a alert.
  *
- * @memberof rulesx.alerting
+ * @memberof rulesx
  * @param {RainAlarmConfig} config
  */
 function createRainAlarmRule (config) {
@@ -191,7 +184,7 @@ function createRainAlarmRule (config) {
  * Create a rule for a temperature-based alarm that monitors the temperature and raises alerts for open windows and doors when the temperatur condition callback returns true.
  *
  * @param {TemperatureAlarmConfig} config
- * @memberof rulesx.alerting
+ * @memberof rulesx
  */
 function createTemperatureAlarmRule (config) {
   if (!config.ignoreItems) config.ignoreItems = [];
@@ -268,31 +261,6 @@ function createTemperatureAlarmRule (config) {
     tags: ['@hotzware/openhab-tools', 'createTemperatureAlarmRule', 'Alerting']
   });
 }
-
-/**
- * @typedef {Object} heatOrFrostAlarmConfig configuration for rainalarm
- * @memberof rulesx.alerting
- * @property {string} type alarm type, either `heat` or `frost`
- * @property {string} alarmLevelItem name of Item that holds the alarm level
- * @property {string} outsideTemperatureItem name of outside temperature Item
- * @property {string} roomTemperatureItemSuffix suffix to add to the room's name to get the temperature Item's name
- * @property {string} contactGroupName name of the contact group to monitor
- * @property {string[]} ignoreList list of contact Item names to ignore
- * @property {string} roofwindowTag tag that all roofwindow contacts have for identification
- * @property {number} tempTreshold Temperature treshold, for difference between inside temp to outside. Example: -2 means at least 2 degrees lower temp on the outside.
- * @property {Object} notification notification to send
- * @property {Object} notification.alarm alarm notification
- * @property {string} notification.alarm.title
- * @property {string} notification.alarm.message
- * @property {Object} notification.warning warning notification
- * @property {string} notification.warning.title
- * @property {string} notification.warning.message
- * @property {Object} time Times until an alarm is sent.
- * @property {number} time.open
- * @property {number} time.halfOpen window is tilted or roofwindow is on "große Lüftung"
- * @property {number} time.klLueftung roofwindow is on "kleine Lüftung"
- * @property {number} time.addForWarning Time to add when it's only a warning.
- */
 
 module.exports = {
   createRainAlarmRule,

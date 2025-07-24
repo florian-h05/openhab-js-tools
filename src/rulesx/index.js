@@ -9,6 +9,6 @@
 module.exports = {
   ...require('./sceneEngine.js'),
   ...require('./alarmClock.js'),
-  alerting: require('./alerting'),
+  ...require('./alerting'),
   AlertManager: require('./alertManager')
 };

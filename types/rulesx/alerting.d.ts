@@ -120,10 +120,6 @@ export type TemperatureAlarmConfig = {
     perItemConditionCallback?: TemperaturePerItemConditionCallback;
 };
 /**
- * configuration for rainalarm
- */
-export type heatOrFrostAlarmConfig = any;
-/**
  * Callback for sending an alert.
  *
  * @callback SendAlertCallback
@@ -155,7 +151,7 @@ export type heatOrFrostAlarmConfig = any;
  * Please note that, if enabled, the wind speed condition is only evaluated when the rain alarm becomes active or when the contact opens.
  * It is not continuously monitored, so if the wind speed changes while the rain alarm is active, it will not trigger a alert.
  *
- * @memberof rulesx.alerting
+ * @memberof rulesx
  * @param {RainAlarmConfig} config
  */
 export function createRainAlarmRule(config: RainAlarmConfig): void;
@@ -208,7 +204,7 @@ export function createRainAlarmRule(config: RainAlarmConfig): void;
  * Create a rule for a temperature-based alarm that monitors the temperature and raises alerts for open windows and doors when the temperatur condition callback returns true.
  *
  * @param {TemperatureAlarmConfig} config
- * @memberof rulesx.alerting
+ * @memberof rulesx
  */
 export function createTemperatureAlarmRule(config: TemperatureAlarmConfig): void;
 //# sourceMappingURL=alerting.d.ts.map

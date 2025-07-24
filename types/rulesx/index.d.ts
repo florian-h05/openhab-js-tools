@@ -1,6 +1,7 @@
 declare const _exports: {
-    alerting: typeof import("./alerting");
     AlertManager: typeof import("./alertManager");
+    createRainAlarmRule: typeof import("./alerting").createRainAlarmRule;
+    createTemperatureAlarmRule: typeof import("./alerting").createTemperatureAlarmRule;
     createAlarmClock: typeof import("./alarmClock.js").createAlarmClock;
     createAlarmClockItems: typeof import("./alarmClock.js").createAlarmClockItems;
     createSceneEngine: (sceneDefinition: {
