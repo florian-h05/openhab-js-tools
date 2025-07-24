@@ -21,9 +21,10 @@
     "test": "jest --config jest.config.js",
     "types": "tsc --project build/tsconfig.json",
     "types:test": "tsc --project build/tsconfig.test.json",
+    "webpack": "webpack -c build/webpack.config.js",
     "docs": "rm -Rf ./docs/* && jsdoc --configure build/jsdoc.conf.json",
     "prebuild": "npm run test",
-    "build": "npm run types && npm run types:test",
+    "build": "npm run webpack && npm run types && npm run types:test",
     "postbuild": "npm run docs"
   },
   "dependencies": {
@@ -39,7 +40,9 @@
     "jsdoc": "^4.0.2",
     "jsdoc-tsimport-plugin": "^1.0.5",
     "openhab": "^5.7.0",
-    "typescript": "^4.9.5"
+    "typescript": "^4.9.5",
+    "webpack": "^5.100.2",
+    "webpack-cli": "^6.0.1"
   },
   "private": false
 }
