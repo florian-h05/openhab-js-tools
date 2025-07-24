@@ -223,6 +223,15 @@ function createRainAlarmRule (config) {
  */
 
 /**
+ * Callback for evaluating conditions per Item for the temperature alarm.
+ *
+ * @callback TemperaturePerItemConditionCallback
+ * @param {*} temperature the current temperature
+ * @param {*} item the Item to evaluate conditions for
+ * @return {boolean} true if the conditions are met for the Item, false otherwise
+ */
+
+/**
  * @typedef {Object} TemperatureAlarmConfig configuration for heat and frost alarms
  * @property {string} name the name of the alarm, e.g. "Heat Alarm"
  * @property {SendAlertCallback} sendAlertCallback callback to send an alert
@@ -233,10 +242,11 @@ function createRainAlarmRule (config) {
  * @property {TemperatureConditionCallback} alarmConditionCallback callback to decide whether the alarm is active depending on the temperature
  * @property {TemperatureDelayCallback} delayCallback callback to get the delay in minutes for alerting depending on the temperature
  * @property {TemperatureMessagePatternCallback} messagePatternCallback callback to get the message pattern depending on the temperature
+ * @property {TemperaturePerItemConditionCallback} [perItemConditionCallback] optional callback to evaluate conditions per Item
  */
 
 /**
- * Create a rule for a temperature-based alarm that monitors the temperature and raises alerts for open windows and doors when the the temperatur condition callback returns true.
+ * Create a rule for a temperature-based alarm that monitors the temperature and raises alerts for open windows and doors when the temperatur condition callback returns true.
  *
  * @param {TemperatureAlarmConfig} config
  * @memberof rulesx.alerting
@@ -263,6 +273,11 @@ function createTemperatureAlarmRule (config) {
         const delay = config.delayCallback(temperature, contactLevel);
         const messagePattern = config.messagePatternCallback(temperature, contactLevel);
         const message = messagePattern.replace('%LABEL', item.label || item.name);
+
+        if (typeof config.perItemConditionCallback === 'function' && !config.perItemConditionCallback(temperature, item)) {
+          logger.debug(`${config.name}: Conditions for item ${item.name} of ${config.contactGroupName} are not met, cancelling alert.`);
+          return;
+        }
 
         if (delay === 0) {
           logger.info(`${config.name}: No delay for ${item.name} of ${config.contactGroupName}, sending alert immediately.`);

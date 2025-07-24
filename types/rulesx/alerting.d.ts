@@ -71,6 +71,10 @@ export type TemperatureDelayCallback = (temperature: any, contactLevel: number) 
  */
 export type TemperatureMessagePatternCallback = (temperature: any, contactLevel: number) => string;
 /**
+ * Callback for evaluating conditions per Item for the temperature alarm.
+ */
+export type TemperaturePerItemConditionCallback = (temperature: any, item: any) => boolean;
+/**
  * configuration for heat and frost alarms
  */
 export type TemperatureAlarmConfig = {
@@ -110,6 +114,10 @@ export type TemperatureAlarmConfig = {
      * callback to get the message pattern depending on the temperature
      */
     messagePatternCallback: TemperatureMessagePatternCallback;
+    /**
+     * optional callback to evaluate conditions per Item,
+     */
+    perItemConditionCallback?: TemperaturePerItemConditionCallback;
 };
 /**
  * configuration for rainalarm
@@ -176,6 +184,14 @@ export function createRainAlarmRule(config: RainAlarmConfig): void;
  * @return {string} message pattern
  */
 /**
+ * Callback for evaluating conditions per Item for the temperature alarm.
+ *
+ * @callback TemperaturePerItemConditionCallback
+ * @param {*} temperature the current temperature
+ * @param {*} item the Item to evaluate conditions for
+ * @return {boolean} true if the conditions are met for the Item, false otherwise
+ */
+/**
  * @typedef {Object} TemperatureAlarmConfig configuration for heat and frost alarms
  * @property {string} name the name of the alarm, e.g. "Heat Alarm"
  * @property {SendAlertCallback} sendAlertCallback callback to send an alert
@@ -186,9 +202,10 @@ export function createRainAlarmRule(config: RainAlarmConfig): void;
  * @property {TemperatureConditionCallback} alarmConditionCallback callback to decide whether the alarm is active depending on the temperature
  * @property {TemperatureDelayCallback} delayCallback callback to get the delay in minutes for alerting depending on the temperature
  * @property {TemperatureMessagePatternCallback} messagePatternCallback callback to get the message pattern depending on the temperature
+ * @property {TemperaturePerItemConditionCallback} [perItemConditionCallback] optional callback to evaluate conditions per Item,
  */
 /**
- * Create a rule for a temperature-based alarm that monitors the temperature and raises alerts for open windows and doors when the the temperatur condition callback returns true.
+ * Create a rule for a temperature-based alarm that monitors the temperature and raises alerts for open windows and doors when the temperatur condition callback returns true.
  *
  * @param {TemperatureAlarmConfig} config
  * @memberof rulesx.alerting
