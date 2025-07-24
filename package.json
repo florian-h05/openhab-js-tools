@@ -30,6 +30,7 @@
     "openhab_rules_tools": "^2.0.3"
   },
   "devDependencies": {
+    "@types/jest": "^30.0.0",
     "@types/node": "^22.16.5",
     "docdash": "^2.0.1",
     "eslint": "^8.56.0",
