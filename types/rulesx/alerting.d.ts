@@ -58,6 +58,60 @@ export type RainAlarmConfig = {
     }>;
 };
 /**
+ * Callback for evaluating a temperature condition.
+ */
+export type TemperatureConditionCallback = (temperature: any) => boolean;
+/**
+ * Callback for getting the alerting delay depending on the temperature and the contact level.
+ */
+export type TemperatureDelayCallback = (temperature: any, contactLevel: number) => number;
+/**
+ * Callback for getting the alert message pattern depending on the temperature and the contact level.
+ * Use `%LABEL` as placeholder for the Item label.
+ */
+export type TemperatureMessagePatternCallback = (temperature: any, contactLevel: number) => string;
+/**
+ * configuration for heat and frost alarms
+ */
+export type TemperatureAlarmConfig = {
+    /**
+     * the name of the alarm, e.g. "Heat Alarm"
+     */
+    name: string;
+    /**
+     * callback to send an alert
+     */
+    sendAlertCallback: SendAlertCallback;
+    /**
+     * callback to revoke an alert
+     */
+    revokeAlertCallback: RevokeAlertCallback;
+    /**
+     * name of the Item that to monitor the temperature
+     */
+    temperatureItemName: string;
+    /**
+     * name of the contact group to monitor
+     */
+    contactGroupName: string;
+    /**
+     * list of Item names to ignore
+     */
+    ignoreItems?: string[];
+    /**
+     * callback to decide whether the alarm is active depending on the temperature
+     */
+    alarmConditionCallback: TemperatureConditionCallback;
+    /**
+     * callback to get the delay in minutes for alerting depending on the temperature
+     */
+    delayCallback: TemperatureDelayCallback;
+    /**
+     * callback to get the message pattern depending on the temperature
+     */
+    messagePatternCallback: TemperatureMessagePatternCallback;
+};
+/**
  * configuration for rainalarm
  */
 export type heatOrFrostAlarmConfig = any;
@@ -97,6 +151,49 @@ export type heatOrFrostAlarmConfig = any;
  * @param {RainAlarmConfig} config
  */
 export function createRainAlarmRule(config: RainAlarmConfig): void;
+/**
+ * Callback for evaluating a temperature condition.
+ *
+ * @callback TemperatureConditionCallback
+ * @param {*} temperature the current temperature
+ * @return {boolean} true if the temperature is in alarm range, false otherwise
+ */
+/**
+ * Callback for getting the alerting delay depending on the temperature and the contact level.
+ *
+ * @callback TemperatureDelayCallback
+ * @param {*} temperature the current temperature
+ * @param {number} contactLevel the contact level of the Item
+ * @return {number} delay in minutes
+ */
+/**
+ * Callback for getting the alert message pattern depending on the temperature and the contact level.
+ * Use `%LABEL` as placeholder for the Item label.
+ *
+ * @callback TemperatureMessagePatternCallback
+ * @param {*} temperature the current temperature
+ * @param {number} contactLevel the contact level of the Item
+ * @return {string} message pattern
+ */
+/**
+ * @typedef {Object} TemperatureAlarmConfig configuration for heat and frost alarms
+ * @property {string} name the name of the alarm, e.g. "Heat Alarm"
+ * @property {SendAlertCallback} sendAlertCallback callback to send an alert
+ * @property {RevokeAlertCallback} revokeAlertCallback callback to revoke an alert
+ * @property {string} temperatureItemName name of the Item that to monitor the temperature
+ * @property {string} contactGroupName name of the contact group to monitor
+ * @property {string[]} [ignoreItems] list of Item names to ignore
+ * @property {TemperatureConditionCallback} alarmConditionCallback callback to decide whether the alarm is active depending on the temperature
+ * @property {TemperatureDelayCallback} delayCallback callback to get the delay in minutes for alerting depending on the temperature
+ * @property {TemperatureMessagePatternCallback} messagePatternCallback callback to get the message pattern depending on the temperature
+ */
+/**
+ * Create a rule for a temperature-based alarm that monitors the temperature and raises alerts for open windows and doors when the the temperatur condition callback returns true.
+ *
+ * @param {TemperatureAlarmConfig} config
+ * @memberof rulesx.alerting
+ */
+export function createTemperatureAlarmRule(config: TemperatureAlarmConfig): void;
 /**
  * Create the heat alarm rule.
  *

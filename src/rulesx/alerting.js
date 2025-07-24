@@ -15,7 +15,7 @@
  * @namespace rulesx.alerting
  */
 
-const { actions, cache, items, rules, triggers, log } = require('openhab');
+const { actions, cache, items, rules, triggers, log, Quantity } = require('openhab');
 const { TimerMgr } = require('openhab_rules_tools');
 
 const AlertManager = require('./alertManager');
@@ -191,6 +191,122 @@ function createRainAlarmRule (config) {
     },
     id: `rainalarm-for-${config.contactGroupName}`,
     tags: ['@hotzware/openhab-tools', 'createRainAlarmRule', 'Alerting']
+  });
+}
+
+/**
+ * Callback for evaluating a temperature condition.
+ *
+ * @callback TemperatureConditionCallback
+ * @param {*} temperature the current temperature
+ * @return {boolean} true if the temperature is in alarm range, false otherwise
+ */
+
+/**
+ * Callback for getting the alerting delay depending on the temperature and the contact level.
+ *
+ * @callback TemperatureDelayCallback
+ * @param {*} temperature the current temperature
+ * @param {number} contactLevel the contact level of the Item
+ * @return {number} delay in minutes
+ */
+
+/**
+ * Callback for getting the alert message pattern depending on the temperature and the contact level.
+ * Use `%LABEL` as placeholder for the Item label.
+ *
+ * @callback TemperatureMessagePatternCallback
+ * @param {*} temperature the current temperature
+ * @param {number} contactLevel the contact level of the Item
+ * @return {string} message pattern
+ */
+
+/**
+ * @typedef {Object} TemperatureAlarmConfig configuration for heat and frost alarms
+ * @property {string} name the name of the alarm, e.g. "Heat Alarm"
+ * @property {SendAlertCallback} sendAlertCallback callback to send an alert
+ * @property {RevokeAlertCallback} revokeAlertCallback callback to revoke an alert
+ * @property {string} temperatureItemName name of the Item that to monitor the temperature
+ * @property {string} contactGroupName name of the contact group to monitor
+ * @property {string[]} [ignoreItems] list of Item names to ignore
+ * @property {TemperatureConditionCallback} alarmConditionCallback callback to decide whether the alarm is active depending on the temperature
+ * @property {TemperatureDelayCallback} delayCallback callback to get the delay in minutes for alerting depending on the temperature
+ * @property {TemperatureMessagePatternCallback} messagePatternCallback callback to get the message pattern depending on the temperature
+ */
+
+/**
+ * Create a rule for a temperature-based alarm that monitors the temperature and raises alerts for open windows and doors when the the temperatur condition callback returns true.
+ *
+ * @param {TemperatureAlarmConfig} config
+ * @memberof rulesx.alerting
+ */
+function createTemperatureAlarmRule (config) {
+  if (!config.ignoreItems) config.ignoreItems = [];
+
+  const ALERT_MANAGER_CACHE_KEY = `AlertManager-temperatureAlarm-${config.name}`;
+  const alertManager = new AlertManager(`temperatureAlarm-${config.name}-${config.contactGroupName}`, config.sendAlertCallback, config.revokeAlertCallback);
+  cache.private.put(ALERT_MANAGER_CACHE_KEY, alertManager);
+
+  rules.JSRule({
+    name: `${config.name} for ${config.contactGroupName}`,
+    description: 'Monitors temperature and raises alerts for open windows & doors when the temperature is in alarm range.',
+    triggers: [
+      triggers.ItemStateChangeTrigger(config.temperatureItemName),
+      triggers.GroupStateChangeTrigger(config.contactGroupName)
+    ],
+    execute: (event) => {
+      const alertManager = cache.private.get(ALERT_MANAGER_CACHE_KEY);
+
+      function handleAlert (temperature, item) {
+        const contactLevel = item.numericState ?? 1; // default to 1 if numericState is not available as 1 represents OPEN
+        const delay = config.delayCallback(temperature, contactLevel);
+        const messagePattern = config.messagePatternCallback(temperature, contactLevel);
+        const message = messagePattern.replace('%LABEL', item.label || item.name);
+
+        if (delay === 0) {
+          logger.info(`${config.name}: No delay for ${item.name} of ${config.contactGroupName}, sending alert immediately.`);
+          alertManager.issueAlert(item.name, message);
+        } else {
+          logger.info(`${config.name}: Scheduling alert for ${item.name} of ${config.contactGroupName} with delay of ${delay} minutes.`);
+          alertManager.scheduleAlert(item.name, message, delay, AlertManager.RESCHEDULE_MODE.RESCHEDULE_IF_DELAY_CHANGED);
+        }
+      }
+
+      if (event.itemName === config.temperatureItemName) {
+        const temperature = Quantity(event.newState);
+        if (config.alarmConditionCallback(temperature)) {
+          // if alarm is active: check for open windows and doors
+          logger.info(`${config.name} for ${config.contactGroupName} is now active, checking for open windows & doors.`);
+          const openItems = items.getItem(config.contactGroupName).members
+            .filter(item => !config.ignoreItems.includes(item.name))
+            .filter(item => item.state === 'OPEN' || (item.numericState != null && item.numericState > 0));
+          if (openItems.length > 0) {
+            openItems.forEach(item => handleAlert(temperature, item));
+          } else {
+            logger.debug(`${config.name}: No open windows or doors found in ${config.contactGroupName}.`);
+          }
+        } else {
+          // if alarm is not active: revoke all alerts
+          logger.info(`${config.name} for ${config.contactGroupName} has become inactive, revoking all alerts.`);
+          alertManager.revokeAllAlerts();
+        }
+      } else if (event.itemName) {
+        const temperature = items.getItem(config.temperatureItemName).quantityState;
+        if (!config.alarmConditionCallback(temperature)) {
+          logger.debug(`${config.name} for ${config.contactGroupName} is not active, ignoring state change of item ${event.itemName}.`);
+          return; // if alarm is not active, ignore state changes of contact items
+        }
+        if (event.newState === 'CLOSED' || parseFloat(event.newState) === 0) {
+          logger.info(`${config.name}: Item ${event.itemName} in ${config.contactGroupName} is now closed, revoking alert.`);
+          alertManager.revokeAlert(event.itemName);
+        } else {
+          const item = items.getItem(event.itemName);
+          handleAlert(temperature, item);
+        }
+      }
+    },
+    id: `temperatureAlarm-${config.name}-for-${config.contactGroupName}`,
+    tags: ['@hotzware/openhab-tools', 'createTemperatureAlarmRule', 'Alerting']
   });
 }
 
@@ -434,6 +550,7 @@ function createFrostAlarmRule (config) {
 
 module.exports = {
   createRainAlarmRule,
+  createTemperatureAlarmRule,
   createHeatAlarmRule,
   createFrostAlarmRule
 };
