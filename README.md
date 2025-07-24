@@ -53,8 +53,17 @@ The README will only take care of the most important stuff, and explain the more
 
 ### `itemutils`
 
-- `dimItem`: Dims an Item step-by-step to a target state.
-- `getGroupUtils`: See [Group Utilities](#group-utilities)
+#### `dimItem`
+
+Dims an Item step-by-step to a target state.
+
+```js
+const { itemutils } = require('@hotzware/openhab-tools');
+// Dim the Bedroom_Light to 50% in 750 seconds (1% each 15 seconds).
+itemutils.dimItem('Bedroom_Light', 50.0, 1, 15 * 1000);
+```
+
+See [JSDoc: dimItem()](https://florian-h05.github.io/openhab-js-tools/itemutils.html#.dimItem) for full API documentation.
 
 #### Group Utilities
 
@@ -76,15 +85,11 @@ See [JSDoc: GroupUtils](https://florian-h05.github.io/openhab-js-tools/itemutils
 
 ### `rulesx`
 
-- `createAlarmClock`: See [Alarm Clock](#alarm-clock).
-- `createAlarmClockItems`: Creates the required Items for an alarm clock and optionally also generates Sitemap code, which is printed to the log.
-- `createSceneEngine`: See [Scene Engine](#scene-engine).
+#### `createAlarmClock` & `createAlarmClockItems`
 
-#### Alarm Clock
+Create an alarm clock with time and days configurable over Items, therefore compatible with Sitemaps.
 
-Creates an alarm clock with time and days configurable over Items, therefore compatible with Sitemaps.
-
-Under the hood, two rules are created. 
+Under the hood, two rules are created: 
 The first rule, the so-called manager rule, watches for configuration changes and updates the cron trigger of the second rule, the alarm clock itself.
 It also disables and enables the alarm clock rule based on the _switchItem_.
 
@@ -109,12 +114,13 @@ Configuration Items must follow a specific naming scheme, _switchItem_ can be an
 ##### Alarm Rule
 
 ```javascript
+const { rulesx } = require('@hotzware/openhab-tools');
 rulesx.createAlarmClock(switchItem, data => { console.log('Successfully tested alarm clock.'); });
 ```
 
 See [JSDoc: getAlarmClock()](https://florian-h05.github.io/openhab-js-tools/rulesx.html#.getAlarmClock) for full API documentation.
 
-#### Scene Engine
+#### `createSceneEngine`
 
 Call scene by sending a command to the `sceneItem`.
 
@@ -158,16 +164,100 @@ const sceneDefinition = {
 ##### Create the Scene Engine
 
 ```javascript
+const { rulesx } = require('@hotzware/openhab-tools');
 rulesx.createSceneEngine(sceneDefinition);
 ```
 
 See [JSDoc: createSceneEngine()](https://florian-h05.github.io/openhab-js-tools/rulesx.html#.createSceneEngine) for full API documentation.
 
+#### `createRainAlarmRule`
+
+Create a rule that issues alerts for open windows and doors when its raining.
+
+It is able to additionally check wind speed thresholds before issuing alerts, as e.g. for tilted windows, high wind speeds can push the rain through the open part.
+Once a condition for an alert is not fulfilled any more, the alert is revoked.
+How alerts are sent and revoked is configurable, as well as the alert message.
+The message can even depend on the state of the window or door, i.e. is the window tilted or fully open.
+
+```js
+const { rulesx } = require('@hotzware/openhab-tools');
+rulesx.alerting.createRainAlarmRule({
+  sendAlertCallback: (id, msg) => {
+    actions.notificationBuilder(msg).withReferenceId('rainalarm-' + id).send();
+  },
+  revokeAlertCallback: (id) => {
+    actions.notificationBuilder().withReferenceId('rainalarm-' + id).hide().send();
+  },
+  rainalarmItemName: 'RainSensor',
+  rainalarmActiveState: 'ON',
+  contactGroupName: 'gRainalarm',
+  messagePattern: 'Alert! It is raining and %LABEL is open!',
+  windspeedItemName: 'WindSpeed',
+  contactLevelToWindspeed: [
+    { contactLevel: 0.3, treshold: Quantity('12 m/s') },
+    { contactLevel: 0.5, treshold: Quantity('7 m/s') }
+  ]
+});
+```
+
+See [JSDoc: createRainAlarmRule()](https://florian-h05.github.io/openhab-js-tools/rulesx.html#.createRainAlarmRule) for full API documentation.
+
+#### `createTemperatureAlarmRule`
+
+Create a rule that issues alerts based on a temperature condition for open windows and doors. 
+
+Similarly to the [`createRainAlarmRule](#createrainalarmrule), it handles issuing and revocation of alerts.
+It is even more configurable, with optional alerting delays, the message and additional conditions per Item being supported through the required callbacks.
+
+```js
+const { rulesx } = require('@hotzware/openhab-tools');
+rulesx.alerting.createTemperatureAlarmRule({
+  name: 'Frost Alarm',
+  sendAlertCallback: (id, msg) => {
+    actions.notificationBuilder(msg).withReferenceId('frostalarm-' + id).send();
+  },
+  revokeAlertCallback: (id) => {
+    actions.notificationBuilder().withReferenceId('frostalarm-' + id).hide().send();
+  },
+  temperatureItemName: 'OutsideTemperature',
+  contactGroupName: 'gFrostalarm',
+  alarmConditionCallback: (temperature) => {
+    return temperature.lessThanOrEqual('12 °C');
+  },
+  delayCallback: (temperature, contactLevel) => {
+    let delay = 10; // base delay
+    if (temperature.greaterThan('2 °C')) delay += 10; // add 10 minutes if warning only
+    if (contactLevel === 0.5) delay += 5; // add 5 minutes if tilted or large ventilation
+    if (contactLevel === 0.3) delay += 10; // add 10 minutes if small ventilation
+    return delay;
+  },
+  messagePatternCallback: (temperature, contactLevel) => {
+    if (temperature.greaterThan('2 °C')) return 'Warning: Close %LABEL, it is cold outside and it has been open long enough.';
+    return 'Frost Alert: Close %LABEL, it has been open long enough!';
+  },
+  perItemConditionCallback: (temperature, item) => {
+    // validate that inside it is at least two degress Celsius warmer than outside
+    const insideTemperature = items.getItem(item.name.split('_')[0] + '_Temperature', true)?.quantityState;
+    if (!insideTemperature) return true;
+    const difference = insideTemperature.subtract(outside);
+    return difference.greaterThanOrEqual('2 °C');
+  }
+});
+```
+
+See [JSDoc: createTemperatureAlarmRule()](https://florian-h05.github.io/openhab-js-tools/rulesx.html#.createTemperatureAlarmRule) for full API documentation.
+
+#### `AlertManager`
+
+The powerful class behind the alerting rules, managing alerts throughout their entire lifecylce.
+
+See [JSDoc: AlertManager](https://florian-h05.github.io/openhab-js-tools/rulesx.AlertManager.html) for full API documentation.
+
 ### `thingsx`
 
+- `createReEnableThingWithItemRule`: Creates a rule that re-enables a Thing on command `ON` to a given Item.
 - `createThingStatusToItemRule`: Creates a rule that posts Thing statuses to String Items.
-- `createThingStatusNotificationRule`: Creates a rule that sends a notification when a Things goes offline and back online.
-- `createReEnableThingWithItemRule`: Creates a rule that re-enabled a Thing on command ON to a given Item.
+- `createThingStatusNotificationRule`: Creates a rule that sends a notification when a Thing goes offline and back online.
 - `reEnableThing`: Re-enables a Thing by first disabling and then enabling it again.
 - `MlscRestClient`: Class providing state fetching from and command sending to [music_led_strip_control](https://github.com/TobKra96/music_led_strip_control).
 
