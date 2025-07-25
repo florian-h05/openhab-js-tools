@@ -77,10 +77,15 @@ class AlertManager {
    */
   #activeAlerts = new Set();
   /**
-   * Stores the scheduled alerts by their ID along with their timeout ID.
+   * Stores the scheduled alerts by their ID along with scheduling arguments.
    * @type {Map<string, { delay: number, expiresAt: number, message: string, repeat: boolean, revalidate: RevalidateAlertCallback, id: NodeJS.Timeout }>}
    */
   #scheduledAlerts = new Map();
+  /**
+   * Stores the muted alerts by their ID along with the timeout ID used for removing the mute.
+   * @type {Map<string, NodeJS.Timeout>}
+   */
+  #mutedAlerts = new Map();
 
   /**
    * Creates a new AlertManager instance.
@@ -105,15 +110,18 @@ class AlertManager {
   /**
    * Issues an alert immediately.
    *
+   * If the alert is muted, it will not be sent, except if `important` is set to `true`.
+   *
    * If the alert is already active, do nothing by default.
    * If `reissue` is set to `true`, issue the alert again.
    *
    * @param {string} id the unique identifier for the alert
    * @param {string} message the message to be displayed in the alert
    * @param {boolean} [reissue=false] whether to re-issue the alert if it already has been issued
+   * @param {boolean} [important=false] whether the alert is important and should be sent even if muted
    * @return {boolean} true if the alert was issued, else false
    */
-  issueAlert (id, message, reissue = false) {
+  issueAlert (id, message, reissue = false, important = false) {
     if (this.#activeAlerts.has(id) && !reissue) {
       logger.debug(`${this.#id}: Alert ${id} already active, not sending again.`);
       return false;
@@ -122,9 +130,13 @@ class AlertManager {
       this.#cancelScheduledAlert(id);
       logger.debug(`${this.#id}: Alert ${id} was scheduled, but now being issued immediately.`);
     }
-    logger.debug(`${this.#id}: (Re-)Issuing alert ${id} ...`);
+    if (this.#mutedAlerts.has(id) && !important) {
+      logger.debug(`${this.#id}: Alert ${id} is muted, not sending alert.`);
+      return false;
+    }
     this.#activeAlerts.add(id);
     this.#sendAlert(id, message);
+    logger.debug(`${this.#id}: Alert ${id} (re-)issued with message: "${message}"`);
     return true;
   }
 
@@ -184,7 +196,6 @@ class AlertManager {
       }
     }
 
-    logger.debug(`${this.#id}: Scheduling alert ${id} with a delay of ${delay} minutes ...`);
     const delayMs = delay * 60 * 1000;
 
     const handler = () => {
@@ -203,6 +214,7 @@ class AlertManager {
       timeoutId = setTimeout(handler, delayMs);
     }
     this.#scheduledAlerts.set(id, { delay, expiresAt: Date.now() + delayMs, message, repeat, revalidate, id: timeoutId });
+    logger.debug(`${this.#id}: Scheduled alert ${id} with a delay of ${delay} minutes.`);
     return true;
   }
 
@@ -226,6 +238,24 @@ class AlertManager {
     const delay = ((alertData.expiresAt - Date.now()) / 60 / 1000) - alertData.delay + newDelay;
     this.scheduleAlert(id, alertData.message, delay, alertData.repeat, AlertManager.RESCHEDULE_MODE.RESCHEDULE, alertData.revalidate);
     return true;
+  }
+
+  /**
+   * Mutes an alert by its ID for the specified duration.
+   * @param {string} id the unique identifier for the alert
+   * @param {number} duration the duration in minutes for which the alert should be muted
+   */
+  muteAlert (id, duration) {
+    if (this.#mutedAlerts.has(id)) {
+      clearTimeout(this.#mutedAlerts.get(id));
+      logger.debug(`${this.#id}: Alert ${id} was already muted, re-muting for ${duration} minutes ...`);
+    }
+    const timeoutId = setTimeout(() => {
+      this.#mutedAlerts.delete(id);
+      logger.debug(`${this.#id}: Alert ${id} is no longer muted.`);
+    }, duration * 60 * 1000);
+    this.#mutedAlerts.set(id, timeoutId);
+    logger.debug(`${this.#id}: Alert ${id} has been muted for ${duration} minutes.`);
   }
 
   /**

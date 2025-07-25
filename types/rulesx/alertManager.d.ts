@@ -45,15 +45,18 @@ declare class AlertManager {
     /**
      * Issues an alert immediately.
      *
+     * If the alert is muted, it will not be sent, except if `important` is set to `true`.
+     *
      * If the alert is already active, do nothing by default.
      * If `reissue` is set to `true`, issue the alert again.
      *
      * @param {string} id the unique identifier for the alert
      * @param {string} message the message to be displayed in the alert
      * @param {boolean} [reissue=false] whether to re-issue the alert if it already has been issued
+     * @param {boolean} [important=false] whether the alert is important and should be sent even if muted
      * @return {boolean} true if the alert was issued, else false
      */
-    issueAlert(id: string, message: string, reissue?: boolean): boolean;
+    issueAlert(id: string, message: string, reissue?: boolean, important?: boolean): boolean;
     /**
      * Schedules an alert to be issued after the specified delay.
      *
@@ -80,6 +83,12 @@ declare class AlertManager {
      * @return {boolean} true if the delay was changed, else false
      */
     changeDelayForScheduledAlert(id: string, newDelay: number): boolean;
+    /**
+     * Mutes an alert by its ID for the specified duration.
+     * @param {string} id the unique identifier for the alert
+     * @param {number} duration the duration in minutes for which the alert should be muted
+     */
+    muteAlert(id: string, duration: number): void;
     /**
      * Revokes an alert, no matter it has only been scheduled or already become active.
      *

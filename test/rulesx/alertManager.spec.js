@@ -30,10 +30,10 @@ describe('AlertManager', () => {
   });
 
   describe('issueAlert', () => {
-    it('sends an alert immediately', () => {
-      const alertId = 'alert1';
-      const message = 'Test alert message';
+    const alertId = 'issueAlertTest';
+    const message = 'Alert message';
 
+    it('sends an alert immediately', () => {
       const res = alertManager.issueAlert(alertId, message);
 
       expect(res).toBe(true);
@@ -41,9 +41,6 @@ describe('AlertManager', () => {
     });
 
     it('does not send an alert if already active', () => {
-      const alertId = 'alert1';
-      const message = 'Test alert message';
-
       alertManager.issueAlert(alertId, message);
       const res = alertManager.issueAlert(alertId, message);
 
@@ -52,8 +49,6 @@ describe('AlertManager', () => {
     });
 
     it('sends an alert immediately and cancels scheduling if alert was scheduled before', () => {
-      const alertId = 'alert1';
-      const message = 'Test alert message';
       alertManager.scheduleAlert(alertId, message, 5);
 
       const res = alertManager.issueAlert(alertId, message);
@@ -63,9 +58,6 @@ describe('AlertManager', () => {
     });
 
     it('sends an active alert again if reissue is set to true', () => {
-      const alertId = 'alert1';
-      const message = 'Test alert message';
-
       const res1 = alertManager.issueAlert(alertId, message);
       const res2 = alertManager.issueAlert(alertId, message, true);
 
@@ -73,14 +65,25 @@ describe('AlertManager', () => {
       expect(res2).toBe(true);
       expect(mockSendAlert).toHaveBeenCalledTimes(2);
     });
+
+    it('ignores mute state when important is set to true', () => {
+      jest.useFakeTimers();
+
+      alertManager.muteAlert(alertId, 5); // Mute the alert for 5 minutes
+      const res = alertManager.issueAlert(alertId, message, false, true);
+
+      expect(res).toBe(true);
+      expect(mockSendAlert).toHaveBeenCalledWith(alertId, message);
+    });
   });
 
   describe('scheduleAlert', () => {
+    const alertId = 'scheduleAlertTest';
+    const message = 'Scheduled alert message';
+    const delay = 5; // minutes
+
     it('schedules an alert to be sent after a delay', () => {
       jest.useFakeTimers();
-      const alertId = 'alert2';
-      const message = 'Scheduled alert message';
-      const delay = 5; // minutes
 
       const res = alertManager.scheduleAlert(alertId, message, delay);
 
@@ -91,9 +94,6 @@ describe('AlertManager', () => {
 
     it('does nothing if an alert is already scheduled', () => {
       jest.useFakeTimers();
-      const alertId = 'alert2';
-      const message = 'Scheduled alert message';
-      const delay = 5; // minutes
 
       alertManager.scheduleAlert(alertId, message, delay);
 
@@ -111,9 +111,6 @@ describe('AlertManager', () => {
 
     it('does nothing if an alert is already active', () => {
       jest.useFakeTimers();
-      const alertId = 'alert2';
-      const message = 'Scheduled alert message';
-      const delay = 5; // minutes
 
       alertManager.issueAlert(alertId, message, delay);
       mockSendAlert.mockClear();
@@ -127,9 +124,6 @@ describe('AlertManager', () => {
 
     it('periodically sends an alert if repeat is true', () => {
       jest.useFakeTimers();
-      const alertId = 'alert2';
-      const message = 'Periodic alert message';
-      const delay = 5; // minutes
 
       alertManager.scheduleAlert(alertId, message, delay, true);
 
@@ -143,9 +137,6 @@ describe('AlertManager', () => {
 
     it('reschedules an alert if reschedule = RESCHEDULE', () => {
       jest.useFakeTimers();
-      const alertId = 'alert2';
-      const message = 'Scheduled alert message';
-      const delay = 5; // minutes
 
       alertManager.scheduleAlert(alertId, message, delay);
 
@@ -162,9 +153,6 @@ describe('AlertManager', () => {
 
     it('reschedules an alert if the delay has changed if reschedule = RESCHEDULE_IF_DELAY_CHANGED', () => {
       jest.useFakeTimers();
-      const alertId = 'alert2';
-      const message = 'Scheduled alert message';
-      const delay = 5; // minutes
       const newDelay = 10; // minutes
 
       alertManager.scheduleAlert(alertId, message, delay);
@@ -182,9 +170,6 @@ describe('AlertManager', () => {
 
     it('does not reschedule an alert if the delay has not changed if reschedule = RESCHEDULE_IF_DELAY_CHANGED', () => {
       jest.useFakeTimers();
-      const alertId = 'alert2';
-      const message = 'Scheduled alert message';
-      const delay = 5; // minutes
 
       alertManager.scheduleAlert(alertId, message, delay);
 
@@ -202,9 +187,6 @@ describe('AlertManager', () => {
 
     it('does not send a scheduled alert if revalidation fails', () => {
       jest.useFakeTimers();
-      const alertId = 'alert3';
-      const message = 'Scheduled alert with revalidation';
-      const delay = 5; // minutes
       const revalidate = jest.fn(() => false);
 
       alertManager.scheduleAlert(alertId, message, delay, false, false, revalidate);
@@ -216,12 +198,13 @@ describe('AlertManager', () => {
   });
 
   describe('changeDelay', () => {
+    const alertId = 'changeDelayTest';
+    const message = 'Alert message';
+    const initialDelay = 5; // minutes
+    const newDelay = 10; // minutes
+
     it('reschedules an alert with a new delay', () => {
       jest.useFakeTimers();
-      const alertId = 'alert3';
-      const message = 'Scheduled alert message';
-      const initialDelay = 5; // minutes
-      const newDelay = 10; // minutes
 
       alertManager.scheduleAlert(alertId, message, initialDelay);
       const res = alertManager.changeDelayForScheduledAlert(alertId, newDelay);
@@ -236,16 +219,13 @@ describe('AlertManager', () => {
 
     it('returns fast if the new delay is the same as the current one', () => {
       jest.useFakeTimers();
-      const alertId = 'alert3';
-      const message = 'Scheduled alert message';
-      const delay = 5; // minutes
 
       const scheduleAlertSpy = jest.spyOn(alertManager, 'scheduleAlert');
 
-      alertManager.scheduleAlert(alertId, message, delay);
+      alertManager.scheduleAlert(alertId, message, initialDelay);
       scheduleAlertSpy.mockClear();
 
-      const res = alertManager.changeDelayForScheduledAlert(alertId, delay);
+      const res = alertManager.changeDelayForScheduledAlert(alertId, initialDelay);
 
       expect(res).toBe(false);
       expect(scheduleAlertSpy).not.toHaveBeenCalled();
@@ -253,8 +233,6 @@ describe('AlertManager', () => {
 
     it('does nothing if no alert with the given ID is scheduled', () => {
       jest.useFakeTimers();
-      const alertId = 'nonExistentAlert';
-      const newDelay = 5; // minutes
 
       const res = alertManager.changeDelayForScheduledAlert(alertId, newDelay);
 
@@ -265,12 +243,65 @@ describe('AlertManager', () => {
     });
   });
 
+  describe('muteAlert', () => {
+    const alertId = 'muteAlertTest';
+    const message = 'Alert message';
+    const duration = 5; // minutes
+
+    it('mutes an alert for the given duration', () => {
+      jest.useFakeTimers();
+
+      alertManager.muteAlert(alertId, duration);
+      alertManager.issueAlert(alertId, message);
+
+      expect(mockSendAlert).not.toHaveBeenCalled();
+      jest.advanceTimersByTime(duration * 60 * 1000);
+
+      alertManager.issueAlert(alertId, message);
+
+      expect(mockSendAlert).toHaveBeenCalledWith(alertId, message);
+    });
+
+    it('mutes a scheduled alert for the given duration', () => {
+      jest.useFakeTimers();
+
+      alertManager.muteAlert(alertId, duration);
+      // mute is active, alert should not be sent
+      alertManager.scheduleAlert(alertId, message, duration / 2);
+
+      expect(mockSendAlert).not.toHaveBeenCalled();
+      jest.advanceTimersByTime(duration * 60 * 1000);
+
+      // mute duration is over, alert should be sent
+      alertManager.scheduleAlert(alertId, message, duration / 2);
+
+      jest.advanceTimersByTime(duration * 60 * 1000);
+      expect(mockSendAlert).toHaveBeenCalledWith(alertId, message);
+    });
+
+    it('resets mute duration if muted again', () => {
+      jest.useFakeTimers();
+
+      alertManager.muteAlert(alertId, duration);
+
+      jest.advanceTimersByTime(duration * 60 * 1000 / 2);
+
+      alertManager.muteAlert(alertId, duration);
+
+      jest.advanceTimersByTime(duration * 60 * 1000 / 2);
+
+      alertManager.issueAlert(alertId, message);
+      expect(mockSendAlert).not.toHaveBeenCalled();
+    });
+  });
+
   describe('revokeAlert', () => {
+    const alertId = 'revokeAlertTest';
+    const message = 'Alert message';
+    const delay = 5; // minutes
+
     it('revokes a scheduled alert', () => {
       jest.useFakeTimers();
-      const alertId = 'alert4';
-      const message = 'Alert to be revoked';
-      const delay = 5; // minutes
 
       alertManager.scheduleAlert(alertId, message, delay);
       const res = alertManager.revokeAlert(alertId);
@@ -280,11 +311,24 @@ describe('AlertManager', () => {
       expect(mockSendAlert).not.toHaveBeenCalled();
     });
 
+    it('revokes a scheduled repeating alert', () => {
+      jest.useFakeTimers();
+
+      alertManager.scheduleAlert(alertId, message, delay, true);
+
+      jest.advanceTimersByTime(delay * 60 * 1000);
+      expect(mockSendAlert).toHaveBeenCalledWith(alertId, message);
+      mockSendAlert.mockClear();
+
+      const res = alertManager.revokeAlert(alertId);
+      expect(res).toBe(true);
+
+      jest.advanceTimersByTime(delay * 60 * 1000);
+      expect(mockSendAlert).not.toHaveBeenCalled();
+    });
+
     it('revokes a scheduled alert that has already become active', () => {
       jest.useFakeTimers();
-      const alertId = 'alert4';
-      const message = 'Alert to be revoked';
-      const delay = 5; // minutes
 
       alertManager.scheduleAlert(alertId, message, delay);
 
@@ -297,9 +341,6 @@ describe('AlertManager', () => {
     });
 
     it('revokes a sent alert', () => {
-      const alertId = 'alert5';
-      const message = 'Active alert to be revoked';
-
       alertManager.issueAlert(alertId, message);
       const res = alertManager.revokeAlert(alertId);
 
@@ -316,12 +357,12 @@ describe('AlertManager', () => {
   });
 
   describe('revokeAllAlerts', () => {
-    it('revokes all alerts', () => {
-      const alertId1 = 'alert6';
-      const message1 = 'First alert';
-      const alertId2 = 'alert7';
-      const message2 = 'Second alert';
+    const alertId1 = 'revokeAllAlertsTest1';
+    const message1 = 'First alert';
+    const alertId2 = 'revokeAllAlertsTest2';
+    const message2 = 'Second alert';
 
+    it('revokes all alerts', () => {
       const revokeAlertSpy = jest.spyOn(alertManager, 'revokeAlert');
 
       alertManager.issueAlert(alertId1, message1);
