@@ -11,8 +11,7 @@
 const { items } = require('openhab');
 
 /**
- * @typedef {object} Item
- * @private
+ * @typedef {import("openhab/types/items/items").Item} Item
  */
 
 /**
