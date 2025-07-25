@@ -93,6 +93,10 @@ export type TemperatureAlarmConfig = {
      */
     revokeAlertCallback: RevokeAlertCallback;
     /**
+     * whether to repeat the alert after the delay
+     */
+    repeat?: boolean;
+    /**
      * name of the Item that to monitor the temperature
      */
     temperatureItemName: string;
@@ -198,6 +202,7 @@ export function createRainAlarmRule(config: RainAlarmConfig): void;
  * @property {string} name the name of the alarm, e.g. "Heat Alarm"
  * @property {SendAlertCallback} sendAlertCallback callback to send an alert
  * @property {RevokeAlertCallback} revokeAlertCallback callback to revoke an alert
+ * @property {boolean} [repeat=false] whether to repeat the alert after the delay
  * @property {string} temperatureItemName name of the Item that to monitor the temperature
  * @property {string} contactGroupName name of the contact group to monitor
  * @property {string[]} [ignoreItems] list of Item names to ignore

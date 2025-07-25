@@ -73,6 +73,9 @@ function createRainAlarmRule (config) {
       triggers.GroupStateChangeTrigger(config.contactGroupName)
     ],
     execute: (event) => {
+      /**
+       * @type {AlertManager}
+       */
       const alertManager = cache.private.get(ALERT_MANAGER_CACHE_KEY);
 
       function evaluateWindspeedAndSendAlert (windspeed, item) {
@@ -178,6 +181,7 @@ function createRainAlarmRule (config) {
  * @property {string} name the name of the alarm, e.g. "Heat Alarm"
  * @property {SendAlertCallback} sendAlertCallback callback to send an alert
  * @property {RevokeAlertCallback} revokeAlertCallback callback to revoke an alert
+ * @property {boolean} [repeat=false] whether to repeat the alert after the delay
  * @property {string} temperatureItemName name of the Item that to monitor the temperature
  * @property {string} contactGroupName name of the contact group to monitor
  * @property {string[]} [ignoreItems] list of Item names to ignore
@@ -194,6 +198,7 @@ function createRainAlarmRule (config) {
  * @memberof rulesx
  */
 function createTemperatureAlarmRule (config) {
+  if (config.repeat === undefined) config.repeat = false;
   if (!config.ignoreItems) config.ignoreItems = [];
 
   const ALERT_MANAGER_CACHE_KEY = `AlertManager-temperatureAlarm-${config.name}`;
@@ -208,6 +213,9 @@ function createTemperatureAlarmRule (config) {
       triggers.GroupStateChangeTrigger(config.contactGroupName)
     ],
     execute: (event) => {
+      /**
+       * @type {AlertManager}
+       */
       const alertManager = cache.private.get(ALERT_MANAGER_CACHE_KEY);
 
       function handleAlert (temperature, item) {
@@ -226,7 +234,7 @@ function createTemperatureAlarmRule (config) {
             logger.info(`${config.name}: No delay for ${item.name} of ${config.contactGroupName}, sent alert immediately.`);
           }
         } else {
-          if (alertManager.scheduleAlert(item.name, message, delay, AlertManager.RESCHEDULE_MODE.RESCHEDULE_IF_DELAY_CHANGED)) {
+          if (alertManager.scheduleAlert(item.name, message, delay, config.repeat, AlertManager.RESCHEDULE_MODE.RESCHEDULE_IF_DELAY_CHANGED)) {
             logger.info(`${config.name}: Scheduled alert for ${item.name} of ${config.contactGroupName} with delay of ${delay} minutes.`);
           }
         }
