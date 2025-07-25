@@ -125,18 +125,20 @@ describe('AlertManager', () => {
       expect(mockSendAlert).not.toHaveBeenCalled();
     });
 
-    it('does not send a scheduled alert if revalidation fails', () => {
+    it('periodically sends an alert if repeat is true', () => {
       jest.useFakeTimers();
-      const alertId = 'alert3';
-      const message = 'Scheduled alert with revalidation';
+      const alertId = 'alert2';
+      const message = 'Periodic alert message';
       const delay = 5; // minutes
-      const revalidate = jest.fn(() => false);
 
-      alertManager.scheduleAlert(alertId, message, delay, false, revalidate);
+      alertManager.scheduleAlert(alertId, message, delay, true);
 
-      jest.advanceTimersByTime(delay * 60 * 1000);
-
-      expect(mockSendAlert).not.toHaveBeenCalled();
+      for (let i = 0; i < 3; i++) {
+        jest.advanceTimersByTime(delay * 60 * 1000);
+      }
+      expect(mockSendAlert).toHaveBeenCalledWith(alertId, message);
+      expect(mockSendAlert).toHaveBeenCalledTimes(3);
+      jest.clearAllTimers();
     });
 
     it('reschedules an alert if reschedule = RESCHEDULE', () => {
@@ -149,7 +151,7 @@ describe('AlertManager', () => {
 
       jest.advanceTimersByTime((delay / 2) * 60 * 1000);
 
-      const res = alertManager.scheduleAlert(alertId, message, delay, AlertManager.RESCHEDULE_MODE.RESCHEDULE);
+      const res = alertManager.scheduleAlert(alertId, message, delay, false, AlertManager.RESCHEDULE_MODE.RESCHEDULE);
 
       expect(res).toBe(true);
       jest.advanceTimersByTime((delay / 2) * 60 * 1000);
@@ -169,7 +171,7 @@ describe('AlertManager', () => {
 
       jest.advanceTimersByTime((delay / 2) * 60 * 1000);
 
-      const res = alertManager.scheduleAlert(alertId, message, newDelay, AlertManager.RESCHEDULE_MODE.RESCHEDULE_IF_DELAY_CHANGED);
+      const res = alertManager.scheduleAlert(alertId, message, newDelay, false, AlertManager.RESCHEDULE_MODE.RESCHEDULE_IF_DELAY_CHANGED);
 
       expect(res).toBe(true);
       jest.advanceTimersByTime((delay / 2) * 60 * 1000);
@@ -188,13 +190,27 @@ describe('AlertManager', () => {
 
       jest.advanceTimersByTime((delay / 2) * 60 * 1000);
 
-      const res = alertManager.scheduleAlert(alertId, message, delay, AlertManager.RESCHEDULE_MODE.RESCHEDULE_IF_DELAY_CHANGED);
+      const res = alertManager.scheduleAlert(alertId, message, delay, false, AlertManager.RESCHEDULE_MODE.RESCHEDULE_IF_DELAY_CHANGED);
 
       expect(res).toBe(false);
       jest.advanceTimersByTime((delay / 2) * 60 * 1000);
       expect(mockSendAlert).toHaveBeenCalledWith(alertId, message);
       mockSendAlert.mockClear();
       jest.advanceTimersByTime((delay / 2) * 60 * 1000);
+      expect(mockSendAlert).not.toHaveBeenCalled();
+    });
+
+    it('does not send a scheduled alert if revalidation fails', () => {
+      jest.useFakeTimers();
+      const alertId = 'alert3';
+      const message = 'Scheduled alert with revalidation';
+      const delay = 5; // minutes
+      const revalidate = jest.fn(() => false);
+
+      alertManager.scheduleAlert(alertId, message, delay, false, false, revalidate);
+
+      jest.advanceTimersByTime(delay * 60 * 1000);
+
       expect(mockSendAlert).not.toHaveBeenCalled();
     });
   });

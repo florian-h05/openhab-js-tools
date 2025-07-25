@@ -78,7 +78,7 @@ class AlertManager {
   #activeAlerts = new Set();
   /**
    * Stores the scheduled alerts by their ID along with their timeout ID.
-   * @type {Map<string, { delay: number, expiresAt: number, message: string, revalidate: RevalidateAlertCallback, timeoutId: NodeJS.Timeout }>}
+   * @type {Map<string, { delay: number, expiresAt: number, message: string, repeat: boolean, revalidate: RevalidateAlertCallback, id: NodeJS.Timeout }>}
    */
   #scheduledAlerts = new Map();
 
@@ -118,9 +118,8 @@ class AlertManager {
       logger.debug(`${this.#id}: Alert ${id} already active, not sending again.`);
       return false;
     }
-    if (this.#scheduledAlerts.has(id)) {
-      clearTimeout(this.#scheduledAlerts.get(id).timeoutId);
-      this.#scheduledAlerts.delete(id);
+    if (this.#scheduledAlerts.has(id) && !this.#scheduledAlerts.get(id).repeat) {
+      this.#cancelScheduledAlert(id);
       logger.debug(`${this.#id}: Alert ${id} was scheduled, but now being issued immediately.`);
     }
     logger.debug(`${this.#id}: (Re-)Issuing alert ${id} ...`);
@@ -129,11 +128,24 @@ class AlertManager {
     return true;
   }
 
+  /**
+   * Cancels a scheduled alert by its ID.
+   * If the alert is repeated, it will be stopped.
+   *
+   * @param {string} id the unique identifier of the alert to be cancelled
+   * @return {boolean} true if the alert was cancelled, else false
+   */
   #cancelScheduledAlert (id) {
-    if (this.#scheduledAlerts.has(id)) {
-      clearTimeout(this.#scheduledAlerts.get(id).timeoutId);
-      this.#scheduledAlerts.delete(id);
+    const alertData = this.#scheduledAlerts.get(id);
+    if (!alertData) return false;
+    if (alertData.repeat) {
+      clearInterval(alertData.id);
+      logger.debug(`${this.#id}: Cancelled scheduled repeating alert ${id}.`);
+    } else {
+      clearTimeout(alertData.id);
+      logger.debug(`${this.#id}: Cancelled scheduled alert ${id}.`);
     }
+    return true;
   }
 
   /**
@@ -146,11 +158,12 @@ class AlertManager {
    * @param {string} id the unique identifier for the alert
    * @param {string} message the message to be displayed in the alert
    * @param {number} delay the delay in minutes before the alert should become active
+   * @param {boolean} [repeat=false] whether to repeat the alert after the delay, defaults to false
    * @param {string} [reschedule] whether to reschedule an already scheduled alert, defaults to NO_RESCHEDULE
    * @param {RevalidateAlertCallback} [revalidate] function to revalidate if the alert should be sent once the delay is over
    * @return {boolean} true if the alert was (re-)scheduled, else false
    */
-  scheduleAlert (id, message, delay, reschedule = AlertManager.RESCHEDULE_MODE.NO_RESCHEDULE, revalidate = () => true) {
+  scheduleAlert (id, message, delay, repeat = false, reschedule = AlertManager.RESCHEDULE_MODE.NO_RESCHEDULE, revalidate = () => true) {
     if (this.#scheduledAlerts.has(id) || this.#activeAlerts.has(id)) {
       switch (reschedule) {
         case AlertManager.RESCHEDULE_MODE.RESCHEDULE_IF_DELAY_CHANGED:
@@ -173,16 +186,23 @@ class AlertManager {
 
     logger.debug(`${this.#id}: Scheduling alert ${id} with a delay of ${delay} minutes ...`);
     const delayMs = delay * 60 * 1000;
-    const timeoutId = setTimeout(() => {
-      this.#scheduledAlerts.delete(id);
+
+    const handler = () => {
+      if (!repeat) this.#scheduledAlerts.delete(id);
       if (typeof revalidate === 'function' && !revalidate()) {
         logger.debug(`${this.#id}: Alert ${id} was not revalidated, not sending alert.`);
         return;
       }
-      this.issueAlert(id, message);
-      this.#activeAlerts.add(id);
-    }, delayMs);
-    this.#scheduledAlerts.set(id, { delay, expiresAt: Date.now() + delayMs, message, revalidate, timeoutId });
+      this.issueAlert(id, message, repeat);
+    };
+
+    let timeoutId;
+    if (repeat) {
+      timeoutId = setInterval(handler, delayMs);
+    } else {
+      timeoutId = setTimeout(handler, delayMs);
+    }
+    this.#scheduledAlerts.set(id, { delay, expiresAt: Date.now() + delayMs, message, repeat, revalidate, id: timeoutId });
     return true;
   }
 
@@ -204,7 +224,7 @@ class AlertManager {
     const alertData = this.#scheduledAlerts.get(id);
     if (newDelay === alertData.delay) return false;
     const delay = ((alertData.expiresAt - Date.now()) / 60 / 1000) - alertData.delay + newDelay;
-    this.scheduleAlert(id, alertData.message, delay, AlertManager.RESCHEDULE_MODE.RESCHEDULE, alertData.revalidate);
+    this.scheduleAlert(id, alertData.message, delay, alertData.repeat, AlertManager.RESCHEDULE_MODE.RESCHEDULE, alertData.revalidate);
     return true;
   }
 

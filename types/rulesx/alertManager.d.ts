@@ -64,11 +64,12 @@ declare class AlertManager {
      * @param {string} id the unique identifier for the alert
      * @param {string} message the message to be displayed in the alert
      * @param {number} delay the delay in minutes before the alert should become active
+     * @param {boolean} [repeat=false] whether to repeat the alert after the delay, defaults to false
      * @param {string} [reschedule] whether to reschedule an already scheduled alert, defaults to NO_RESCHEDULE
      * @param {RevalidateAlertCallback} [revalidate] function to revalidate if the alert should be sent once the delay is over
      * @return {boolean} true if the alert was (re-)scheduled, else false
      */
-    scheduleAlert(id: string, message: string, delay: number, reschedule?: string, revalidate?: RevalidateAlertCallback): boolean;
+    scheduleAlert(id: string, message: string, delay: number, repeat?: boolean, reschedule?: string, revalidate?: RevalidateAlertCallback): boolean;
     /**
      * Changes the delay of a scheduled alert.
      *
