@@ -110,8 +110,9 @@ function createRainAlarmRule (config) {
           }
         } else {
           // if rain alarm is not active: revoke all alerts
-          logger.info(`Rain alarm for ${config.contactGroupName} has become inactive, revoking all alerts.`);
-          alertManager.revokeAllAlerts();
+          if (alertManager.revokeAllAlerts() > 0) {
+            logger.info(`Rain alarm for ${config.contactGroupName} has become inactive, revoked all alerts.`);
+          }
         }
       } else if (event.itemName) {
         if (config.ignoreItems?.includes(event.itemName)) return;
@@ -121,8 +122,9 @@ function createRainAlarmRule (config) {
           return; // if rain alarm is not active, ignore state changes of contact items
         }
         if (event.newState === 'CLOSED' || parseFloat(event.newState) === 0) {
-          logger.info(`Rain alarm: Item ${event.itemName} in ${config.contactGroupName} is now closed, revoking alert.`);
-          alertManager.revokeAlert(event.itemName);
+          if (alertManager.revokeAlert(event.itemName)) {
+            logger.info(`Rain alarm: Item ${event.itemName} in ${config.contactGroupName} has closed, revoked alert.`);
+          }
         } else {
           const windspeed = config.windspeedItemName ? items.getItem(config.windspeedItemName).quantityState : null;
           const item = items.getItem(event.itemName);
@@ -220,11 +222,13 @@ function createTemperatureAlarmRule (config) {
         }
 
         if (delay === 0) {
-          logger.info(`${config.name}: No delay for ${item.name} of ${config.contactGroupName}, sending alert immediately.`);
-          alertManager.issueAlert(item.name, message);
+          if (alertManager.issueAlert(item.name, message)) {
+            logger.info(`${config.name}: No delay for ${item.name} of ${config.contactGroupName}, sent alert immediately.`);
+          }
         } else {
-          logger.info(`${config.name}: Scheduling alert for ${item.name} of ${config.contactGroupName} with delay of ${delay} minutes.`);
-          alertManager.scheduleAlert(item.name, message, delay, AlertManager.RESCHEDULE_MODE.RESCHEDULE_IF_DELAY_CHANGED);
+          if (alertManager.scheduleAlert(item.name, message, delay, AlertManager.RESCHEDULE_MODE.RESCHEDULE_IF_DELAY_CHANGED)) {
+            logger.info(`${config.name}: Scheduled alert for ${item.name} of ${config.contactGroupName} with delay of ${delay} minutes.`);
+          }
         }
       }
 
@@ -243,8 +247,9 @@ function createTemperatureAlarmRule (config) {
           }
         } else {
           // if alarm is not active: revoke all alerts
-          logger.info(`${config.name} for ${config.contactGroupName} has become inactive, revoking all alerts.`);
-          alertManager.revokeAllAlerts();
+          if (alertManager.revokeAllAlerts() > 0) {
+            logger.info(`${config.name} for ${config.contactGroupName} has become inactive, revoked all alerts.`);
+          }
         }
       } else if (event.itemName) {
         if (config.ignoreItems?.includes(event.itemName)) return;
@@ -254,8 +259,9 @@ function createTemperatureAlarmRule (config) {
           return; // if alarm is not active, ignore state changes of contact items
         }
         if (event.newState === 'CLOSED' || parseFloat(event.newState) === 0) {
-          logger.info(`${config.name}: Item ${event.itemName} in ${config.contactGroupName} is now closed, revoking alert.`);
-          alertManager.revokeAlert(event.itemName);
+          if (alertManager.revokeAlert(event.itemName)) {
+            logger.info(`${config.name}: Item ${event.itemName} in ${config.contactGroupName} has closed, revoked alert.`);
+          }
         } else {
           const item = items.getItem(event.itemName);
           handleAlert(temperature, item);
