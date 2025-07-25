@@ -51,8 +51,9 @@ declare class AlertManager {
      * @param {string} id the unique identifier for the alert
      * @param {string} message the message to be displayed in the alert
      * @param {boolean} [reissue=false] whether to re-issue the alert if it already has been issued
+     * @return {boolean} true if the alert was issued, else false
      */
-    issueAlert(id: string, message: string, reissue?: boolean): void;
+    issueAlert(id: string, message: string, reissue?: boolean): boolean;
     /**
      * Schedules an alert to be issued after the specified delay.
      *
@@ -65,8 +66,9 @@ declare class AlertManager {
      * @param {number} delay the delay in minutes before the alert should become active
      * @param {string} [reschedule] whether to reschedule an already scheduled alert, defaults to NO_RESCHEDULE
      * @param {RevalidateAlertCallback} [revalidate] function to revalidate if the alert should be sent once the delay is over
+     * @return {boolean} true if the alert was (re-)scheduled, else false
      */
-    scheduleAlert(id: string, message: string, delay: number, reschedule?: string, revalidate?: RevalidateAlertCallback): void;
+    scheduleAlert(id: string, message: string, delay: number, reschedule?: string, revalidate?: RevalidateAlertCallback): boolean;
     /**
      * Changes the delay of a scheduled alert.
      *
@@ -74,18 +76,24 @@ declare class AlertManager {
      *
      * @param {string} id the unique identifier for the alert
      * @param {number} newDelay the new delay in minutes before the alert should become active
+     * @return {boolean} true if the delay was changed, else false
      */
-    changeDelayForScheduledAlert(id: string, newDelay: number): void;
+    changeDelayForScheduledAlert(id: string, newDelay: number): boolean;
     /**
      * Revokes an alert, no matter it has only been scheduled or already become active.
      *
+     * If no alert with the given ID is scheduled or active, do nothing.
+     *
      * @param {string} id the unique identifier of the alert
+     * @return {boolean} true if the alert was revoked, else false
      */
-    revokeAlert(id: string): void;
+    revokeAlert(id: string): boolean;
     /**
      * Revokes all alerts that have been scheduled or already become active.
+     *
+     * @return {number} the number of alerts that have been revoked
      */
-    revokeAllAlerts(): void;
+    revokeAllAlerts(): number;
     #private;
 }
 declare namespace AlertManager {

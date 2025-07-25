@@ -33,17 +33,21 @@ describe('AlertManager', () => {
     it('sends an alert immediately', () => {
       const alertId = 'alert1';
       const message = 'Test alert message';
-      alertManager.issueAlert(alertId, message);
 
+      const res = alertManager.issueAlert(alertId, message);
+
+      expect(res).toBe(true);
       expect(mockSendAlert).toHaveBeenCalledWith(alertId, message);
     });
 
     it('does not send an alert if already active', () => {
       const alertId = 'alert1';
       const message = 'Test alert message';
-      alertManager.issueAlert(alertId, message);
-      alertManager.issueAlert(alertId, message);
 
+      alertManager.issueAlert(alertId, message);
+      const res = alertManager.issueAlert(alertId, message);
+
+      expect(res).toBe(false);
       expect(mockSendAlert).toHaveBeenCalledTimes(1);
     });
 
@@ -51,23 +55,23 @@ describe('AlertManager', () => {
       const alertId = 'alert1';
       const message = 'Test alert message';
       alertManager.scheduleAlert(alertId, message, 5);
-      alertManager.issueAlert(alertId, message);
 
+      const res = alertManager.issueAlert(alertId, message);
+
+      expect(res).toBe(true);
       expect(mockSendAlert).toHaveBeenCalledWith(alertId, message);
     });
 
     it('sends an active alert again if reissue is set to true', () => {
-      jest.useFakeTimers();
       const alertId = 'alert1';
       const message = 'Test alert message';
-      const delay = 5; // minutes
 
-      alertManager.scheduleAlert(alertId, message);
-      alertManager.issueAlert(alertId, message, true);
+      const res1 = alertManager.issueAlert(alertId, message);
+      const res2 = alertManager.issueAlert(alertId, message, true);
 
-      jest.advanceTimersByTime(delay * 60 * 1000);
-
-      expect(mockSendAlert).toHaveBeenCalledTimes(1);
+      expect(res1).toBe(true);
+      expect(res2).toBe(true);
+      expect(mockSendAlert).toHaveBeenCalledTimes(2);
     });
   });
 
@@ -78,10 +82,10 @@ describe('AlertManager', () => {
       const message = 'Scheduled alert message';
       const delay = 5; // minutes
 
-      alertManager.scheduleAlert(alertId, message, delay);
+      const res = alertManager.scheduleAlert(alertId, message, delay);
 
       jest.advanceTimersByTime(delay * 60 * 1000);
-
+      expect(res).toBe(true);
       expect(mockSendAlert).toHaveBeenCalledWith(alertId, message);
     });
 
@@ -95,8 +99,9 @@ describe('AlertManager', () => {
 
       jest.advanceTimersByTime((delay / 2) * 60 * 1000);
 
-      alertManager.scheduleAlert(alertId, message, delay);
+      const res = alertManager.scheduleAlert(alertId, message, delay);
 
+      expect(res).toBe(false);
       jest.advanceTimersByTime((delay / 2) * 60 * 1000);
       expect(mockSendAlert).toHaveBeenCalledWith(alertId, message);
       mockSendAlert.mockClear();
@@ -113,9 +118,10 @@ describe('AlertManager', () => {
       alertManager.issueAlert(alertId, message, delay);
       mockSendAlert.mockClear();
 
-      alertManager.scheduleAlert(alertId, message, delay);
-      jest.advanceTimersByTime(delay * 60 * 1000);
+      const res = alertManager.scheduleAlert(alertId, message, delay);
 
+      expect(res).toBe(false);
+      jest.advanceTimersByTime(delay * 60 * 1000);
       expect(mockSendAlert).not.toHaveBeenCalled();
     });
 
@@ -143,8 +149,9 @@ describe('AlertManager', () => {
 
       jest.advanceTimersByTime((delay / 2) * 60 * 1000);
 
-      alertManager.scheduleAlert(alertId, message, delay, AlertManager.RESCHEDULE_MODE.RESCHEDULE);
+      const res = alertManager.scheduleAlert(alertId, message, delay, AlertManager.RESCHEDULE_MODE.RESCHEDULE);
 
+      expect(res).toBe(true);
       jest.advanceTimersByTime((delay / 2) * 60 * 1000);
       expect(mockSendAlert).not.toHaveBeenCalled();
       jest.advanceTimersByTime((delay / 2) * 60 * 1000);
@@ -162,8 +169,9 @@ describe('AlertManager', () => {
 
       jest.advanceTimersByTime((delay / 2) * 60 * 1000);
 
-      alertManager.scheduleAlert(alertId, message, newDelay, AlertManager.RESCHEDULE_MODE.RESCHEDULE_IF_DELAY_CHANGED);
+      const res = alertManager.scheduleAlert(alertId, message, newDelay, AlertManager.RESCHEDULE_MODE.RESCHEDULE_IF_DELAY_CHANGED);
 
+      expect(res).toBe(true);
       jest.advanceTimersByTime((delay / 2) * 60 * 1000);
       expect(mockSendAlert).not.toHaveBeenCalled();
       jest.advanceTimersByTime((newDelay - delay / 2) * 60 * 1000);
@@ -180,8 +188,9 @@ describe('AlertManager', () => {
 
       jest.advanceTimersByTime((delay / 2) * 60 * 1000);
 
-      alertManager.scheduleAlert(alertId, message, delay, AlertManager.RESCHEDULE_MODE.RESCHEDULE_IF_DELAY_CHANGED);
+      const res = alertManager.scheduleAlert(alertId, message, delay, AlertManager.RESCHEDULE_MODE.RESCHEDULE_IF_DELAY_CHANGED);
 
+      expect(res).toBe(false);
       jest.advanceTimersByTime((delay / 2) * 60 * 1000);
       expect(mockSendAlert).toHaveBeenCalledWith(alertId, message);
       mockSendAlert.mockClear();
@@ -199,8 +208,9 @@ describe('AlertManager', () => {
       const newDelay = 10; // minutes
 
       alertManager.scheduleAlert(alertId, message, initialDelay);
-      alertManager.changeDelayForScheduledAlert(alertId, newDelay);
+      const res = alertManager.changeDelayForScheduledAlert(alertId, newDelay);
 
+      expect(res).toBe(true);
       jest.advanceTimersByTime(initialDelay * 60 * 1000);
       expect(mockSendAlert).not.toHaveBeenCalled();
 
@@ -219,7 +229,9 @@ describe('AlertManager', () => {
       alertManager.scheduleAlert(alertId, message, delay);
       scheduleAlertSpy.mockClear();
 
-      alertManager.changeDelayForScheduledAlert(alertId, delay);
+      const res = alertManager.changeDelayForScheduledAlert(alertId, delay);
+
+      expect(res).toBe(false);
       expect(scheduleAlertSpy).not.toHaveBeenCalled();
     });
 
@@ -228,9 +240,10 @@ describe('AlertManager', () => {
       const alertId = 'nonExistentAlert';
       const newDelay = 5; // minutes
 
-      alertManager.changeDelayForScheduledAlert(alertId, newDelay);
-      jest.advanceTimersByTime(newDelay * 60 * 1000);
+      const res = alertManager.changeDelayForScheduledAlert(alertId, newDelay);
 
+      expect(res).toBe(false);
+      jest.advanceTimersByTime(newDelay * 60 * 1000);
       expect(mockSendAlert).not.toHaveBeenCalled();
       expect(mockRevokeAlert).not.toHaveBeenCalled();
     });
@@ -244,10 +257,10 @@ describe('AlertManager', () => {
       const delay = 5; // minutes
 
       alertManager.scheduleAlert(alertId, message, delay);
-      alertManager.revokeAlert(alertId);
+      const res = alertManager.revokeAlert(alertId);
 
+      expect(res).toBe(true);
       jest.advanceTimersByTime(delay * 60 * 1000);
-
       expect(mockSendAlert).not.toHaveBeenCalled();
     });
 
@@ -261,8 +274,9 @@ describe('AlertManager', () => {
 
       jest.advanceTimersByTime((delay + 1) * 60 * 1000);
 
-      alertManager.revokeAlert(alertId);
+      const res = alertManager.revokeAlert(alertId);
 
+      expect(res).toBe(true);
       expect(mockRevokeAlert).toHaveBeenCalledWith(alertId);
     });
 
@@ -271,14 +285,16 @@ describe('AlertManager', () => {
       const message = 'Active alert to be revoked';
 
       alertManager.issueAlert(alertId, message);
-      alertManager.revokeAlert(alertId);
+      const res = alertManager.revokeAlert(alertId);
 
+      expect(res).toBe(true);
       expect(mockRevokeAlert).toHaveBeenCalledWith(alertId);
     });
 
     it('does nothing if no alert with the given ID is scheduled or active', () => {
-      alertManager.revokeAlert('nonExistentAlert');
+      const res = alertManager.revokeAlert('nonExistentAlert');
 
+      expect(res).toBe(false);
       expect(mockRevokeAlert).not.toHaveBeenCalled();
     });
   });
@@ -295,8 +311,9 @@ describe('AlertManager', () => {
       alertManager.issueAlert(alertId1, message1);
       alertManager.scheduleAlert(alertId2, message2, 5);
 
-      alertManager.revokeAllAlerts();
+      const res = alertManager.revokeAllAlerts();
 
+      expect(res).toBe(2);
       expect(revokeAlertSpy).toHaveBeenCalledWith(alertId1);
       expect(revokeAlertSpy).toHaveBeenCalledWith(alertId2);
     });

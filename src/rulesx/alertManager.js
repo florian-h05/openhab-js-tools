@@ -111,11 +111,12 @@ class AlertManager {
    * @param {string} id the unique identifier for the alert
    * @param {string} message the message to be displayed in the alert
    * @param {boolean} [reissue=false] whether to re-issue the alert if it already has been issued
+   * @return {boolean} true if the alert was issued, else false
    */
   issueAlert (id, message, reissue = false) {
     if (this.#activeAlerts.has(id) && !reissue) {
       logger.debug(`${this.#id}: Alert ${id} already active, not sending again.`);
-      return;
+      return false;
     }
     if (this.#scheduledAlerts.has(id)) {
       clearTimeout(this.#scheduledAlerts.get(id).timeoutId);
@@ -125,6 +126,7 @@ class AlertManager {
     logger.debug(`${this.#id}: (Re-)Issuing alert ${id} ...`);
     this.#activeAlerts.add(id);
     this.#sendAlert(id, message);
+    return true;
   }
 
   #cancelScheduledAlert (id) {
@@ -146,6 +148,7 @@ class AlertManager {
    * @param {number} delay the delay in minutes before the alert should become active
    * @param {string} [reschedule] whether to reschedule an already scheduled alert, defaults to NO_RESCHEDULE
    * @param {RevalidateAlertCallback} [revalidate] function to revalidate if the alert should be sent once the delay is over
+   * @return {boolean} true if the alert was (re-)scheduled, else false
    */
   scheduleAlert (id, message, delay, reschedule = AlertManager.RESCHEDULE_MODE.NO_RESCHEDULE, revalidate = () => true) {
     if (this.#scheduledAlerts.has(id) || this.#activeAlerts.has(id)) {
@@ -154,7 +157,7 @@ class AlertManager {
           logger.debug(`${this.#id}: Rescheduling alert ${id} with new delay of ${delay} minutes ...`);
           if (this.#scheduledAlerts.get(id)?.delay === delay) {
             logger.debug(`${this.#id}: Alert ${id} already scheduled with the same delay, not rescheduling.`);
-            return;
+            return false;
           }
           this.#cancelScheduledAlert(id);
           break;
@@ -164,7 +167,7 @@ class AlertManager {
           break;
         default:
           logger.debug(`${this.#id}: Skipping scheduling alert ${id}, already scheduled or active.`);
-          return;
+          return false;
       }
     }
 
@@ -180,6 +183,7 @@ class AlertManager {
       this.#activeAlerts.add(id);
     }, delayMs);
     this.#scheduledAlerts.set(id, { delay, expiresAt: Date.now() + delayMs, message, revalidate, timeoutId });
+    return true;
   }
 
   /**
@@ -189,23 +193,28 @@ class AlertManager {
    *
    * @param {string} id the unique identifier for the alert
    * @param {number} newDelay the new delay in minutes before the alert should become active
+   * @return {boolean} true if the delay was changed, else false
    */
   changeDelayForScheduledAlert (id, newDelay) {
     if (!this.#scheduledAlerts.has(id)) {
       logger.debug(`${this.#id}: Attempted to change delay for alert ${id}, but it was not scheduled.`);
-      return;
+      return false;
     }
     logger.debug(`${this.#id}: Changing delay for alert ${id} to ${newDelay} minutes ...`);
     const alertData = this.#scheduledAlerts.get(id);
-    if (newDelay === alertData.delay) return;
+    if (newDelay === alertData.delay) return false;
     const delay = ((alertData.expiresAt - Date.now()) / 60 / 1000) - alertData.delay + newDelay;
     this.scheduleAlert(id, alertData.message, delay, AlertManager.RESCHEDULE_MODE.RESCHEDULE, alertData.revalidate);
+    return true;
   }
 
   /**
    * Revokes an alert, no matter it has only been scheduled or already become active.
    *
+   * If no alert with the given ID is scheduled or active, do nothing.
+   *
    * @param {string} id the unique identifier of the alert
+   * @return {boolean} true if the alert was revoked, else false
    */
   revokeAlert (id) {
     if (this.#scheduledAlerts.has(id)) {
@@ -217,19 +226,25 @@ class AlertManager {
       logger.debug(`${this.#id}: Alert ${id} has been revoked from active alerts.`);
     } else {
       logger.debug(`${this.#id}: Attempted to revoke alert ${id}, but it was not found in scheduled or active alerts.`);
+      return false;
     }
+    return true;
   }
 
   /**
    * Revokes all alerts that have been scheduled or already become active.
+   *
+   * @return {number} the number of alerts that have been revoked
    */
   revokeAllAlerts () {
+    let count = 0;
     for (const id of this.#activeAlerts) {
-      this.revokeAlert(id);
+      if (this.revokeAlert(id)) count++;
     }
     for (const id of this.#scheduledAlerts.keys()) {
-      this.revokeAlert(id);
+      if (this.revokeAlert(id)) count++;
     }
+    return count;
   }
 }
 
