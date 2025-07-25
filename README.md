@@ -17,7 +17,7 @@ library](https://www.npmjs.com/package/openhab).
 
 ## Compatibility
 
-This library depends on `openhab` >= 5.7.0 (which is included since openHAB 4.3.0) and `openhab_rules_tools` >= 2.0.3.
+This library depends on `openhab` >= 5.12.0 (which is included since openHAB 5.1.0).
 
 `openhab_rules_tools` will automatically get installed by npm, `openhab` is already included with the add-on.
 Just make sure you have a compatible version installed (use `console.log(utils.OPENHAB_JS_VERSION)` to check the currently used version).
