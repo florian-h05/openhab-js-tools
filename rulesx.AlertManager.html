@@ -359,7 +359,7 @@ It allows sending alerts immediately, scheduling them for later, and revoking th
 
     
 
-    <h4 class="name" id="changeDelayForScheduledAlert"><span class="type-signature"></span>changeDelayForScheduledAlert<span class="signature">(id, newDelay)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="changeDelayForScheduledAlert"><span class="type-signature"></span>changeDelayForScheduledAlert<span class="signature">(id, newDelay)</span><span class="type-signature"> &rarr; {boolean}</span></h4>
 
     
 
@@ -376,7 +376,7 @@ It allows sending alerts immediately, scheduling them for later, and revoking th
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="rulesx_alertManager.js.html">rulesx/alertManager.js</a>, <a href="rulesx_alertManager.js.html#line193">line 193</a>
+        <a href="rulesx_alertManager.js.html">rulesx/alertManager.js</a>, <a href="rulesx_alertManager.js.html#line198">line 198</a>
     </li></ul></dd>
     
 
@@ -511,6 +511,29 @@ It allows sending alerts immediately, scheduling them for later, and revoking th
 
 
 
+<h5 class="h5-returns">Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>true if the delay was changed, else false</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">boolean</span>
+
+
+
+    </dd>
+</dl>
+
+    
 
 
 
@@ -519,7 +542,7 @@ It allows sending alerts immediately, scheduling them for later, and revoking th
 
     
 
-    <h4 class="name" id="issueAlert"><span class="type-signature"></span>issueAlert<span class="signature">(id, message, reissue<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="issueAlert"><span class="type-signature"></span>issueAlert<span class="signature">(id, message, reissue<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {boolean}</span></h4>
 
     
 
@@ -537,7 +560,7 @@ If <code>reissue</code> is set to <code>true</code>, issue the alert again.</p><
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="rulesx_alertManager.js.html">rulesx/alertManager.js</a>, <a href="rulesx_alertManager.js.html#line115">line 115</a>
+        <a href="rulesx_alertManager.js.html">rulesx/alertManager.js</a>, <a href="rulesx_alertManager.js.html#line116">line 116</a>
     </li></ul></dd>
     
 
@@ -740,6 +763,29 @@ If <code>reissue</code> is set to <code>true</code>, issue the alert again.</p><
 
 
 
+<h5 class="h5-returns">Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>true if the alert was issued, else false</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">boolean</span>
+
+
+
+    </dd>
+</dl>
+
+    
 
 
 
@@ -748,7 +794,7 @@ If <code>reissue</code> is set to <code>true</code>, issue the alert again.</p><
 
     
 
-    <h4 class="name" id="revokeAlert"><span class="type-signature"></span>revokeAlert<span class="signature">(id)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="revokeAlert"><span class="type-signature"></span>revokeAlert<span class="signature">(id)</span><span class="type-signature"> &rarr; {boolean}</span></h4>
 
     
 
@@ -758,13 +804,14 @@ If <code>reissue</code> is set to <code>true</code>, issue the alert again.</p><
 <dl class="details">
     
     <dt class="tag-description">Description:</dt>
-    <dd class="tag-description"><ul class="dummy"><li><p>Revokes an alert, no matter it has only been scheduled or already become active.</p></li></ul></dd>
+    <dd class="tag-description"><ul class="dummy"><li><p>Revokes an alert, no matter it has only been scheduled or already become active.</p>
+<p>If no alert with the given ID is scheduled or active, do nothing.</p></li></ul></dd>
     
 
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="rulesx_alertManager.js.html">rulesx/alertManager.js</a>, <a href="rulesx_alertManager.js.html#line210">line 210</a>
+        <a href="rulesx_alertManager.js.html">rulesx/alertManager.js</a>, <a href="rulesx_alertManager.js.html#line219">line 219</a>
     </li></ul></dd>
     
 
@@ -875,6 +922,29 @@ If <code>reissue</code> is set to <code>true</code>, issue the alert again.</p><
 
 
 
+<h5 class="h5-returns">Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>true if the alert was revoked, else false</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">boolean</span>
+
+
+
+    </dd>
+</dl>
+
+    
 
 
 
@@ -883,7 +953,7 @@ If <code>reissue</code> is set to <code>true</code>, issue the alert again.</p><
 
     
 
-    <h4 class="name" id="revokeAllAlerts"><span class="type-signature"></span>revokeAllAlerts<span class="signature">()</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="revokeAllAlerts"><span class="type-signature"></span>revokeAllAlerts<span class="signature">()</span><span class="type-signature"> &rarr; {number}</span></h4>
 
     
 
@@ -899,7 +969,7 @@ If <code>reissue</code> is set to <code>true</code>, issue the alert again.</p><
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="rulesx_alertManager.js.html">rulesx/alertManager.js</a>, <a href="rulesx_alertManager.js.html#line226">line 226</a>
+        <a href="rulesx_alertManager.js.html">rulesx/alertManager.js</a>, <a href="rulesx_alertManager.js.html#line239">line 239</a>
     </li></ul></dd>
     
 
@@ -960,6 +1030,29 @@ If <code>reissue</code> is set to <code>true</code>, issue the alert again.</p><
 
 
 
+<h5 class="h5-returns">Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>the number of alerts that have been revoked</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">number</span>
+
+
+
+    </dd>
+</dl>
+
+    
 
 
 
@@ -968,7 +1061,7 @@ If <code>reissue</code> is set to <code>true</code>, issue the alert again.</p><
 
     
 
-    <h4 class="name" id="scheduleAlert"><span class="type-signature"></span>scheduleAlert<span class="signature">(id, message, delay, reschedule<span class="signature-attributes">opt</span>, revalidate<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="scheduleAlert"><span class="type-signature"></span>scheduleAlert<span class="signature">(id, message, delay, reschedule<span class="signature-attributes">opt</span>, revalidate<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {boolean}</span></h4>
 
     
 
@@ -987,7 +1080,7 @@ For values of <code>reschedule</code>, see <code>#RESCHEDULE_MODE</code>.</p></l
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="rulesx_alertManager.js.html">rulesx/alertManager.js</a>, <a href="rulesx_alertManager.js.html#line150">line 150</a>
+        <a href="rulesx_alertManager.js.html">rulesx/alertManager.js</a>, <a href="rulesx_alertManager.js.html#line153">line 153</a>
     </li></ul></dd>
     
 
@@ -1240,6 +1333,29 @@ For values of <code>reschedule</code>, see <code>#RESCHEDULE_MODE</code>.</p></l
 
 
 
+<h5 class="h5-returns">Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>true if the alert was (re-)scheduled, else false</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">boolean</span>
+
+
+
+    </dd>
+</dl>
+
+    
 
 
 
@@ -1263,7 +1379,7 @@ For values of <code>reschedule</code>, see <code>#RESCHEDULE_MODE</code>.</p></l
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.2</a> on Fri Jul 25 2025 09:57:33 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.2</a> on Fri Jul 25 2025 10:15:20 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>
