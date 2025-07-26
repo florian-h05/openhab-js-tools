@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  */
 
-const { cache, items, rules, triggers, log, Quantity } = require('openhab');
+const { items, rules, triggers, log, Quantity } = require('openhab');
 
 const AlertManager = require('./alertManager');
 
@@ -61,9 +61,7 @@ function createRainAlarmRule (config) {
   if (!config.rainalarmActiveState) config.rainalarmActiveState = 'OPEN';
   if (!config.ignoreItems) config.ignoreItems = [];
 
-  const ALERT_MANAGER_CACHE_KEY = `AlertManager-rainAlarm-${config.rainalarmItemName}-${config.contactGroupName}`;
   const alertManager = new AlertManager(`rainAlarm-${config.rainalarmItemName}-${config.contactGroupName}`, config.sendAlertCallback, config.revokeAlertCallback);
-  cache.private.put(ALERT_MANAGER_CACHE_KEY, alertManager);
 
   rules.JSRule({
     name: `Rain Alarm for ${config.contactGroupName}`,
@@ -73,11 +71,6 @@ function createRainAlarmRule (config) {
       triggers.GroupStateChangeTrigger(config.contactGroupName)
     ],
     execute: (event) => {
-      /**
-       * @type {AlertManager}
-       */
-      const alertManager = cache.private.get(ALERT_MANAGER_CACHE_KEY);
-
       function evaluateWindspeedAndSendAlert (windspeed, item) {
         const messagePattern = config.contactLevelToMessagePattern?.find(pair => pair.contactLevel === (item.numericState))?.messagePattern ?? config.messagePattern;
         const message = messagePattern.replace('%LABEL', item.label || item.name);
@@ -201,9 +194,7 @@ function createTemperatureAlarmRule (config) {
   if (config.repeat === undefined) config.repeat = false;
   if (!config.ignoreItems) config.ignoreItems = [];
 
-  const ALERT_MANAGER_CACHE_KEY = `AlertManager-temperatureAlarm-${config.name}`;
   const alertManager = new AlertManager(`temperatureAlarm-${config.name}-${config.contactGroupName}`, config.sendAlertCallback, config.revokeAlertCallback);
-  cache.private.put(ALERT_MANAGER_CACHE_KEY, alertManager);
 
   rules.JSRule({
     name: `${config.name} for ${config.contactGroupName}`,
@@ -213,11 +204,6 @@ function createTemperatureAlarmRule (config) {
       triggers.GroupStateChangeTrigger(config.contactGroupName)
     ],
     execute: (event) => {
-      /**
-       * @type {AlertManager}
-       */
-      const alertManager = cache.private.get(ALERT_MANAGER_CACHE_KEY);
-
       function handleAlert (temperature, item) {
         const contactLevel = item.numericState ?? 1; // default to 1 if numericState is not available as 1 represents OPEN
         const delay = config.delayCallback(temperature, contactLevel);

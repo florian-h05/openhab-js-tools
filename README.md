@@ -85,6 +85,10 @@ See [JSDoc: GroupUtils](https://florian-h05.github.io/openhab-js-tools/itemutils
 
 ### `rulesx`
 
+This namespace provides complete rules with specific functionality such as alarm clock and open window alerting.
+It also provides the utilities it uses internally in its rules.
+The rules from this namespace are developed to be created from file-based scripts only!
+
 #### `createAlarmClock` & `createAlarmClockItems`
 
 Create an alarm clock with time and days configurable over Items, therefore compatible with Sitemaps.
