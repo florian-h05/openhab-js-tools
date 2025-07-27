@@ -212,10 +212,11 @@ Create a rule that issues alerts based on a temperature condition for open windo
 
 Similarly to the [`createRainAlarmRule](#createrainalarmrule), it handles issuing and revocation of alerts.
 It is even more configurable, with optional alerting delays, the message and additional conditions per Item being supported through the required callbacks.
+The `createTemperatureAlarmRule` function returns another function that can be used to mute alerts for specific contact Items for a given duration.
 
 ```js
 const { rulesx } = require('@hotzware/openhab-tools');
-rulesx.alerting.createTemperatureAlarmRule({
+const muteAlert = rulesx.alerting.createTemperatureAlarmRule({
   name: 'Frost Alarm',
   sendAlertCallback: (id, msg) => {
     actions.notificationBuilder(msg).withReferenceId('frostalarm-' + id).send();
@@ -247,6 +248,9 @@ rulesx.alerting.createTemperatureAlarmRule({
     return difference.greaterThanOrEqual('2 °C');
   }
 });
+
+// Mute alerts for LivingRoom_Window for 10 minutes
+muteAlert('LivingRoom_Window_Contact', 10);
 ```
 
 See [JSDoc: createTemperatureAlarmRule()](https://florian-h05.github.io/openhab-js-tools/rulesx.html#.createTemperatureAlarmRule) for full API documentation.

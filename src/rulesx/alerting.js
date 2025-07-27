@@ -35,6 +35,14 @@ const logger = log('org.openhab.automation.js.openhab-tools.rulesx.alerting');
  */
 
 /**
+ * Function to mute an alert for a specific contact Item for a certain time.
+ *
+ * @typedef {function} MuteAlertFunction
+ * @param {string} contactItemName the name of the contact Item to mute
+ * @param {number} duration the duration in minutes to mute the alert for
+ */
+
+/**
  * @typedef {Object} RainAlarmConfig configuration for rain alarm
  * @property {SendAlertCallback} sendAlertCallback callback to send an alert
  * @property {RevokeAlertCallback} revokeAlertCallback callback to revoke an alert
@@ -187,8 +195,9 @@ function createRainAlarmRule (config) {
 /**
  * Create a rule for a temperature-based alarm that monitors the temperature and raises alerts for open windows and doors when the temperatur condition callback returns true.
  *
- * @param {TemperatureAlarmConfig} config
  * @memberof rulesx
+ * @param {TemperatureAlarmConfig} config
+ * @returns {MuteAlertFunction} a method to mute alerts for a specific contact Item for a certain time
  */
 function createTemperatureAlarmRule (config) {
   if (config.repeat === undefined) config.repeat = false;
@@ -265,6 +274,10 @@ function createTemperatureAlarmRule (config) {
     id: `temperatureAlarm-${config.name}-for-${config.contactGroupName}`,
     tags: ['@hotzware/openhab-tools', 'createTemperatureAlarmRule', 'Alerting']
   });
+
+  return (contactItemName, delay) => {
+    alertManager.muteAlert(contactItemName, delay);
+  };
 }
 
 module.exports = {

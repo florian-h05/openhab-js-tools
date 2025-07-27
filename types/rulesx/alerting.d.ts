@@ -9,6 +9,10 @@ export type SendAlertCallback = (id: string, message: string) => any;
  */
 export type RevokeAlertCallback = (id: string) => any;
 /**
+ * Function to mute an alert for a specific contact Item for a certain time.
+ */
+export type MuteAlertFunction = Function;
+/**
  * configuration for rain alarm
  */
 export type RainAlarmConfig = {
@@ -143,6 +147,13 @@ export type TemperatureAlarmConfig = {
  * @param {string} id the unique identifier of the alert to be revoked
  */
 /**
+ * Function to mute an alert for a specific contact Item for a certain time.
+ *
+ * @typedef {function} MuteAlertFunction
+ * @param {string} contactItemName the name of the contact Item to mute
+ * @param {number} duration the duration in minutes to mute the alert for
+ */
+/**
  * @typedef {Object} RainAlarmConfig configuration for rain alarm
  * @property {SendAlertCallback} sendAlertCallback callback to send an alert
  * @property {RevokeAlertCallback} revokeAlertCallback callback to revoke an alert
@@ -214,8 +225,9 @@ export function createRainAlarmRule(config: RainAlarmConfig): void;
 /**
  * Create a rule for a temperature-based alarm that monitors the temperature and raises alerts for open windows and doors when the temperatur condition callback returns true.
  *
- * @param {TemperatureAlarmConfig} config
  * @memberof rulesx
+ * @param {TemperatureAlarmConfig} config
+ * @returns {MuteAlertFunction} a method to mute alerts for a specific contact Item for a certain time
  */
-export function createTemperatureAlarmRule(config: TemperatureAlarmConfig): void;
+export function createTemperatureAlarmRule(config: TemperatureAlarmConfig): MuteAlertFunction;
 //# sourceMappingURL=alerting.d.ts.map
