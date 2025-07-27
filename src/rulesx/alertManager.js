@@ -9,7 +9,7 @@
  */
 const { log } = require('openhab');
 
-const logger = log('org.openhab.automation.js.openhab-tools.rulesx.alerting.AlertManager');
+const logger = log('org.openhab.automation.js.hotzware_openhab_tools.rulesx.AlertManager');
 
 /**
  * Callback for sending an alert.

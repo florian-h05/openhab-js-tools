@@ -9,7 +9,7 @@
  */
 
 const { cache, items, log } = require('openhab');
-const logger = log('org.openhab.automation.js.openhab-tools.itemutils.dimmer');
+const logger = log('org.openhab.automation.js.hotzware_openhab_tools.itemutils.dimmer');
 
 /**
  * Dims an Item step-by-step to a target state.

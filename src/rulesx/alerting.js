@@ -12,7 +12,7 @@ const { items, rules, triggers, log, Quantity } = require('openhab');
 
 const AlertManager = require('./alertManager');
 
-const logger = log('org.openhab.automation.js.openhab-tools.rulesx.alerting');
+const logger = log('org.openhab.automation.js.hotzware_openhab_tools.rulesx.alerting');
 
 /**
  * @typedef {import("openhab/types/items/items").Item} Item
@@ -114,8 +114,9 @@ function createRainAlarmRule (config) {
           }
         } else {
           // if rain alarm is not active: revoke all alerts
-          if (alertManager.revokeAllAlerts() > 0) {
-            logger.info(`Rain alarm for ${config.contactGroupName} has become inactive, revoked all alerts.`);
+          const count = alertManager.revokeAllAlerts();
+          if (count > 0) {
+            logger.info(`Rain alarm for ${config.contactGroupName} has become inactive, revoked ${count} alerts.`);
           }
         }
       } else if (event.itemName) {
@@ -230,7 +231,7 @@ function createTemperatureAlarmRule (config) {
           }
         } else {
           if (alertManager.scheduleAlert(item.name, message, delay, config.repeat, AlertManager.RESCHEDULE_MODE.RESCHEDULE_IF_DELAY_CHANGED)) {
-            logger.info(`${config.name}: Scheduled alert for ${item.name} of ${config.contactGroupName} with delay of ${delay} minutes.`);
+            logger.info(`${config.name}: Scheduled ${config.repeat ? 'repeating ' : ''}alert for ${item.name} of ${config.contactGroupName} with delay of ${delay} minutes.`);
           }
         }
       }
@@ -250,8 +251,9 @@ function createTemperatureAlarmRule (config) {
           }
         } else {
           // if alarm is not active: revoke all alerts
-          if (alertManager.revokeAllAlerts() > 0) {
-            logger.info(`${config.name} for ${config.contactGroupName} has become inactive, revoked all alerts.`);
+          const count = alertManager.revokeAllAlerts();
+          if (count > 0) {
+            logger.info(`${config.name} for ${config.contactGroupName} has become inactive, revoked ${count} alerts.`);
           }
         }
       } else if (event.itemName) {
