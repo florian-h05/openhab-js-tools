@@ -368,11 +368,24 @@ describe('AlertManager', () => {
       alertManager.issueAlert(alertId1, message1);
       alertManager.scheduleAlert(alertId2, message2, 5);
 
-      const res = alertManager.revokeAllAlerts();
+      alertManager.revokeAllAlerts();
 
-      expect(res).toBe(2);
       expect(revokeAlertSpy).toHaveBeenCalledWith(alertId1);
       expect(revokeAlertSpy).toHaveBeenCalledWith(alertId2);
+    });
+
+    it('returns the correct number of revoker alerts', () => {
+      const revokeAlertSpy = jest.spyOn(alertManager, 'revokeAlert');
+
+      alertManager.issueAlert(alertId1, message1);
+      alertManager.scheduleAlert(alertId2, message2, 5);
+
+      let res = alertManager.revokeAllAlerts();
+
+      expect(res).toBe(2);
+      res = alertManager.revokeAllAlerts();
+      
+      expect(res).toBe(0);
     });
   });
 });
