@@ -304,11 +304,15 @@ describe('AlertManager', () => {
       jest.useFakeTimers();
 
       alertManager.scheduleAlert(alertId, message, delay);
-      const res = alertManager.revokeAlert(alertId);
+      let res = alertManager.revokeAlert(alertId);
 
       expect(res).toBe(true);
       jest.advanceTimersByTime(delay * 60 * 1000);
       expect(mockSendAlert).not.toHaveBeenCalled();
+      
+      res = alertManager.revokeAlert(alertId);
+
+      expect(res).toBe(false);
     });
 
     it('revokes a scheduled repeating alert', () => {
@@ -320,11 +324,15 @@ describe('AlertManager', () => {
       expect(mockSendAlert).toHaveBeenCalledWith(alertId, message);
       mockSendAlert.mockClear();
 
-      const res = alertManager.revokeAlert(alertId);
-      expect(res).toBe(true);
+      let res = alertManager.revokeAlert(alertId);
 
+      expect(res).toBe(true);
       jest.advanceTimersByTime(delay * 60 * 1000);
       expect(mockSendAlert).not.toHaveBeenCalled();
+
+      res = alertManager.revokeAlert(alertId);
+ 
+      expect(res).toBe(false);
     });
 
     it('revokes a scheduled alert that has already become active', () => {
@@ -334,18 +342,26 @@ describe('AlertManager', () => {
 
       jest.advanceTimersByTime((delay + 1) * 60 * 1000);
 
-      const res = alertManager.revokeAlert(alertId);
+      let res = alertManager.revokeAlert(alertId);
 
       expect(res).toBe(true);
       expect(mockRevokeAlert).toHaveBeenCalledWith(alertId);
+
+      res = alertManager.revokeAlert(alertId);
+
+      expect(res).toBe(false); 
     });
 
     it('revokes a sent alert', () => {
       alertManager.issueAlert(alertId, message);
-      const res = alertManager.revokeAlert(alertId);
+      let res = alertManager.revokeAlert(alertId);
 
       expect(res).toBe(true);
       expect(mockRevokeAlert).toHaveBeenCalledWith(alertId);
+
+      res = alertManager.revokeAlert(alertId);
+
+      expect(res).toBe(false); 
     });
 
     it('does nothing if no alert with the given ID is scheduled or active', () => {
@@ -383,6 +399,7 @@ describe('AlertManager', () => {
       let res = alertManager.revokeAllAlerts();
 
       expect(res).toBe(2);
+
       res = alertManager.revokeAllAlerts();
       
       expect(res).toBe(0);
