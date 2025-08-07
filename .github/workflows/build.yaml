@@ -70,6 +70,9 @@ jobs:
           git diff
           exit 1
 
+      - name: Pack
+        run: npm pack --pack-destination dist
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
