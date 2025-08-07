@@ -157,6 +157,7 @@ class AlertManager {
       clearTimeout(alertData.id);
       logger.debug(`${this.#id}: Cancelled scheduled alert ${id}.`);
     }
+    this.#scheduledAlerts.delete(id);
     return true;
   }
 
