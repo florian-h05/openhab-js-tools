@@ -67,6 +67,7 @@ jobs:
           CHANGED_FILES: ${{ steps.verify-changed-files.outputs.changed_files }}
         run: |
           echo "::error::Files have changed: $CHANGED_FILES"
+          git diff
           exit 1
 
       - name: Upload build artifacts
