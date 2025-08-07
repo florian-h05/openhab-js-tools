@@ -267,16 +267,20 @@ class AlertManager {
    * @param {string} id the unique identifier of the alert
    * @return {boolean} true if the alert was revoked, else false
    */
-  revokeAlert (id) { // we need both cases as separate if for already active scheduled repeating timers
+  revokeAlert (id) {
+    let revokedScheduled = false;
+    // we need both cases as separate if for already active scheduled repeating timers
     if (this.#scheduledAlerts.has(id)) {
       this.#cancelScheduledAlert(id);
-      logger.debug(`${this.#id}: Scheduled alert ${id} has been cancelled.`);
+      revokedScheduled = true;
     }
     if (this.#activeAlerts.has(id)) {
       this.#revokeAlert(id);
       this.#activeAlerts.delete(id);
-      logger.debug(`${this.#id}: Alert ${id} has been revoked from active alerts.`);
+      logger.debug(`${this.#id}: Revoked alert ${id} from active alerts.`);
+      return true;
     }
+    if (revokedScheduled) return true;
     if (!this.#scheduledAlerts.has(id) && !this.#activeAlerts.has(id)) {
       logger.debug(`${this.#id}: Attempted to revoke alert ${id}, but it was not found in scheduled or active alerts.`);
       return false;
