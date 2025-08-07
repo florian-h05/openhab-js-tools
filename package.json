@@ -1,6 +1,6 @@
 {
   "name": "@hotzware/openhab-tools",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "description": "Tools for the openHAB JavaScript Automation Add-On.",
   "keywords": [
     "openHAB",
