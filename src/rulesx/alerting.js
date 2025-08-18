@@ -211,7 +211,8 @@ function createTemperatureAlarmRule (config) {
     description: 'Monitors temperature and raises alerts for open windows & doors when the temperature is in alarm range.',
     triggers: [
       triggers.ItemStateChangeTrigger(config.temperatureItemName),
-      triggers.GroupStateChangeTrigger(config.contactGroupName)
+      triggers.GroupStateChangeTrigger(config.contactGroupName),
+      triggers.SystemStartlevelTrigger(100)
     ],
     execute: (event) => {
       function handleAlert (temperature, item) {
@@ -236,8 +237,20 @@ function createTemperatureAlarmRule (config) {
         }
       }
 
-      if (event.itemName === config.temperatureItemName) {
-        const temperature = Quantity(event.newState);
+      const isTemperatureTrigger = event.itemName === config.temperatureItemName;
+      const temperature = (isTemperatureTrigger && event.newState) ? Quantity(event.newState) : items.getItem(config.temperatureItemName).quantityState;
+
+      if (isTemperatureTrigger || !event.itemName) {
+        let oldTemperature = null;
+        try {
+          oldTemperature = Quantity(event.oldState);
+        } catch (e) {
+          // ignore
+        }
+        if (oldTemperature !== null && config.alarmConditionCallback(oldTemperature)) {
+          logger.debug(`${config.name} was already active, skipping evaluation.`);
+          return;
+        }
         if (config.alarmConditionCallback(temperature)) {
           // if alarm is active: check for open windows and doors
           logger.info(`${config.name} for ${config.contactGroupName} is now active, checking for open windows & doors.`);
@@ -258,7 +271,6 @@ function createTemperatureAlarmRule (config) {
         }
       } else if (event.itemName) {
         if (config.ignoreItems?.includes(event.itemName)) return;
-        const temperature = items.getItem(config.temperatureItemName).quantityState;
         if (!config.alarmConditionCallback(temperature)) {
           logger.debug(`${config.name} for ${config.contactGroupName} is not active, ignoring state change of item ${event.itemName}.`);
           return; // if alarm is not active, ignore state changes of contact items
