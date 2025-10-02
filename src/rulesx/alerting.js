@@ -239,6 +239,10 @@ function createTemperatureAlarmRule (config) {
 
       const isTemperatureTrigger = event.itemName === config.temperatureItemName;
       const temperature = (isTemperatureTrigger && event.newState) ? Quantity(event.newState) : items.getItem(config.temperatureItemName).quantityState;
+      if (!temperature) {
+        logger.info(`${config.name}: No temperature state available, skipping evaluation.`);
+        return;
+      }
 
       if (isTemperatureTrigger || !event.itemName) {
         let oldTemperature = null;
