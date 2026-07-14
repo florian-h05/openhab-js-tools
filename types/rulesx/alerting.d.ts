@@ -1,5 +1,3 @@
-export type Item = import("openhab/types/items/items").Item;
-export type QuantityClass = import("openhab/types/quantity").Quantity;
 /**
  * Callback for sending an alert.
  */
@@ -53,7 +51,7 @@ export type RainAlarmConfig = {
      */
     contactLevelToWindspeed?: Array<{
         contactLevel: number;
-        treshold: QuantityClass;
+        treshold: Quantity;
     }>;
     /**
      * message pattern overrides for individual contact levels, use placeholder `%LABEL` for Item label
@@ -66,20 +64,20 @@ export type RainAlarmConfig = {
 /**
  * Callback for evaluating a temperature condition.
  */
-export type TemperatureConditionCallback = (temperature: QuantityClass) => boolean;
+export type TemperatureConditionCallback = (temperature: Quantity) => boolean;
 /**
  * Callback for getting the alerting delay depending on the temperature and the contact level.
  */
-export type TemperatureDelayCallback = (temperature: QuantityClass, contactLevel: number) => number;
+export type TemperatureDelayCallback = (temperature: Quantity, contactLevel: number) => number;
 /**
  * Callback for getting the alert message pattern depending on the temperature and the contact level.
  * Use `%LABEL` as placeholder for the Item label.
  */
-export type TemperatureMessagePatternCallback = (temperature: QuantityClass, contactLevel: number) => string;
+export type TemperatureMessagePatternCallback = (temperature: Quantity, contactLevel: number) => string;
 /**
  * Callback for evaluating conditions per Item for the temperature alarm.
  */
-export type TemperaturePerItemConditionCallback = (temperature: QuantityClass, item: Item) => boolean;
+export type TemperaturePerItemConditionCallback = (temperature: Quantity, item: items.Item) => boolean;
 /**
  * configuration for heat and frost alarms
  */
@@ -130,10 +128,6 @@ export type TemperatureAlarmConfig = {
     perItemConditionCallback?: TemperaturePerItemConditionCallback;
 };
 /**
- * @typedef {import("openhab/types/items/items").Item} Item
- * @typedef {import("openhab").QuantityClass} QuantityClass
- */
-/**
  * Callback for sending an alert.
  *
  * @callback SendAlertCallback
@@ -163,7 +157,7 @@ export type TemperatureAlarmConfig = {
  * @property {string[]} [ignoreItems] list of Item names to ignore
  * @property {string} messagePattern message pattern to use for alerts, use placeholder `%LABEL` for Item label
  * @property {string} [windspeedItemName] name of the wind speed Item
- * @property {Array<{ contactLevel: number, treshold: QuantityClass }>} [contactLevelToWindspeed] wind speed threshold as Quantity for individual contact levels
+ * @property {Array<{ contactLevel: number, treshold: Quantity }>} [contactLevelToWindspeed] wind speed threshold as Quantity for individual contact levels
  * @property {Array<{ contactLevel: number, messagePattern: string }>} [contactLevelToMessagePattern] message pattern overrides for individual contact levels, use placeholder `%LABEL` for Item label
  */
 /**
@@ -180,14 +174,14 @@ export function createRainAlarmRule(config: RainAlarmConfig): void;
  * Callback for evaluating a temperature condition.
  *
  * @callback TemperatureConditionCallback
- * @param {QuantityClass} temperature the current temperature
+ * @param {Quantity} temperature the current temperature
  * @return {boolean} true if the temperature is in alarm range, false otherwise
  */
 /**
  * Callback for getting the alerting delay depending on the temperature and the contact level.
  *
  * @callback TemperatureDelayCallback
- * @param {QuantityClass} temperature the current temperature
+ * @param {Quantity} temperature the current temperature
  * @param {number} contactLevel the contact level of the Item
  * @return {number} delay in minutes
  */
@@ -196,7 +190,7 @@ export function createRainAlarmRule(config: RainAlarmConfig): void;
  * Use `%LABEL` as placeholder for the Item label.
  *
  * @callback TemperatureMessagePatternCallback
- * @param {QuantityClass} temperature the current temperature
+ * @param {Quantity} temperature the current temperature
  * @param {number} contactLevel the contact level of the Item
  * @return {string} message pattern
  */
@@ -204,8 +198,8 @@ export function createRainAlarmRule(config: RainAlarmConfig): void;
  * Callback for evaluating conditions per Item for the temperature alarm.
  *
  * @callback TemperaturePerItemConditionCallback
- * @param {QuantityClass} temperature the current temperature
- * @param {Item} item the Item to evaluate conditions for
+ * @param {Quantity} temperature the current temperature
+ * @param {items.Item} item the Item to evaluate conditions for
  * @return {boolean} true if the conditions are met for the Item, false otherwise
  */
 /**
@@ -230,4 +224,6 @@ export function createRainAlarmRule(config: RainAlarmConfig): void;
  * @returns {MuteAlertFunction} a method to mute alerts for a specific contact Item for a certain time
  */
 export function createTemperatureAlarmRule(config: TemperatureAlarmConfig): MuteAlertFunction;
+import { Quantity } from "openhab";
+import { items } from "openhab";
 //# sourceMappingURL=alerting.d.ts.map

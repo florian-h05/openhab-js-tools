@@ -11,10 +11,6 @@
 const { items } = require('openhab');
 
 /**
- * @typedef {import("openhab/types/items/items").Item} Item
- */
-
-/**
  * Group Utilities
  *
  * Provides a number of utilities for groups.
@@ -23,7 +19,7 @@ const { items } = require('openhab');
 class GroupUtils {
   /**
    * Creates an instance of groupUtils. Don't use this constructor, instead call {@link getGroup}.
-   * @param {Item} groupItem Item from 'openhab'
+   * @param {items.Item} groupItem Item from 'openhab'
    * @hideconstructor
    */
   constructor (groupItem) {
@@ -33,7 +29,7 @@ class GroupUtils {
 
   /**
    * Members / children / direct descendents of the current group Item (as returned by 'getMembers()')
-   * @type {Item[]}
+   * @type {items.Item[]}
    */
   get members () {
     return this.jsItem.members;
@@ -58,7 +54,7 @@ class GroupUtils {
   /**
    * Minimum state item of members / children / direct descendents of the current group Item (as returned by 'getMembers()')
    * Filters for items not {@link isUninitialized}.
-   * @type {Item}
+   * @type {items.Item}
    */
   get membersMin () {
     return this.members.filter(item => !item.isUninitialized).reduce((min, item) => parseFloat(item.state) < parseFloat(min.state) ? item : min);
@@ -67,7 +63,7 @@ class GroupUtils {
   /**
    * Maximum state item of members / children / direct descendents of the current group Item (as returned by 'getMembers()')
    * Filters for items not {@link isUninitialized}.
-   * @type {Item}
+   * @type {items.Item}
    */
   get membersMax () {
     return this.members.filter(item => !item.isUninitialized).reduce((min, item) => parseFloat(item.state) > parseFloat(min.state) ? item : min);
@@ -94,7 +90,7 @@ class GroupUtils {
 
   /**
    * All descendents of the current group Item (as returned by 'getAllMembers()')
-   * @type {Item[]}
+   * @type {items.Item[]}
    */
   get descendents () {
     return this.jsItem.descendents;
@@ -119,7 +115,7 @@ class GroupUtils {
   /**
    * Minimum state item of all descendents of the current group Item (as returned by 'getAllMembers()')
    * Filters for items not {@link isUninitialized}.
-   * @type {Item}
+   * @type {items.Item}
    */
   get descendentsMin () {
     return this.descendents.filter(item => !item.isUninitialized).reduce((min, item) => parseFloat(item.state) < parseFloat(min.state) ? item : min);
@@ -128,7 +124,7 @@ class GroupUtils {
   /**
    * Maximum state item of all descendents of the current group Item (as returned by 'getAllMembers()')
    * Filters for items not {@link isUninitialized}.
-   * @type {Item}
+   * @type {items.Item}
    */
   get descendentsMax () {
     return this.descendents.filter(item => !item.isUninitialized).reduce((min, item) => parseFloat(item.state) > parseFloat(min.state) ? item : min);

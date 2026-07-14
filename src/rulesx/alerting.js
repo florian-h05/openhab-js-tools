@@ -15,11 +15,6 @@ const AlertManager = require('./alertManager');
 const logger = log('org.openhab.automation.js.hotzware_openhab_tools.rulesx.alerting');
 
 /**
- * @typedef {import("openhab/types/items/items").Item} Item
- * @typedef {import("openhab").QuantityClass} QuantityClass
- */
-
-/**
  * Callback for sending an alert.
  *
  * @callback SendAlertCallback
@@ -52,7 +47,7 @@ const logger = log('org.openhab.automation.js.hotzware_openhab_tools.rulesx.aler
  * @property {string[]} [ignoreItems] list of Item names to ignore
  * @property {string} messagePattern message pattern to use for alerts, use placeholder `%LABEL` for Item label
  * @property {string} [windspeedItemName] name of the wind speed Item
- * @property {Array<{ contactLevel: number, treshold: QuantityClass }>} [contactLevelToWindspeed] wind speed threshold as Quantity for individual contact levels
+ * @property {Array<{ contactLevel: number, treshold: Quantity }>} [contactLevelToWindspeed] wind speed threshold as Quantity for individual contact levels
  * @property {Array<{ contactLevel: number, messagePattern: string }>} [contactLevelToMessagePattern] message pattern overrides for individual contact levels, use placeholder `%LABEL` for Item label
  */
 
@@ -146,7 +141,7 @@ function createRainAlarmRule (config) {
  * Callback for evaluating a temperature condition.
  *
  * @callback TemperatureConditionCallback
- * @param {QuantityClass} temperature the current temperature
+ * @param {Quantity} temperature the current temperature
  * @return {boolean} true if the temperature is in alarm range, false otherwise
  */
 
@@ -154,7 +149,7 @@ function createRainAlarmRule (config) {
  * Callback for getting the alerting delay depending on the temperature and the contact level.
  *
  * @callback TemperatureDelayCallback
- * @param {QuantityClass} temperature the current temperature
+ * @param {Quantity} temperature the current temperature
  * @param {number} contactLevel the contact level of the Item
  * @return {number} delay in minutes
  */
@@ -164,7 +159,7 @@ function createRainAlarmRule (config) {
  * Use `%LABEL` as placeholder for the Item label.
  *
  * @callback TemperatureMessagePatternCallback
- * @param {QuantityClass} temperature the current temperature
+ * @param {Quantity} temperature the current temperature
  * @param {number} contactLevel the contact level of the Item
  * @return {string} message pattern
  */
@@ -173,8 +168,8 @@ function createRainAlarmRule (config) {
  * Callback for evaluating conditions per Item for the temperature alarm.
  *
  * @callback TemperaturePerItemConditionCallback
- * @param {QuantityClass} temperature the current temperature
- * @param {Item} item the Item to evaluate conditions for
+ * @param {Quantity} temperature the current temperature
+ * @param {items.Item} item the Item to evaluate conditions for
  * @return {boolean} true if the conditions are met for the Item, false otherwise
  */
 

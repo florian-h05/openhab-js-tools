@@ -1,4 +1,3 @@
-export type Item = import("openhab/types/items/items").Item;
 /**
  * Gets an instance of groupUtils.
  * @memberof itemutils
@@ -6,9 +5,6 @@ export type Item = import("openhab/types/items/items").Item;
  * @returns {GroupUtils} {@link itemutils.GroupUtils}
  */
 export function getGroupUtils(groupName: string): GroupUtils;
-/**
- * @typedef {import("openhab/types/items/items").Item} Item
- */
 /**
  * Group Utilities
  *
@@ -18,16 +14,16 @@ export function getGroupUtils(groupName: string): GroupUtils;
 declare class GroupUtils {
     /**
      * Creates an instance of groupUtils. Don't use this constructor, instead call {@link getGroup}.
-     * @param {Item} groupItem Item from 'openhab'
+     * @param {items.Item} groupItem Item from 'openhab'
      * @hideconstructor
      */
-    constructor(groupItem: Item);
-    jsItem: import("openhab/types/items/items").Item;
+    constructor(groupItem: items.Item);
+    jsItem: any;
     /**
      * Members / children / direct descendents of the current group Item (as returned by 'getMembers()')
-     * @type {Item[]}
+     * @type {items.Item[]}
      */
-    get members(): import("openhab/types/items/items").Item[];
+    get members(): any[];
     /**
      * Names of members / children / direct descendents of the current group Item (as returned by 'getMembers()')
      * @type {string[]}
@@ -41,15 +37,15 @@ declare class GroupUtils {
     /**
      * Minimum state item of members / children / direct descendents of the current group Item (as returned by 'getMembers()')
      * Filters for items not {@link isUninitialized}.
-     * @type {Item}
+     * @type {items.Item}
      */
-    get membersMin(): import("openhab/types/items/items").Item;
+    get membersMin(): any;
     /**
      * Maximum state item of members / children / direct descendents of the current group Item (as returned by 'getMembers()')
      * Filters for items not {@link isUninitialized}.
-     * @type {Item}
+     * @type {items.Item}
      */
-    get membersMax(): import("openhab/types/items/items").Item;
+    get membersMax(): any;
     /**
      * Summarized value of members / children / direct descendents of the current group Item (as returned by 'getMembers()')
      * Filters for items of type Number, Dimmer & Rollershutter in calculation and not {@link isUninitialized}.
@@ -64,9 +60,9 @@ declare class GroupUtils {
     get membersAvg(): number;
     /**
      * All descendents of the current group Item (as returned by 'getAllMembers()')
-     * @type {Item[]}
+     * @type {items.Item[]}
      */
-    get descendents(): import("openhab/types/items/items").Item[];
+    get descendents(): any[];
     /**
      * Names of all descendents of the current group item (as returned by 'getAllMembers()'). Must be a group item.
      * @type {string[]}
@@ -80,15 +76,15 @@ declare class GroupUtils {
     /**
      * Minimum state item of all descendents of the current group Item (as returned by 'getAllMembers()')
      * Filters for items not {@link isUninitialized}.
-     * @type {Item}
+     * @type {items.Item}
      */
-    get descendentsMin(): import("openhab/types/items/items").Item;
+    get descendentsMin(): any;
     /**
      * Maximum state item of all descendents of the current group Item (as returned by 'getAllMembers()')
      * Filters for items not {@link isUninitialized}.
-     * @type {Item}
+     * @type {items.Item}
      */
-    get descendentsMax(): import("openhab/types/items/items").Item;
+    get descendentsMax(): any;
     /**
      * Summarized value of all descendents of the current group Item (as returned by 'getAllMembers()')
      * Filters for items of type Number, Dimmer & Rollershutter in calculation and not {@link isUninitialized}.
@@ -118,5 +114,6 @@ declare class GroupUtils {
      */
     descendentsCount(compareFunc: Function): number;
 }
+import { items } from "openhab";
 export {};
 //# sourceMappingURL=groups.d.ts.map
