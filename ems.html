@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>itemutils - Documentation</title>
+    <title>ems - Documentation</title>
     
     
     <script src="scripts/prettify/prettify.js"></script>
@@ -37,7 +37,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">itemutils</h1>
+    <h1 class="page-title">ems</h1>
     
 
     
@@ -67,7 +67,7 @@
 
     
 
-    <h4 class="name" id="itemutils">itemutils</h4>
+    <h4 class="name" id="ems">ems</h4>
 
     
 
@@ -77,14 +77,14 @@
 <dl class="details">
     
     <dt class="tag-description">Description:</dt>
-    <dd class="tag-description"><ul class="dummy"><li><p>Items namespace</p>
-<p>This namespace provides tools for Items.</p></li></ul></dd>
+    <dd class="tag-description"><ul class="dummy"><li><p>Energy Management System (EMS) namespace.</p>
+<p>This namespace provides functions for energy management.</p></li></ul></dd>
     
 
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="itemutils_index.js.html">itemutils/index.js</a>, <a href="itemutils_index.js.html#line1">line 1</a>
+        <a href="ems.js.html">ems.js</a>, <a href="ems.js.html#line17">line 17</a>
     </li></ul></dd>
     
 
@@ -157,13 +157,6 @@
     
 
     
-        <h3 class="subsection-title">Classes</h3>
-
-        <dl>
-            <dt><a href="itemutils.GroupUtils.html">GroupUtils</a></dt>
-            <dd></dd>
-        </dl>
-    
     
     
 
@@ -181,7 +174,7 @@
 
     
 
-    <h4 class="name" id=".dimItem"><span class="type-signature type-signature-static">(static) </span>dimItem<span class="signature">(itemName, targetState, step, time, ignoreExternalChange<span class="signature-attributes">opt</span>, overwrite<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id=".calculateOptimalChargeLimit"><span class="type-signature type-signature-static">(static) </span>calculateOptimalChargeLimit<span class="signature">(currentSoC, surplusForecast, targetSoC, targetTime, batteryCapacityKWh<span class="signature-attributes">opt</span>, includeConsumption<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Quantity|null}</span></h4>
 
     
 
@@ -191,15 +184,13 @@
 <dl class="details">
     
     <dt class="tag-description">Description:</dt>
-    <dd class="tag-description"><ul class="dummy"><li><p>Dims an Item step-by-step to a target state.</p>
-<p>Only works for Items with support for float states.
-The dimmer uses the shared cache to ensure that there are not multiple timers for the same Item active at the same time.</p></li></ul></dd>
+    <dd class="tag-description"><ul class="dummy"><li><p>Calculates the minimum charging power limit (in kW) needed to ensure the battery reaches target SoC exactly by the target time.</p></li></ul></dd>
     
 
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="itemutils_dimmer.js.html">itemutils/dimmer.js</a>, <a href="itemutils_dimmer.js.html#line34">line 34</a>
+        <a href="ems.js.html">ems.js</a>, <a href="ems.js.html#line36">line 36</a>
     </li></ul></dd>
     
 
@@ -242,12 +233,6 @@ The dimmer uses the shared cache to ensure that there are not multiple timers fo
 
 
 
-
-
-    <h5 class="h5-examples">Example</h5>
-    
-    <pre class="prettyprint"><code>// Dim the Bedroom_Light to 50% in 750 seconds (1% each 15 seconds).
-itemutils.dimItem('Bedroom_Light', 50.0, 1, 15 * 1000);</code></pre>
 
 
 
@@ -281,43 +266,7 @@ itemutils.dimItem('Bedroom_Light', 50.0, 1, 15 * 1000);</code></pre>
 
         <tr>
             
-                <td class="name"><code>itemName</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                </td>
-            
-
-            <td class="description last"><p>name of the Item to control</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>targetState</code></td>
+                <td class="name"><code>currentSoC</code></td>
             
 
             <td class="type">
@@ -346,14 +295,50 @@ itemutils.dimItem('Bedroom_Light', 50.0, 1, 15 * 1000);</code></pre>
                 </td>
             
 
-            <td class="description last"><p>float number to dim to</p></td>
+            <td class="description last"><p>Current State of Charge in percentage (0 - 100)</p></td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>step</code></td>
+                <td class="name"><code>surplusForecast</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array:<a href="rulesx.AlertManager.html"></a>.&lt;items.PersistedItem:<a href="rulesx.AlertManager.html"></a>></span>
+
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last"><p>Array of forecasted surplus power (Solar - Consumption) in kW</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>targetSoC</code></td>
             
 
             <td class="type">
@@ -379,23 +364,25 @@ itemutils.dimItem('Bedroom_Light', 50.0, 1, 15 * 1000);</code></pre>
             
                 <td class="default">
                 
+                    <code>100</code>
+                
                 </td>
             
 
-            <td class="description last"><p>dimming step size</p></td>
+            <td class="description last"><p>Target State of Charge in percentage (0 - 100)</p></td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>time</code></td>
+                <td class="name"><code>targetTime</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">number</span>
+<span class="param-type">time.ZonedDateTime</span>
 
 
 
@@ -418,14 +405,54 @@ itemutils.dimItem('Bedroom_Light', 50.0, 1, 15 * 1000);</code></pre>
                 </td>
             
 
-            <td class="description last"><p>time in milliseconds between each step</p></td>
+            <td class="description last"><p>Target time to reach the target SoC</p></td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>ignoreExternalChange</code></td>
+                <td class="name"><code>batteryCapacityKWh</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>10.2</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>Total capacity of the battery in kWh</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>includeConsumption</code></td>
             
 
             <td class="type">
@@ -458,212 +485,7 @@ itemutils.dimItem('Bedroom_Light', 50.0, 1, 15 * 1000);</code></pre>
                 </td>
             
 
-            <td class="description last"><p>whether to break dimmer if Item receives a large external change</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>overwrite</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">boolean</span>
-
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                    <code>false</code>
-                
-                </td>
-            
-
-            <td class="description last"><p>whether to cancel an existing dimmer and create a new one</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5 class="h5-throws">Throws:</h5>
-
-        
-
-<dl>
-    <dt>
-        <div class="param-desc usertext">
-        <p>when a parameter has wrong type</p>
-        </div>
-    </dt>
-    <dd></dd>
-    <dt>
-        <dl class="param-type">
-            <dt>
-                Type
-            </dt>
-            <dd>
-                
-<span class="param-type">TypeError</span>
-
-
-
-            </dd>
-        </dl>
-    </dt>
-    <dd></dd>
-</dl>
-
-
-    
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id=".getGroupUtils"><span class="type-signature type-signature-static">(static) </span>getGroupUtils<span class="signature">(groupName)</span><span class="type-signature"> &rarr; {GroupUtils}</span></h4>
-
-    
-
-
-
-
-<dl class="details">
-    
-    <dt class="tag-description">Description:</dt>
-    <dd class="tag-description"><ul class="dummy"><li><p>Gets an instance of groupUtils.</p></li></ul></dd>
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="itemutils_groups.js.html">itemutils/groups.js</a>, <a href="itemutils_groups.js.html#line183">line 183</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-    <h5 class="h5-parameters">Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>groupName</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>the name of the group</p></td>
+            <td class="description last"><p>If true, negative surplus (house consumption) reduces the available energy for charging.</p></td>
         </tr>
 
     
@@ -689,7 +511,7 @@ itemutils.dimItem('Bedroom_Light', 50.0, 1, 15 * 1000);</code></pre>
 
         
 <div class="param-desc">
-    <p><a href="itemutils.GroupUtils.html"><code>itemutils.GroupUtils</code></a></p>
+    <p>The calculated charging power limit</p>
 </div>
 
 
@@ -700,7 +522,10 @@ itemutils.dimItem('Bedroom_Light', 50.0, 1, 15 * 1000);</code></pre>
     </dt>
     <dd>
         
-<span class="param-type">GroupUtils</span>
+<span class="param-type">Quantity</span>
+|
+
+<span class="param-type">null</span>
 
 
 

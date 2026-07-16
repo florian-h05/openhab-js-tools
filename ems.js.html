@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>itemutils/dimmer.js - Documentation</title>
+    <title>ems.js - Documentation</title>
     
     
     <script src="scripts/prettify/prettify.js"></script>
@@ -37,7 +37,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">itemutils/dimmer.js</h1>
+    <h1 class="page-title">ems.js</h1>
     
 
     
@@ -48,7 +48,7 @@
     <section>
         <article>
             <pre class="prettyprint source linenums"><code>/**
- * Copyright (c) 2022 Florian Hotze
+ * Copyright (c) 2026 Florian Hotze
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -57,99 +57,133 @@
  * SPDX-License-Identifier: EPL-2.0
  */
 
-const { cache, items, log } = require('openhab');
-const logger = log('org.openhab.automation.js.hotzware_openhab_tools.itemutils.dimmer');
+const { time, log, Quantity } = require('openhab');
+
+const logger = log('org.openhab.automation.js.hotzware_openhab_tools.ems');
+
+const dtFormatter = time.DateTimeFormatter.ISO_TIME;
 
 /**
- * Dims an Item step-by-step to a target state.
+ * Energy Management System (EMS) namespace.
  *
- * Only works for Items with support for float states.
- * The dimmer uses the shared cache to ensure that there are not multiple timers for the same Item active at the same time.
- *
- * @example
- * // Dim the Bedroom_Light to 50% in 750 seconds (1% each 15 seconds).
- * itemutils.dimItem('Bedroom_Light', 50.0, 1, 15 * 1000);
- *
- * @memberof itemutils
- * @param {string} itemName name of the Item to control
- * @param {number} targetState float number to dim to
- * @param {number} step dimming step size
- * @param {number} time time in milliseconds between each step
- * @param {boolean} [ignoreExternalChange=false] whether to break dimmer if Item receives a large external change
- * @param {boolean} [overwrite=false] whether to cancel an existing dimmer and create a new one
- * @throws {TypeError} when a parameter has wrong type
- *
+ * This namespace provides functions for energy management.
+ * @namespace ems
  */
-function dimItem (itemName, targetState, step, time, ignoreExternalChange = false, overwrite = false) {
-  // Get Item and check parameters.
-  const item = items.getItem(itemName);
-  // @ts-ignore
-  if (typeof targetState !== 'number') throw TypeError('targetState must be a number!');
-  if (typeof step !== 'number') throw TypeError('step must be a number!');
-  if (typeof time !== 'number') throw TypeError('time must be a number!');
 
-  const CACHE_KEY = 'hotzware_openhab-js-tools_dimmer-for-' + itemName;
+/**
+ * Calculates the minimum charging power limit (in kW) needed to ensure the battery reaches target SoC exactly by the target time.
+ *
+ * @memberOf ems
+ * @param {number} currentSoC Current State of Charge in percentage (0 - 100)
+ * @param {items.PersistedItem[]} surplusForecast Array of forecasted surplus power (Solar - Consumption) in kW
+ * @param {number} targetSoC Target State of Charge in percentage (0 - 100)
+ * @param {time.ZonedDateTime} targetTime Target time to reach the target SoC
+ * @param {number} [batteryCapacityKWh=10.2] Total capacity of the battery in kWh
+ * @param {boolean} [includeConsumption=false] If true, negative surplus (house consumption) reduces the available energy for charging.
+ * @returns {Quantity|null} The calculated charging power limit
+ */
+function calculateOptimalChargeLimit (
+  currentSoC,
+  surplusForecast,
+  targetSoC = 100,
+  targetTime,
+  batteryCapacityKWh = 10.2,
+  includeConsumption = false
+) {
+  // Calculate the energy needed to reach target SoC
+  const energyNeededKWh = batteryCapacityKWh * (1 - currentSoC / targetSoC);
+  logger.debug(`calculateOptimalChargeLimit: need ${energyNeededKWh} kWh to reach ${targetSoC}% SoC until ${dtFormatter.format(targetTime)}`);
 
-  // If targetState already met, do not create a dimmer.
-  if (items.getItem(itemName).numericState === targetState) {
-    logger.debug(`${itemName} already has targetState ${targetState}, skipping.`);
-    return;
+  if (energyNeededKWh &lt;= 0) {
+    logger.info('calculateOptimalChargeLimit: energy needed is &lt;= 0 kWh');
+    return null;
   }
 
-  // If targetState not met, create dimmer.
-  // If dimmer for itemName already exists, do not create new one.
-  const intervalIdFromCache = cache.shared.get(CACHE_KEY);
-  if (intervalIdFromCache !== null) {
-    if (overwrite) {
-      clearInterval(intervalIdFromCache);
-      cache.shared.put(CACHE_KEY, null);
-      logger.info(`Dimmer for Item ${itemName} already exists, overwriting.`);
-    } else {
-      logger.info(`Dimmer for Item ${itemName} already exists, skipping.`);
-      return;
-    }
+  // Define the time window
+  const now = time.toInstant();
+  const targetInstant = targetTime.toInstant();
+  if (now.isAfter(targetInstant)) {
+    logger.warn(`calculateOptimalChargeLimit: target time ${targetTime} is in the past`);
+    return null;
   }
 
-  // Initialize and create dimmer.
-  logger.info(`Dimming Item ${itemName} to ${targetState} ...`);
-  let calculatedState = items.getItem(itemName).numericState;
-  const intervalId = setInterval(() => {
-    /**
-     * Cancels the dimmer and removes the intervalId from the cache.
-     * @param {string} msg message to log
-     */
-    function breakDimmer (msg) {
-      logger.info(`Dimmer for Item ${itemName} ${msg}`);
-      clearInterval(intervalId);
-      cache.shared.put(CACHE_KEY, null);
-    }
-    // Cancel when targetState is reached.
-    // Workaround for an issue where the target state is never exactly met because the step size is too large and therefore the dimmer never ends.
-    if (Math.abs(calculatedState - targetState) &lt; step) {
-      item.sendCommand(targetState.toString()); // Ensure the target state is met
-      logger.trace(`Dimmer for ${itemName}: Sending command ${targetState}.`);
-      breakDimmer('reached target state.');
-      return;
-    }
-    // Item receives large external change or state update on Item is really slow.
-    const realState = items.getItem(itemName).numericState;
-    if (Math.abs(realState - calculatedState) > 2) {
-      logger.debug(`Dimmer ${itemName}: Difference between real state ${realState} and calculated state ${calculatedState} is large. External item change happened or state update is slow.`);
-      if (!ignoreExternalChange) {
-        breakDimmer('cancelled due to external change.');
-        return;
+  // Automatically determine the resolution (in hours) from the forecast data
+  let intervalHours = null;
+  if (surplusForecast.length >= 2) {
+    const timeDiffMs = surplusForecast[1].instant.toEpochMilli() - surplusForecast[0].instant.toEpochMilli();
+    intervalHours = timeDiffMs / (1000 * 60 * 60); // Convert milliseconds to hours
+  }
+  if (intervalHours === null) {
+    logger.warn('calculateOptimalChargeLimit: no forecast data available');
+    return null;
+  }
+  logger.debug(`calculateOptimalChargeLimit: surplus forecast resolution = ${intervalHours}`);
+
+  // Filter the forecast for the relevant window and extract the numeric power
+  const availablePowerKW = surplusForecast
+    .filter(item => item.instant.isAfter(now) &amp;&amp; item.instant.isBefore(targetInstant))
+    .map(item => {
+      let power;
+      if (item.quantityState) {
+        // Automatically handles W to kW conversion if needed
+        power = item.quantityState.toUnit('kW').float;
+      } else if (item.numericState !== null) {
+        // Fallback for Number items without dimensions
+        power = item.numericState;
       }
+
+      if (!includeConsumption) {
+        // Ignore battery drain caused by consumption
+        return Math.max(0, power);
+      }
+      // Include consumption from the battery caused by missing surplus power
+      return power;
+    });
+
+  if (availablePowerKW.length === 0) {
+    logger.warn(`calculateOptimalChargeLimit: no surplus forecast available for timeframe ${dtFormatter.format(now)} - ${dtFormatter.format(targetInstant)}`);
+    return null;
+  }
+
+  // Check if a full charge is even possible without any limits
+  const maxPossibleEnergyKWh = availablePowerKW.reduce(
+    (sum, power) => sum + power * intervalHours,
+    0
+  );
+
+  if (maxPossibleEnergyKWh &lt;= energyNeededKWh) {
+    logger.info(`calculateOptimalChargeLimit: max possible energy ${maxPossibleEnergyKWh} kWh &lt;= needed ${energyNeededKWh} kWh`);
+    return null;
+  }
+
+  // Binary Search to find the exact P_limit
+  let low = 0;
+  let high = Math.max(...availablePowerKW);
+  const precisionEpsilon = 0.01; // 10 Watt precision
+
+  while (high - low > precisionEpsilon) {
+    const mid = (low + high) / 2; // Test limit
+
+    // Calculate how much energy we would store with this tested limit
+    const energyWithLimit = availablePowerKW.reduce((sum, available) => {
+      return sum + Math.min(available, mid) * intervalHours;
+    }, 0);
+
+    if (energyWithLimit >= energyNeededKWh) {
+      // We reached the target. See if we can do it with an even lower limit.
+      high = mid;
+    } else {
+      // We fell short. We need a higher charging power limit.
+      low = mid;
     }
-    // Dim to target state.
-    calculatedState = calculatedState > targetState ? calculatedState - step : (calculatedState &lt; targetState ? calculatedState + step : calculatedState);
-    logger.trace(`Dimmer for ${itemName}: Sending command ${calculatedState}.`);
-    item.sendCommand(calculatedState.toString());
-  }, time);
-  cache.shared.put(CACHE_KEY, intervalId);
+  }
+
+  // Return the upper bound to ensure we strictly meet or barely exceed the required energy
+  return Quantity(Number(high.toFixed(2)) + ' kW');
 }
 
 module.exports = {
-  dimItem
+  calculateOptimalChargeLimit
 };
 </code></pre>
         </article>
