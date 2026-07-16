@@ -7,5 +7,18 @@ const mockLogger = {
 };
 
 module.exports = {
-  log: jest.fn(() => mockLogger)
+  log: jest.fn(() => mockLogger),
+  Quantity: jest.fn((val) => ({
+    toString: () => val,
+    value: val
+  })),
+  time: {
+    DateTimeFormatter: {
+      ISO_TIME: {
+        format: jest.fn((t) => (t && typeof t.toString === 'function' ? t.toString() : String(t)))
+      }
+    },
+    toZDT: jest.fn(),
+    toInstant: jest.fn()
+  }
 };
