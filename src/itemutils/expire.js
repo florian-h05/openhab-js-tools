@@ -11,9 +11,9 @@
 const { cache, items, rules, triggers } = require('openhab');
 
 /**
- * Creates a universal expire rule with a second-accurate countdown.
+ * Builds rule config for a universal expire rule with a second-accurate countdown.
  *
- * @memberof itemutils
+ * @private
  * @param {Object} config Configuration object
  * @param {string} config.itemName The item to monitor (e.g., Switch, Dimmer, etc.)
  * @param {time.Duration} config.delay Delay to wait before the timer expires and the specified action is performed
@@ -24,7 +24,7 @@ const { cache, items, rules, triggers } = require('openhab');
  * @param {string} [config.countdownItemName] The optional {@code Number:Time} item for the remaining countdown in seconds
  * @throws {TypeError} when {@code config} is invalid
  */
-function createExpireCountdownRule (config) {
+function _buildExpireCountdownRuleConfig (config) {
   const {
     itemName,
     delay,
@@ -34,6 +34,10 @@ function createExpireCountdownRule (config) {
     ignoreCommands = false,
     countdownItemName
   } = config;
+
+  if (typeof itemName !== 'string') throw new TypeError('`itemName` must be a string');
+  if (typeof delay !== 'object') throw new TypeError('`delay` must be a time.Duration');
+  if (typeof targetState !== 'string') throw new TypeError('`targetState` must be a string');
 
   const delaySeconds = delay.seconds();
   const delayMillis = delay.toMillis();
@@ -56,12 +60,12 @@ function createExpireCountdownRule (config) {
     cache.shared.remove(cacheKey);
   };
 
-  rules.JSRule({
+  return {
     name: `Universal Expire Countdown for ${itemName}`,
     description: `${countdownItemName ? 'Sends countdown to ' + countdownItemName + ' and p' : 'P'}erforms ${action} after ${delaySeconds}s`,
     triggers: ruleTriggers,
     execute: (event) => {
-      const eventValue = event.receivedCommand ?? event.receivedCommand;
+      const eventValue = event.receivedCommand ?? event.receivedState;
 
       if (eventValue === targetState) {
         // If the item assumes the target state/command, cancel the timer
@@ -105,9 +109,29 @@ function createExpireCountdownRule (config) {
         cache.shared.put(cacheKey, { interval, timeout });
       }
     }
-  });
+  };
+}
+
+/**
+ * Creates a universal expire rule with a second-accurate countdown.
+ *
+ * @memberof itemutils
+ * @param {Object} config Configuration object
+ * @param {string} config.itemName The item to monitor (e.g., Switch, Dimmer, etc.)
+ * @param {time.Duration} config.delay Delay to wait before the timer expires and the specified action is performed
+ * @param {'STATE'|'COMMAND'} [config.action='COMMAND'] The action to be performed when the timer expires
+ * @param {string} config.targetState The state or command to be sent to the item when the timer expires
+ * @param {boolean} [config.ignoreStateUpdates=false] Whether to ignore state updates and don't reset the timer
+ * @param {boolean} [config.ignoreCommands=false] Whether to ignore commands and don't reset the timer
+ * @param {string} [config.countdownItemName] The optional {@code Number:Time} item for the remaining countdown in seconds
+ * @throws {TypeError} when {@code config} is invalid
+ */
+function createExpireCountdownRule (config) {
+  const ruleConfig = _buildExpireCountdownRuleConfig(config);
+  rules.JSRule(ruleConfig);
 }
 
 module.exports = {
-  createExpireCountdownRule
+  createExpireCountdownRule,
+  _buildExpireCountdownRuleConfig
 };
