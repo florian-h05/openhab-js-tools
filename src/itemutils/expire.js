@@ -81,7 +81,7 @@ function _buildExpireCountdownRuleConfig (config) {
         const countdownItem = items.getItem(countdownItemName, true);
         if (countdownItem) {
           let remainingSeconds = delaySeconds;
-          countdownItem.postUpdate(remainingSeconds);
+          countdownItem.postUpdate(remainingSeconds + ' s');
           // Decrement and send the countdown every second
           interval = setInterval(() => {
             remainingSeconds--;
@@ -100,7 +100,7 @@ function _buildExpireCountdownRuleConfig (config) {
             items.getItem(itemName).sendCommand(targetState);
           }
           if (countdownItemName) {
-            items.getItem(countdownItemName).sendCommand(0);
+            items.getItem(countdownItemName).postUpdate('0 s');
           }
           cache.shared.remove(cacheKey);
         }, delayMillis);
