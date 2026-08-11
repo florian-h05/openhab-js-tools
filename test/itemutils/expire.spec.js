@@ -30,6 +30,10 @@ describe('_buildExpireCountdownRuleConfig', () => {
       return mockItem;
     });
 
+    // Reset mockItem methods
+    mockItem.postUpdate.mockReset();
+    mockItem.sendCommand.mockReset();
+
     jest.useFakeTimers();
     jest.spyOn(global, 'clearInterval');
     jest.spyOn(global, 'clearTimeout');
