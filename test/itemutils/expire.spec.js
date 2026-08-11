@@ -219,7 +219,7 @@ describe('_buildExpireCountdownRuleConfig', () => {
 
         expect(openhab.cache.shared.put).toHaveBeenCalledWith('expire_timer_TestItem', {
           interval: null,
-          timeout: expect.any(number)
+          timeout: expect.any(Object)
         });
 
         jest.advanceTimersByTime(10000);
