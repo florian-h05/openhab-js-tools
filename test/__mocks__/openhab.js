@@ -20,5 +20,19 @@ module.exports = {
     },
     toZDT: jest.fn(),
     toInstant: jest.fn()
+  },
+  cache: {
+    shared: {
+      get: jest.fn(),
+      put: jest.fn(),
+      remove: jest.fn()
+    }
+  },
+  items: {
+    getItem: jest.fn()
+  },
+  triggers: {
+    ItemCommandTrigger: jest.fn(itemName => ({ type: 'ItemCommandTrigger', itemName })),
+    ItemStateUpdateTrigger: jest.fn(itemName => ({ type: 'ItemStateUpdateTrigger', itemName }))
   }
 };
