@@ -127,6 +127,9 @@ function _buildExpireCountdownRuleConfig (config) {
  * @throws {TypeError} when {@code config} is invalid
  */
 function createExpireCountdownRule (config) {
+  const countdownItem = items.getItem(config.countdownItemName, true);
+  if (countdownItem !== null) countdownItem.postUpdate('0 s'); 
+
   const ruleConfig = _buildExpireCountdownRuleConfig(config);
   rules.JSRule(ruleConfig);
 }
