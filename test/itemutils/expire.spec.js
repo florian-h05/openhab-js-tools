@@ -186,7 +186,7 @@ describe('_buildExpireCountdownRuleConfig', () => {
         jest.advanceTimersByTime(10000);
 
         expect(mockItem.sendCommand).toHaveBeenNthCalledWith(1, 'OFF');
-        expect(mockItem.postUpdate).toHaveBeenNthCalledWith(1, '0 s');
+        expect(mockItem.postUpdate).toHaveBeenLastCalledWith('0 s');
         expect(openhab.cache.shared.remove).toHaveBeenCalledWith('expire_timer_TestItem');
       });
 
