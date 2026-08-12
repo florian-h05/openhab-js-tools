@@ -27,16 +27,16 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up NodeJS
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
 
       - name: Cache node modules
         id: cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: node_modules # npm cache files are stored in `~/.npm` on Linux/macOS
           key: ${{ runner.os }}-node_modules-${{ hashFiles('**/package.json', '**/package-lock.json') }}
@@ -74,7 +74,7 @@ jobs:
         run: npm pack --pack-destination dist
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: dist-without-license
           path: |
@@ -82,7 +82,7 @@ jobs:
             !dist/*.txt
 
       - name: Upload test coverage report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: test-coverage
           path: |
@@ -117,10 +117,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
           registry-url: "https://registry.npmjs.org"
