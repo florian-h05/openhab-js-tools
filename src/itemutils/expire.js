@@ -128,7 +128,7 @@ function _buildExpireCountdownRuleConfig (config) {
  */
 function createExpireCountdownRule (config) {
   const countdownItem = items.getItem(config.countdownItemName, true);
-  if (countdownItem !== null) countdownItem.postUpdate('0 s'); 
+  if (countdownItem !== null) countdownItem.postUpdate('0 s');
 
   const ruleConfig = _buildExpireCountdownRuleConfig(config);
   rules.JSRule(ruleConfig);
