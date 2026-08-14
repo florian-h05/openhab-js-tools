@@ -9,6 +9,7 @@
  */
 
 const { actions, items, rules, triggers } = require('openhab');
+const constants = require('../constants');
 // @ts-ignore
 const HSBType = Java.type('org.openhab.core.library.types.HSBType'); // eslint-disable-line no-unused-vars
 
@@ -407,8 +408,8 @@ class MlscRestClient {
           this.#updateState();
         }
       },
-      id: `mlsc-rest-client-for-${this.#config.dimmerItemName || this.#config.effectItemName}`,
-      tags: ['@hotzware/openhab-tools', 'MlscRestClient', 'music_led_strip_control']
+      id: `mlsc-rest-client-for-${this.#config.effectItemName}`.replace(/[:_]/g, '-').toLowerCase(),
+      tags: [constants.RULE_TAG, 'MlscRestClient', 'music_led_strip_control']
     };
     // Add colorItem as trigger (if defined)
     if (this.#config.colorItemName) ruleConfig.triggers.push(triggers.ItemCommandTrigger(this.#config.colorItemName));

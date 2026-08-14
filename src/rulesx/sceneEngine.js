@@ -8,6 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  */
 const { items, rules, triggers } = require('openhab');
+const constants = require('../constants');
 
 /**
  * Scene Engine
@@ -177,8 +178,8 @@ class SceneEngine {
           this.checkScene();
         }
       },
-      id: `sceneEngine-for-${this.controller}`,
-      tags: ['@hotzware/openhab-tools', 'createSceneEngine']
+      id: `scene-engine-for-${this.controller}`.replace(/[:_]/g, '-').toLowerCase(),
+      tags: [constants.RULE_TAG, 'createSceneEngine']
     });
   }
 }

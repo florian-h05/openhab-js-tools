@@ -9,6 +9,7 @@
  */
 
 const { cache, items, rules, triggers } = require('openhab');
+const constants = require('../constants');
 
 /**
  * Builds rule config for a universal expire rule with a second-accurate countdown.
@@ -108,7 +109,9 @@ function _buildExpireCountdownRuleConfig (config) {
         // Store references in the shared cache
         cache.shared.put(cacheKey, { interval, timeout });
       }
-    }
+    },
+    id: `expire-countdown-rule-for-${config.itemName}`.replace(/[:_]/g, '-').toLowerCase(),
+    tags: [constants.RULE_TAG, 'createExpireCountdownRule']
   };
 }
 

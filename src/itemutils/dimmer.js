@@ -9,7 +9,9 @@
  */
 
 const { cache, items, log } = require('openhab');
-const logger = log('org.openhab.automation.js.hotzware_openhab_tools.itemutils.dimmer');
+const constants = require('../constants');
+
+const logger = log(`${constants.LOGGER_PREFIX}.itemutils.dimmer`);
 
 /**
  * Dims an Item step-by-step to a target state.
