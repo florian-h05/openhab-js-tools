@@ -9,6 +9,7 @@
  */
 
 const { actions, cache, items, rules, things, triggers } = require('openhab');
+const constants = require('../constants');
 
 /**
  * Get a Thing's UID from Item name by replacing patterns with replacements.
@@ -95,8 +96,8 @@ function createThingStatusToItemRule (groupName, patterns, replacements) {
         items.getItem(members[i]).postUpdate(thingStatus);
       }
     },
-    id: 'thing-status-to-items-of-group-' + groupName,
-    tags: ['@hotzware/openhab-tools', 'createThingStatusToItemRule']
+    id: ('thing-status-to-items-of-group-' + groupName).replace(/[:_]/g, '-').toLowerCase(),
+    tags: [constants.RULE_TAG, 'createThingStatusToItemRule']
   });
 }
 
@@ -170,8 +171,8 @@ function createThingStatusNotificationRule (thingUID, recipients = [], offlineDu
         }, onlineDuration * 1000);
       }
     },
-    id: 'thing-status-notification-' + thingUID,
-    tags: ['@hotzware/openhab-tools', 'createThingStatusNotificationRule']
+    id: ('thing-status-notification-' + thingUID).replace(/[:_]/g, '-').toLowerCase(),
+    tags: [constants.RULE_TAG, 'createThingStatusNotificationRule']
   });
 }
 
@@ -192,8 +193,8 @@ function createReEnableThingWithItemRule (itemName, thingUID) {
       // Set command Item to OFF.
       items.getItem(itemName).postUpdate('OFF');
     },
-    id: 're-enable-' + thingUID + '-with-' + itemName,
-    tags: ['@hotzware/openhab-tools', 'createReEnableThingWithItemRule']
+    id: ('re-enable-' + thingUID + '-with-' + itemName).replace(/[:_]/g, '-').toLowerCase(),
+    tags: [constants.RULE_TAG, 'createReEnableThingWithItemRule']
   });
 }
 

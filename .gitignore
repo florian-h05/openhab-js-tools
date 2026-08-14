@@ -5,3 +5,4 @@ docs
 node_modules
 test/coverage
 hotzware-openhab-tools-*.tgz
+types/constants.d.ts*

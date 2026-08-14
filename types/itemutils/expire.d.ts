@@ -48,5 +48,7 @@ export function _buildExpireCountdownRuleConfig(config: {
     description: string;
     triggers: object[];
     execute: (event: any) => void;
+    id: string;
+    tags: string[];
 };
 //# sourceMappingURL=expire.d.ts.map

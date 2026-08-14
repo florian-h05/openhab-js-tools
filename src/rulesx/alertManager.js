@@ -8,8 +8,9 @@
  * SPDX-License-Identifier: EPL-2.0
  */
 const { log } = require('openhab');
+const constants = require('../constants');
 
-const logger = log('org.openhab.automation.js.hotzware_openhab_tools.rulesx.AlertManager');
+const logger = log(`${constants.LOGGER_PREFIX}.rulesx.AlertManager`);
 
 /**
  * Callback for sending an alert.

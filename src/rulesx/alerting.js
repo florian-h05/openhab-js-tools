@@ -9,10 +9,11 @@
  */
 
 const { items, rules, triggers, log, Quantity } = require('openhab');
+const constants = require('../constants');
 
 const AlertManager = require('./alertManager');
 
-const logger = log('org.openhab.automation.js.hotzware_openhab_tools.rulesx.alerting');
+const logger = log(`${constants.LOGGER_PREFIX}.rulesx.alerting`);
 
 /**
  * Callback for sending an alert.
@@ -132,8 +133,8 @@ function createRainAlarmRule (config) {
         }
       }
     },
-    id: `rainalarm-for-${config.contactGroupName}`,
-    tags: ['@hotzware/openhab-tools', 'createRainAlarmRule', 'Alerting']
+    id: `rain-alarm-for-${config.contactGroupName}`.replace(/[:_]/g, '-').toLowerCase(),
+    tags: [constants.RULE_TAG, 'createRainAlarmRule', 'Alerting']
   });
 }
 
@@ -284,8 +285,8 @@ function createTemperatureAlarmRule (config) {
         }
       }
     },
-    id: `temperatureAlarm-${config.name}-for-${config.contactGroupName}`,
-    tags: ['@hotzware/openhab-tools', 'createTemperatureAlarmRule', 'Alerting']
+    id: `temperature-alarm-${config.name}-for-${config.contactGroupName}`.replace(/[:_]/g, '-').toLowerCase(),
+    tags: [constants.RULE_TAG, 'createTemperatureAlarmRule', 'Alerting']
   });
 
   return (contactItemName, delay) => {

@@ -9,6 +9,7 @@
  */
 
 const { items, rules, triggers } = require('openhab');
+const constants = require('../constants');
 
 /**
  * Provides the alarm clock rule with QUARTZ cron trigger.
@@ -65,8 +66,8 @@ function _createClockRule (switchItem, alarmFunc) {
     description: 'The Alarm Clock itself, created by the manager rule.',
     triggers: [triggers.GenericCronTrigger(quartz)],
     execute: alarmFunc,
-    id: 'alarmClock-for-' + switchItem,
-    tags: ['@hotzware/openhab-tools', 'createAlarmClock', 'Schedule'],
+    id: ('alarm-clock-for-' + switchItem).replace(/[:_]/g, '-').toLowerCase(),
+    tags: [constants.RULE_TAG, 'createAlarmClock', 'Schedule'],
     overwrite: true
   });
 }
@@ -100,11 +101,11 @@ function createAlarmClock (switchItem, alarmFunc) {
       triggers.ItemStateChangeTrigger(switchItem + '_SUN')
     ],
     execute: (event) => {
-      rules.removeRule('alarmClock-for-' + switchItem);
+      rules.removeRule(('alarm-clock-for-' + switchItem).replace(/[:_]/g, '-').toLowerCase());
       _createClockRule(switchItem, alarmFunc);
     },
-    id: 'alarmClock-manager-for-' + switchItem,
-    tags: ['@hotzware/openhab-tools', 'createAlarmClock']
+    id: ('alarm-clock-manager-for-' + switchItem).replace(/[:_]/g, '-').toLowerCase(),
+    tags: [constants.RULE_TAG, 'createAlarmClock']
   });
   _createClockRule(switchItem, alarmFunc);
 }

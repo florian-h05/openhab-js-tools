@@ -9,8 +9,9 @@
  */
 
 const { time, log, Quantity } = require('openhab');
+const constants = require('./constants');
 
-const logger = log('org.openhab.automation.js.hotzware_openhab_tools.ems');
+const logger = log(`${constants.LOGGER_PREFIX}.ems`);
 
 const dtFormatter = time.DateTimeFormatter.ISO_TIME;
 
